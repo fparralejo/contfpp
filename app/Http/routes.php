@@ -20,6 +20,19 @@ Route::post('login', 'adminController@login');
 Route::get('logout', 'adminController@logout');
 Route::get('main', 'adminController@main');
 
+//configuracion
+Route::get('mis_datos', 'configController@main');
+Route::post('mis_datos', 'configController@create_edit');
+
+
+
+//clientes
+Route::get('clientes', 'clientesController@main');
+Route::post('clientes', 'clientesController@createEdit');
+Route::get('cliente/show', 'clientesController@clienteShow');
+Route::get('cliente/delete', 'clientesController@clienteDelete');
+
+
 
 
 /*

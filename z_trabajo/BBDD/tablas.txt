@@ -1,0 +1,21 @@
+
+
+
+
+
+
+
+
+clientes
+-nombre:varchar(50) obligatorio
+-apellidos:varchar(150)
+-telefono:varchar(15)
+-mail:varchar(100)
+-notas:text
+-nombreEmpresa:varchar(50)
+-CIF:varchar(20)
+-direccion:varchar(100)
+-municipio:varchar(50)
+-CP:int(5)
+-provincia:varchar(30)
+-forma_pago_habitual:varchar(20) select (Contado, Pagaré, Recido, Talón, Transferencia)

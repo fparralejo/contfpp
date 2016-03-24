@@ -12,8 +12,10 @@ use App\Empresa;
 use App\Usuario;
 use App\Empleado;
 
+use App\Http\Controllers\adminController;
 
-class adminController extends Controller {
+
+class configController extends Controller {
 
 	/**
 	 * Display a listing of the resource.
@@ -92,11 +94,12 @@ class adminController extends Controller {
 
     public function main(){
         //control de sesion
-        if (!$this->getControl()) {
+        $admin = new adminController();
+        if (!$admin->getControl()) {
             return redirect('/')->with('login_errors', 'La sesión a expirado. Vuelva a logearse.');
         }
 
-        return view('main');
+        return view('datos.main');
     }
 
     public function login(Request $request) {
@@ -143,23 +146,5 @@ class adminController extends Controller {
         return redirect('/');
     }
 
-    public function getControl() {
-        //controlamos si estaamos en sesion por las distintas paginas de la app
-        //controlamos las vbles sesion 'nombre', 'id'
-        if (Session::has('usuario') && Session::has('conexionBBDD')) {
-            //chequeamos que estos valores del usuario
-            $existeUsuario = Usuario::on(Session::get('conexionBBDD'))->where('usuario', '=', Session::get('usuario'))->get();
-            
-            if (count($existeUsuario) > 0) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }
-
-    
     
 }
