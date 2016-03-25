@@ -99,7 +99,11 @@ class configController extends Controller {
             return redirect('/')->with('login_errors', 'La sesión a expirado. Vuelva a logearse.');
         }
 
-        return view('datos.main');
+        $datos = Empresa::on('contfpp')
+                          ->where('identificacion', '=', Session::get('empresa'))
+                          ->get();
+        
+        return view('datos.main')->with('datos', json_encode($datos));
     }
 
     public function login(Request $request) {

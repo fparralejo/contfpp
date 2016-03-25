@@ -105,7 +105,7 @@ class clientesController extends Controller {
                           ->get();
         
 
-        return view('clientes.main')->with('clientes', $clientes);
+        return view('clientes.main')->with('clientes', json_encode($clientes));
     }
 
     public function clienteShow()
@@ -121,7 +121,7 @@ class clientesController extends Controller {
     
     public function createEdit(Request $request){
         //echo "he llegado";die;
-
+        
         //si es nuevo este valor viene vacio
         if($request->idCliente === ""){
             $cliente = new Cliente();
@@ -169,7 +169,7 @@ class clientesController extends Controller {
         }else{
             $txt = $error;
         }
-        return redirect('clientes')->with('errors', $txt);
+        return redirect('clientes')->with('errors', json_encode($txt));
     }
     
 
@@ -179,59 +179,12 @@ class clientesController extends Controller {
         $cliente->borrado = 0;
 
         if($cliente->save()){
-            echo "Cliente ". Input::get('idCliente') ." borrado correctamente.";
+            echo json_encode("Cliente ". Input::get('idCliente') ." borrado correctamente.");
         }else{
-            echo "Cliente ". Input::get('idCliente') ." NO ha sido borrado.";
+            echo json_encode("Cliente ". Input::get('idCliente') ." NO ha sido borrado.");
         }
     }
 
-    
-    
-    
-    //NO
-    public function login(Request $request) {
-        //ahora busco en la tabla usuarios
-        $empresa = Empresa::on('contfpp')
-                          ->where('Nombre', '=', $request->empresa)
-                          ->where('Password', '=', $request->passEmpresa)
-                          ->get();
-
-        //sino encuentra empresa salimos con el error
-        if (count($empresa) === 0) {
-            return redirect('/')->with('login_errors', 'Datos incorrectos.');
-        }        
-        
-        //ahora busco en la tabla usuarios
-        $usuario = Usuario::on($empresa[0]->conexionBBDD)
-                          ->where('usuario', '=', $request->usuario)
-                          ->where('password', '=', $request->passUsuario)
-                          ->get();
-        
-        //var_dump($usuario[0]->usuario);die;
-
-        if (count($usuario) > 0) {
-            //extraigo nombre y apellidos del usuario
-            $empleado = Empleado::on($empresa[0]->conexionBBDD)
-                                ->where('IdEmpleado', '=',$usuario[0]->IdEmpleado)
-                                ->get();
-            
-            //guardo las vbles de sesion para navegar por la app
-            Session::put('usuario', $usuario[0]->usuario);
-            Session::put('nombre_apellidos', $empleado[0]->nombre . ' ' . $empleado[0]->apellidos);
-            Session::put('empresa', $empresa[0]->identificacion);
-            Session::put('conexionBBDD', $empresa[0]->conexionBBDD);
-            
-
-            return redirect('main');
-        } else {
-            return redirect('/')->with('login_errors', 'Datos incorrectos2.');
-        }
-    }
-
-    public function logout() {
-        Session::flush();
-        return redirect('/');
-    }
 
     
 }

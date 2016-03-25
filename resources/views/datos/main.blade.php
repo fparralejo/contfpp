@@ -2,121 +2,11 @@
 
 
 @section('principal')
-<h4><span>Clientes</span></h4>
+<h4><span>Datos</span></h4>
 <br/>
+<hr/>
 
 
-<style>
-    .sgsiRow:hover{
-        cursor: pointer;
-    }
-
-</style>
-
-<script type="text/javascript" charset="utf-8">
-	$(document).ready(function() {
-        $('#clientes').dataTable({
-        	"responsive": true,
-            "bProcessing": true,
-            "sPaginationType":"full_numbers",
-            "oLanguage": {
-                "sLengthMenu": "Ver _MENU_ registros por pagina",
-                "sZeroRecords": "No se han encontrado registros",
-                "sInfo": "Ver _START_ al _END_ de _TOTAL_ Registros",
-                "sInfoEmpty": "Ver 0 al 0 de 0 registros",
-                "sInfoFiltered": "(filtrados _MAX_ total registros)",
-                "sSearch": "Busqueda:",
-                "oPaginate": { 
-                    "sLast": "Última página", 
-                    "sFirst": "Primera", 
-                    "sNext": "Siguiente", 
-                    "sPrevious": "Anterior" 
-                }
-            },
-            "bSort":true,
-            "aaSorting": [[ 0, "asc" ]],
-            "aoColumns": [
-                { "sType": 'numeric' },
-                { "sType": 'string' },
-                { "sType": 'string' },
-                { "sType": 'string' },
-                { "sType": 'string' },
-                { "sType": 'string' }
-            ],                    
-            "bJQueryUI":true,
-            "aLengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Todos"]]
-        });
-	});
-
-
-	function leerCliente(idCliente){
-            $.ajax({
-              data:{"idCliente":idCliente},  
-              url: '{{ URL::asset("cliente/show") }}',
-              type:"get",
-              success: function(data) {
-                var cliente = JSON.parse(data);
-                $('#idCliente').val(cliente.idCliente);
-                $('#nombre').val(cliente.nombre);
-                $('#apellidos').val(cliente.apellidos);
-                $('#telefono').val(cliente.telefono);
-                $('#email').val(cliente.email);
-                $('#notas').val(cliente.notas);
-                $('#nombreEmpresa').val(cliente.nombreEmpresa);
-                $('#cifnif').val(cliente.CIF);
-                $('#direccion').val(cliente.direccion);
-                $('#municipio').val(cliente.municipio);
-                $('#CP').val(cliente.CP);
-                $('#provincia').val(cliente.provincia);
-                $('#forma_pago_habitual').val(cliente.forma_pago_habitual);
-                //cambiar nombre del titulo del formulario
-                $("#tituloForm").html('Editar Cliente');
-                $("#submitir").val('OK');
-              }
-            });
-	}
-
-	function borrarCliente(idCliente){
-            if (confirm("¿Desea borrar el cliente?"))
-            {
-                $.ajax({
-                  data:{"idCliente":idCliente},  
-                  url: '{{ URL::asset("cliente/delete") }}',
-                  type:"get",
-                  success: function(data) {
-                      var datos = JSON.parse(data);
-                      $('#accionTabla').html(datos);
-                      $('#accionTabla').show();
-                  }
-                });
-                setTimeout(function ()
-                {
-                    document.location.href='{{ URL::asset("clientes") }}';
-                }, 2000);
-            }
-	}
-
-//	function ofertaSeguimiento(id_oferta){
-//            //vamos a la views de seguimiento con esta oferta
-//            document.location.href="{{URL::to('seguimiento/"+id_oferta+"')}}";
-//	}
-
-	//hacer desaparecer en cartel
-	$(document).ready(function() {
-	    setTimeout(function() {
-	        $("#accionTabla2").fadeOut(1500);
-	    },3000);
-	});
-
-
-        
-</script>
-
-
-
-<!-- aviso de alguna accion -->
-<div class="alert alert-success" role="alert" id="accionTabla" style="display: none; ">
-</div>
 
 @if (Session::has('errors'))
 <div class="alert alert-success" id="accionTabla2" role="alert" style="display: block; ">
@@ -126,46 +16,6 @@
 
 
 
-<table id="clientes" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%">
-    <thead>
-        <tr>
-<!--            <th>Id</th>-->
-            <th>Id</th>
-            <th>Cliente</th>
-            <th>Teléfono</th>
-            <th>E-mail</th>
-            <th>NIF/CIF</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-    <?php 
-    //decodifico los datos JSON
-    $clientes = json_decode($clientes); 
-    ?>   
-    @foreach ($clientes as $cliente)
-    <?php
-    //carga los datos en el formulario para editarlos
-    $url="javascript:leerCliente(".$cliente->idCliente.");";
-    ?>
-        <tr>
-            <td class="sgsiRow" onClick="{{ $url }}">{{ $cliente->idCliente }}</td>
-            <td class="sgsiRow" onClick="{{ $url }}">{{ $cliente->nombre . ' ' . $cliente->apellidos }}</td>
-            <td class="sgsiRow" onClick="{{ $url }}">{{ $cliente->telefono }}</td>
-            <td class="sgsiRow" onClick="{{ $url }}">{{ $cliente->email }}</td>
-            <td class="sgsiRow" onClick="{{ $url }}">{{ $cliente->CIF }}</td>
-            <td>
-                <button type="button" onclick="borrarCliente({{ $cliente->idCliente }})" class="btn btn-xs btn-danger">Borrar</button>
-            </td>
-        </tr>
-    @endforeach
-    </tbody>
-</table>
-
-<br/><br/><br/><br/><br/>
-
-<h4><span id="tituloForm">Cliente Nuevo</span></h4>
-<hr/>
 
 <style type="text/css">
 #productForm .inputGroupContainer .form-control-feedback,
@@ -175,12 +25,11 @@
 }
 </style>
 
-<form role="form" class="form-horizontal" id="clienteForm" name="clienteForm" 
+<form role="form" class="form-horizontal" id="datosForm" name="datosForm" 
       action="{{ URL::asset('clientes') }}" method="post">
     <!-- CSRF Token -->
     <input type="hidden" name="_token" value="{{ csrf_token() }}">
     
-    <p>Contacto</p>
     <hr/>
     <div class="row">
         <div class="col-md-5">
@@ -195,6 +44,15 @@
             <div class="form-group">
                 <label for="apellidos">Apellidos:</label>
                 <input type="text" class="form-control" id="apellidos" name="apellidos"  maxlength="150">
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-11">
+            <div class="form-group">
+                <label for="identificacion">Nombre de la Empresa:</label>
+                <input type="text" class="form-control" id="identificacion" name="identificacion"  maxlength="150" required="true">
             </div>
         </div>
     </div>
@@ -304,7 +162,7 @@
 
 <script>
 $(document).ready(function() {
-    $('#clienteForm').formValidation({
+    $('#misdatosForm').formValidation({
         framework: 'bootstrap',
         icon: {
             valid: 'glyphicon glyphicon-ok',

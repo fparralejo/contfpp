@@ -21,8 +21,8 @@ Route::get('logout', 'adminController@logout');
 Route::get('main', 'adminController@main');
 
 //configuracion
-Route::get('mis_datos', 'configController@main');
-Route::post('mis_datos', 'configController@create_edit');
+Route::get('datos', 'configController@main');
+Route::post('datos', 'configController@create_edit');
 
 
 
