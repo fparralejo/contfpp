@@ -107,9 +107,17 @@ class clientesController extends Controller {
 
         return view('clientes.main')->with('clientes', json_encode($clientes));
     }
+    
+//    public function listar(){
+//        $clientes = Cliente::on(Session::get('conexionBBDD'))
+//                          ->where('borrado', '=', '1')
+//                          ->get();
+//        echo json_encode($clientes);
+//    }
 
     public function clienteShow()
     {
+        //echo 'llego';die;
         $cliente = Cliente::on(Session::get('conexionBBDD'))->find(Input::get('idCliente'));
 
         //cambio el formato de la fecha
@@ -119,17 +127,21 @@ class clientesController extends Controller {
         echo json_encode($cliente);
     }
     
-    public function createEdit(Request $request){
-        //echo "he llegado";die;
+    public function createEdit(){
+        $request = json_decode(file_get_contents("php://input"));
         
-        //si es nuevo este valor viene vacio
-        if($request->idCliente === ""){
+        if(isset($request->idCliente) && $request->idCliente !== ""){
+            //sino se edita este idCliente
+            $cliente = Cliente::on(Session::get('conexionBBDD'))->find($request->idCliente);
+            
+            $ok = 'Se ha editado correctamente el cliente.';
+            $error = 'ERROR al edtar el cliente.';
+        }
+        else{
+            //si es nuevo este valor viene vacio
             $cliente = new Cliente();
             $cliente->setConnection(Session::get('conexionBBDD'));
             $cliente->fechaAlta = date('Y-m-d H:i:s');
-            
-            
-            //SELECT lngIdPregunta FROM tbconsulta_pregunta ORDER BY lngIdPregunta DESC LIMIT 0,1
             
             //indicamos el nuevo idCliente
             $idClienteNuevo = Cliente::on(Session::get('conexionBBDD'))
@@ -139,26 +151,19 @@ class clientesController extends Controller {
             $ok = 'Se ha dado de alta correctamente el cliente.';
             $error = 'ERROR al dar de alta el cliente.';
         }
-        //sino se edita este idCliente
-        else{
-            $cliente = Cliente::on(Session::get('conexionBBDD'))->find($request->idCliente);
-            
-            $ok = 'Se ha editado correctamente el cliente.';
-            $error = 'ERROR al edtar el cliente.';
-        }
 
-        $cliente->nombre = $request->nombre;
-        $cliente->apellidos = $request->apellidos;
-        $cliente->telefono = $request->telefono;
-        $cliente->email = $request->email;
-        $cliente->notas = $request->notas;
-        $cliente->nombreEmpresa = $request->nombreEmpresa;
-        $cliente->CIF = $request->cifnif;
-        $cliente->direccion = $request->direccion;
-        $cliente->municipio = $request->municipio;
-        $cliente->CP = $request->CP;
-        $cliente->provincia = $request->provincia;
-        $cliente->forma_pago_habitual = $request->forma_pago_habitual;
+        $cliente->nombre = (isset($request->nombre)) ? $request->nombre : '';
+        $cliente->apellidos = (isset($request->apellidos)) ? $request->apellidos : '';
+        $cliente->telefono = (isset($request->telefono)) ? $request->telefono : '';
+        $cliente->email = (isset($request->email)) ? $request->email : '';
+        $cliente->notas = (isset($request->notas)) ? $request->notas : '';
+        $cliente->nombreEmpresa = (isset($request->nombreEmpresa)) ? $request->nombreEmpresa : '';
+        $cliente->CIF = (isset($request->CIF)) ? $request->CIF : '';
+        $cliente->direccion = (isset($request->direccion)) ? $request->direccion : '';
+        $cliente->municipio = (isset($request->municipio)) ? $request->municipio : '';
+        $cliente->CP = (isset($request->CP)) ? $request->CP : '';
+        $cliente->provincia = (isset($request->provincia)) ? $request->provincia : '';
+        $cliente->forma_pago_habitual = (isset($request->forma_pago_habitual)) ? $request->forma_pago_habitual : '' ;
         $cliente->borrado = 1;
 
         //var_dump($cliente);die;
@@ -169,7 +174,9 @@ class clientesController extends Controller {
         }else{
             $txt = $error;
         }
-        return redirect('clientes')->with('errors', json_encode($txt));
+        
+        echo json_encode($txt);
+        //return redirect('clientes')->with('errors', json_encode($txt));
     }
     
 

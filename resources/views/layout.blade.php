@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" ng-app="myapp">
     <head>
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -46,6 +46,7 @@
         <link rel="icon" href="{{URL::asset('images/logo1.gif')}}">
         <link rel="stylesheet" type="text/css" href="{{URL::asset('css/estilo.css')}}">
         <link href='http://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet'  type='text/css'>
+        <script src="{{URL::asset('js/angular.min.js')}}"></script>
 
 
         <meta name="description" content="">
