@@ -28,7 +28,7 @@ Route::post('datos', 'configController@create_edit');
 
 //clientes
 Route::get('clientes', 'clientesController@main');
-Route::get('clientes/listar', 'clientesController@listar');
+//Route::get('clientes/listar', 'clientesController@listar');
 Route::post('clientes', 'clientesController@createEdit');
 Route::get('cliente/show', 'clientesController@clienteShow');
 Route::get('cliente/delete', 'clientesController@clienteDelete');

@@ -107,17 +107,9 @@ class clientesController extends Controller {
 
         return view('clientes.main')->with('clientes', json_encode($clientes));
     }
-    
-//    public function listar(){
-//        $clientes = Cliente::on(Session::get('conexionBBDD'))
-//                          ->where('borrado', '=', '1')
-//                          ->get();
-//        echo json_encode($clientes);
-//    }
 
     public function clienteShow()
     {
-        //echo 'llego';die;
         $cliente = Cliente::on(Session::get('conexionBBDD'))->find(Input::get('idCliente'));
 
         //cambio el formato de la fecha
@@ -138,7 +130,7 @@ class clientesController extends Controller {
             $error = 'ERROR al edtar el cliente.';
         }
         else{
-            //si es nuevo este valor viene vacio
+        //si es nuevo este valor viene vacio
             $cliente = new Cliente();
             $cliente->setConnection(Session::get('conexionBBDD'));
             $cliente->fechaAlta = date('Y-m-d H:i:s');
@@ -151,7 +143,7 @@ class clientesController extends Controller {
             $ok = 'Se ha dado de alta correctamente el cliente.';
             $error = 'ERROR al dar de alta el cliente.';
         }
-
+            
         $cliente->nombre = (isset($request->nombre)) ? $request->nombre : '';
         $cliente->apellidos = (isset($request->apellidos)) ? $request->apellidos : '';
         $cliente->telefono = (isset($request->telefono)) ? $request->telefono : '';

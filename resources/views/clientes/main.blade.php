@@ -119,7 +119,7 @@
 <div class="alert alert-success" role="alert" id="accionTabla" style="display: none; ">
 </div>
 
-<div class="alert alert-success" id="accionTabla2" role="alert" style="display: block; ">
+<div class="alert alert-success" id="accionTabla2" role="alert" style="display: none; ">
 <?php //echo json_decode($errors); ?>
 </div>
 
@@ -328,7 +328,7 @@ var myapp = angular.module("myapp",[]).config(function($interpolateProvider){
     $interpolateProvider.startSymbol('{[{').endSymbol('}]}');
 });
 
-myapp.controller("clienteController",function($scope,$http){
+myapp.controller("clienteController",function($scope,$window,$http){
 
 
 //    $http.get('{{ URL::asset("clientes/listar") }}')
@@ -339,6 +339,7 @@ myapp.controller("clienteController",function($scope,$http){
 
 
     $scope.addEdit = function(){
+        var msj = '';
         $http.post('{{ URL::asset("clientes") }}',{
                                                     idCliente: $scope.idCliente,
                                                     nombre: $scope.nombre,
@@ -354,17 +355,19 @@ myapp.controller("clienteController",function($scope,$http){
                                                     provincia: $scope.provincia,
                                                     forma_pago_habitual: $scope.forma_pago_habitual
                                                    })
-            .success(function(data,status, headers,config){
-//                setTimeout(function(data) {
+            .success(function(data, status, headers,config){
+                //alert('insertado'+data);
+                //setTimeout(function(data) {
 //                    //$("#accionTabla2").css('display':'block');
-//                    $("#accionTabla2").html(data);
-//                    //$("#accionTabla2").fadeOut(1500);
+                    //msj = data;
+                    //$("#accionTabla2").fadeOut(1500);
 //                    //$("#accionTabla2").css('display':'none');
-//                },3000);
-                
+                //},3000);
+                //document.location.href='{{ URL::asset("clientes") }}';
             }
         );
-        document.location.href='{{ URL::asset("clientes") }}';
+        //alert(msj);
+        $window.location.href = '{{ URL::asset("clientes") }}';
     };
 
 
@@ -441,19 +444,7 @@ myapp.controller("clienteController",function($scope,$http){
 
 });
 </script>
-
-
-
-<?php
-if(!empty($errores)){
-?>
-<div class="alert alert-warning" id="accionTabla2" role="alert" style="display: block; ">
-        {{ $errores }}
 </div>
-</div>
-<?php
-}
-?>
 @stop
 
 
