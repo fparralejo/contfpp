@@ -119,8 +119,8 @@ class clientesController extends Controller {
         echo json_encode($cliente);
     }
     
-    public function createEdit(){
-        $request = json_decode(file_get_contents("php://input"));
+    public function createEdit(Request $request){
+        //dd($request->cifnif);die;
         
         if(isset($request->idCliente) && $request->idCliente !== ""){
             //sino se edita este idCliente
@@ -150,7 +150,7 @@ class clientesController extends Controller {
         $cliente->email = (isset($request->email)) ? $request->email : '';
         $cliente->notas = (isset($request->notas)) ? $request->notas : '';
         $cliente->nombreEmpresa = (isset($request->nombreEmpresa)) ? $request->nombreEmpresa : '';
-        $cliente->CIF = (isset($request->CIF)) ? $request->CIF : '';
+        $cliente->CIF = (isset($request->cifnif)) ? $request->cifnif : '';
         $cliente->direccion = (isset($request->direccion)) ? $request->direccion : '';
         $cliente->municipio = (isset($request->municipio)) ? $request->municipio : '';
         $cliente->CP = (isset($request->CP)) ? $request->CP : '';
@@ -167,8 +167,8 @@ class clientesController extends Controller {
             $txt = $error;
         }
         
-        echo json_encode($txt);
-        //return redirect('clientes')->with('errors', json_encode($txt));
+        //echo json_encode($txt);
+        return redirect('clientes')->with('errors', json_encode($txt));
     }
     
 

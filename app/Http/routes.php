@@ -47,6 +47,6 @@ Route::get('cliente/delete', 'clientesController@clienteDelete');
 |
 */
 
-Route::group(['middleware' => ['web']], function () {
-    //
-});
+//Route::group(['middleware' => ['web']], function () {
+//    //
+//});
