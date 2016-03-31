@@ -276,7 +276,7 @@
         </div>
         <div class="col-md-3">
             <div class="form-group">
-                <label for="provincia">Forma Pago Habitual:</label>
+                <label for="forma_pago_habitual">Forma Pago Habitual:</label>
                 <select class="form-control" id="forma_pago_habitual" name="forma_pago_habitual">
                     <option value=""></option>
                     <option value="contado">Contado</option>

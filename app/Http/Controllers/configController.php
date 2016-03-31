@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Empresa;
 use App\Usuario;
 use App\Empleado;
+use App\TipoContador;
 
 use App\Http\Controllers\adminController;
 
@@ -103,7 +104,9 @@ class configController extends Controller {
                           ->where('identificacion', '=', Session::get('empresa'))
                           ->get();
         
-        return view('datos.main')->with('datos', json_encode($datos));
+        $TipoContador = TipoContador::on('contfpp')->get();
+        
+        return view('datos.main')->with('datos', json_encode($datos))->with('TipoContador', json_encode($TipoContador));
     }
 
     public function login(Request $request) {
