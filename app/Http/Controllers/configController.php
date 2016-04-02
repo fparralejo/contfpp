@@ -108,7 +108,61 @@ class configController extends Controller {
         
         return view('datos.main')->with('datos', json_encode($datos))->with('TipoContador', json_encode($TipoContador));
     }
+    
+    
+    public function buscar_fileLogo(){
+        
+        //cojemos el parametro del fichero
+        $file = Input::get('file');
+        
+        //extraigo la extension
+        $fichero = explode ("/",file);
+        $ext = explode('.',$fichero[count($fichero)-1]);
+        $ext=$ext[1];
 
+        $response='';
+        //si no es JPG y PNG devuelvo el error
+        $JPG_text='OK';
+        $PNG_text='OK';
+        if(strtoupper($ext)<>'PNG'){
+            $PNG_text="NO";
+        }
+        if($PNG_text==='NO'){
+            $response="<b class='fileError'>&nbsp;&nbsp;&nbsp;NO es imagen PNG</b>";
+        }
+
+        //creamos la URL donde se guarda
+        $root = getenv('DOCUMENT_ROOT');
+        $uri  = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
+        $uri = explode('/',$uri);
+        $url = $root.'/'.$uri[1].'/public/images';
+
+        //reviso si existe este fichero en la carpeta images
+        $directorio = opendir($url);
+        $existeFichero = 'NO';
+        while ($archivo = readdir($directorio)) //obtenemos un archivo y luego otro sucesivamente
+        {
+            if (!is_dir($archivo))//verificamos si es o no un directorio
+            {
+                if(strtoupper($archivo) === strtoupper($file)){
+                    $existeFichero = 'SI';
+                }
+            }
+        }
+
+        //si existe fichero lo indicamos
+        if($existeFichero === 'SI'){
+            $response = "<b class='fileError'>&nbsp;&nbsp;&nbsp;Este fichero EXISTE.</b>";
+        }    
+
+
+        //devuelvo la respuesta 
+        echo $response;
+    }
+    
+    
+
+    //NO USAR
     public function login(Request $request) {
         //ahora busco en la tabla usuarios
         $empresa = Empresa::on('contfpp')
@@ -148,6 +202,11 @@ class configController extends Controller {
         }
     }
 
+    
+    
+    
+    
+    //NO USAR
     public function logout() {
         Session::flush();
         return redirect('/');

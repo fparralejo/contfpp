@@ -23,12 +23,12 @@ Route::get('main', 'adminController@main');
 //configuracion
 Route::get('datos', 'configController@main');
 Route::post('datos', 'configController@create_edit');
+Route::get('datos/logo', 'configController@buscar_fileLogo');
 
 
 
 //clientes
 Route::get('clientes', 'clientesController@main');
-//Route::get('clientes/listar', 'clientesController@listar');
 Route::post('clientes', 'clientesController@createEdit');
 Route::get('cliente/show', 'clientesController@clienteShow');
 Route::get('cliente/delete', 'clientesController@clienteDelete');

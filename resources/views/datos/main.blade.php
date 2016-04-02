@@ -2,9 +2,11 @@
 
 <?php
 //decodifico los datos JSON
+$datos = json_decode($datos); 
 $TipoContador = json_decode($TipoContador); 
 
 
+//dd($TipoContador);die;
 ?>
 
 @section('principal')
@@ -31,7 +33,7 @@ $TipoContador = json_decode($TipoContador);
 </style>
 
 <form role="form" class="form-horizontal" id="datosForm" name="datosForm" 
-      action="{{ URL::asset('clientes') }}" method="post">
+      action="{{ URL::asset('clientes') }}" method="post" enctype="multipart/form-data">
     <!-- CSRF Token -->
     <input type="hidden" name="_token" value="{{ csrf_token() }}">
     
@@ -40,7 +42,8 @@ $TipoContador = json_decode($TipoContador);
         <div class="col-md-11">
             <div class="form-group">
                 <label for="identificacion">Nombre de Empresa:</label>
-                <input type="text" class="form-control" id="identificacion" name="identificacion"  maxlength="150" required="true">
+                <input type="text" class="form-control" id="identificacion" name="identificacion"
+                       maxlength="150" required="true" value="{{ $datos[0]->identificacion }}">
             </div>
         </div>
     </div>
@@ -161,32 +164,48 @@ $TipoContador = json_decode($TipoContador);
         </div>
     </div>
     
+    <hr/>
+    
     <div class="row">
         <div class="col-md-5">
             <div class="form-group">
-                <label for="tipo_contador">Tipo Contador:</label>
-                <input type="email" class="form-control" id="email2" name="email2" maxlength="100">
-                
-                
-                FOTO, VER DE CONTABILIDAD
-                
+                <label for="tipo_contador">Logo:</label>
+                <input type="file" class="form-control" id="doc" name="doc" onchange="check_fileConsulta(this);" /><br/>
+                <span class="nombreCampo" id="txt_file">El documento debe ser JPG, PNG y no superior a 100 kB</span><br/>
+                <script>
+                function check_fileConsulta(file){
+                    var respuesta = true;
+                    $.ajax({
+                        data:{"file":file.value},  
+                        url: '{{ URL::asset("datos/logo") }}',
+                        type:"get",
+                        success: function(data) {
+                          $('#txt_file').html(data);
+                          if(data != ''){
+                              respuesta = false;
+                          }
+                        }
+                    });
+                }
+                </script>
             </div>
         </div>
         <div class="col-md-1">
         </div>
-        
-        TEXTAREA DE PIE DE PAGINA
         <div class="col-md-5">
             <div class="form-group">
-                <label for="productos">Utilizar la Base de Datos de Productos:</label>
-                <select class="form-control" id="productos" name="productos">
-                    <option value="SI">SI</option>
-                    <option value="NO">NO</option>
-                </select>
+              <div id="logoEmp">
+                  <span id="img_file">
+                      <img id="imagen" height="70" width="140" src="{{ URL::asset('images/').'/'.$datos[0]->Logo }}" />
+                  </span><br/>
+              </div>
             </div>
         </div>
     </div>
     
+    <hr/>
+
+
     
     
     <br/>
@@ -217,17 +236,40 @@ $(document).ready(function() {
 });
 </script>
 
+<script language="JavaScript">
+  function handleFileSelect(evt) {
+    var files = evt.target.files; // FileList object
+
+    // Loop through the FileList and render image files as thumbnails.
+    for (var i = 0, f; f = files[i]; i++) {
+
+      // Only process image files.
+      if (!f.type.match('image.*')) {
+        continue;
+      }
+
+      var reader = new FileReader();
+
+      // Closure to capture the file information.
+      reader.onload = (function(theFile) {
+        return function(e) {
+          // Render thumbnail.
+          var span = document.getElementById('img_file');
+          span.innerHTML = ['<img width="140" height="70" src="', e.target.result,
+                            '" title="', escape(theFile.name), '"/>'].join('');
+        };
+      })(f);
+
+      // Read in the image file as a data URL.
+      reader.readAsDataURL(f);
+    }
+  }
+
+  document.getElementById('doc').addEventListener('change', handleFileSelect, false);
+
+</script>
 
 
-<?php
-if(!empty($errores)){
-?>
-<div class="alert alert-warning" id="accionTabla2" role="alert" style="display: block; ">
-        {{ $errores }}
-</div>
-<?php
-}
-?>
 @stop
 
 
