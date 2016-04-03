@@ -33,6 +33,8 @@ Route::post('clientes', 'clientesController@createEdit');
 Route::get('cliente/show', 'clientesController@clienteShow');
 Route::get('cliente/delete', 'clientesController@clienteDelete');
 
+//proveedores
+Route::get('proveedores', 'clientesController@mainProveedores');
 
 
 

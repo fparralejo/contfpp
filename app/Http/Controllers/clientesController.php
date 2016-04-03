@@ -102,10 +102,27 @@ class clientesController extends Controller {
         
         $clientes = Cliente::on(Session::get('conexionBBDD'))
                           ->where('borrado', '=', '1')
+                          ->where('tipo', '=', 'C')
                           ->get();
         
 
-        return view('clientes.main')->with('clientes', json_encode($clientes));
+        return view('clientes.main')->with('clientes', json_encode($clientes))->with('tipo', json_encode('C'));
+    }
+
+    public function mainProveedores(){
+        //control de sesion
+        $admin = new adminController();
+        if (!$admin->getControl()) {
+            return redirect('/')->with('login_errors', 'La sesión a expirado. Vuelva a logearse.');
+        }
+        
+        $clientes = Cliente::on(Session::get('conexionBBDD'))
+                          ->where('borrado', '=', '1')
+                          ->where('tipo', '=', 'P')
+                          ->get();
+        
+
+        return view('clientes.main')->with('clientes', json_encode($clientes))->with('tipo', json_encode('P'));
     }
 
     public function clienteShow()
@@ -126,8 +143,13 @@ class clientesController extends Controller {
             //sino se edita este idCliente
             $cliente = Cliente::on(Session::get('conexionBBDD'))->find($request->idCliente);
             
-            $ok = 'Se ha editado correctamente el cliente.';
-            $error = 'ERROR al edtar el cliente.';
+            if($request->tipoOpc === 'C'){
+                $ok = 'Se ha editado correctamente el cliente.';
+                $error = 'ERROR al edtar el cliente.';
+            }else{
+                $ok = 'Se ha editado correctamente el proveedor.';
+                $error = 'ERROR al edtar el proveedor.';
+            }
         }
         else{
         //si es nuevo este valor viene vacio
@@ -140,10 +162,16 @@ class clientesController extends Controller {
                               ->max('idCliente') + 1;
             $cliente->idCliente = $idClienteNuevo;
         
-            $ok = 'Se ha dado de alta correctamente el cliente.';
-            $error = 'ERROR al dar de alta el cliente.';
+            if($request->tipoOpc === 'C'){
+                $ok = 'Se ha dado de alta correctamente el cliente.';
+                $error = 'ERROR al dar de alta el cliente.';
+            }else{
+                $ok = 'Se ha dado de alta correctamente el proveedor.';
+                $error = 'ERROR al dar de alta el proveedor.';
+            }
         }
             
+        $cliente->tipo = (isset($request->tipoOpc)) ? $request->tipoOpc : '';
         $cliente->nombre = (isset($request->nombre)) ? $request->nombre : '';
         $cliente->apellidos = (isset($request->apellidos)) ? $request->apellidos : '';
         $cliente->telefono = (isset($request->telefono)) ? $request->telefono : '';
@@ -168,7 +196,11 @@ class clientesController extends Controller {
         }
         
         //echo json_encode($txt);
-        return redirect('clientes')->with('errors', json_encode($txt));
+        if($cliente->tipo === 'C'){
+            return redirect('clientes')->with('errors', json_encode($txt))->with('tipo', json_encode('C'));
+        }else{
+            return redirect('proveedores')->with('errors', json_encode($txt))->with('tipo', json_encode('P'));
+        }
     }
     
 
@@ -176,11 +208,17 @@ class clientesController extends Controller {
         $cliente = Cliente::on(Session::get('conexionBBDD'))->find(Input::get('idCliente'));
         
         $cliente->borrado = 0;
+        
+        if($cliente->tipo === 'C'){
+            $tipo = "Cliente";
+        }else{
+            $tipo = "Proveedor";
+        }
 
         if($cliente->save()){
-            echo json_encode("Cliente ". Input::get('idCliente') ." borrado correctamente.");
+            echo json_encode($tipo . " " . Input::get('idCliente') ." borrado correctamente.");
         }else{
-            echo json_encode("Cliente ". Input::get('idCliente') ." NO ha sido borrado.");
+            echo json_encode($tipo . " " . Input::get('idCliente') ." NO ha sido borrado.");
         }
     }
 

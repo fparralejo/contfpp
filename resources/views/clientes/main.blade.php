@@ -1,10 +1,23 @@
 @extends('layout')
 
+<?php
+$tipo = json_decode($tipo);
+
+if($tipo === 'C'){
+    $titulo = 'Clientes';
+    $titulo1 = 'Cliente';
+    $tipoOpc = 'C';
+}else{
+    $titulo = 'Proveedores';
+    $titulo1 = 'Proveedor';
+    $tipoOpc = 'P';
+}
+
+?>
 
 @section('principal')
-<h4><span>Clientes</span></h4>
+<h4><span>{{ $titulo }}</span></h4>
 <br/>
-
 
 <style>
     .sgsiRow:hover{
@@ -36,7 +49,6 @@
             "bSort":true,
             "aaSorting": [[ 0, "asc" ]],
             "aoColumns": [
-                { "sType": 'numeric' },
                 { "sType": 'string' },
                 { "sType": 'string' },
                 { "sType": 'string' },
@@ -76,8 +88,12 @@
             });
 	}
 
-	function borrarCliente(idCliente){
-            if (confirm("¿Desea borrar el cliente?"))
+	function borrarCliente(idCliente, tipo){
+            var tipoTxt = 'cliente';
+            if(tipo === 'P'){
+                tipoTxt = 'proveedor';
+            }
+            if (confirm("¿Desea borrar el "+tipoTxt+"?"))
             {
                 $.ajax({
                   data:{"idCliente":idCliente},  
@@ -90,7 +106,11 @@
                 });
                 setTimeout(function ()
                 {
-                    document.location.href='{{ URL::asset("clientes") }}';
+                    if(tipo === 'C'){
+                        document.location.href='{{ URL::asset("clientes") }}';
+                    }else{
+                        document.location.href='{{ URL::asset("proveedores") }}';
+                    }
                 }, 2000);
             }
 	}
@@ -124,9 +144,7 @@
 <table id="clientes" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%">
     <thead>
         <tr>
-<!--            <th>Id</th>-->
-            <th>Id</th>
-            <th>Cliente</th>
+            <th>{{ $titulo1 }}</th>
             <th>Teléfono</th>
             <th>E-mail</th>
             <th>NIF/CIF</th>
@@ -144,13 +162,12 @@
     $url="javascript:leerCliente(".$cliente->idCliente.");";
     ?>
         <tr>
-            <td class="sgsiRow" onClick="{{ $url }}">{{ $cliente->idCliente }}</td>
             <td class="sgsiRow" onClick="{{ $url }}">{{ $cliente->nombre . ' ' . $cliente->apellidos }}</td>
             <td class="sgsiRow" onClick="{{ $url }}">{{ $cliente->telefono }}</td>
             <td class="sgsiRow" onClick="{{ $url }}">{{ $cliente->email }}</td>
             <td class="sgsiRow" onClick="{{ $url }}">{{ $cliente->CIF }}</td>
             <td>
-                <button type="button" onclick="borrarCliente({{ $cliente->idCliente }})" class="btn btn-xs btn-danger">Borrar</button>
+                <button type="button" onclick="borrarCliente({{ $cliente->idCliente }},'{{ $cliente->tipo }}')" class="btn btn-xs btn-danger">Borrar</button>
             </td>
         </tr>
     @endforeach
@@ -159,7 +176,7 @@
 
 <br/><br/><br/><br/><br/>
 
-<h4><span id="tituloForm">Cliente Nuevo</span></h4>
+<h4><span id="tituloForm">{{ $titulo1 }} Nuevo</span></h4>
 <hr/>
 
 <style type="text/css">
@@ -292,6 +309,7 @@
     <br/>
 
 
+    <input type="hidden" id="tipoOpc" name="tipoOpc" value="{{ $tipoOpc }}" />
     <input type="hidden" id="idCliente" name="idCliente" value="" />
     <input type="submit" id="submitir" class="btn btn-default" value="Nuevo"/>
 </form>
