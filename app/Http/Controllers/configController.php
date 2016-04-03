@@ -100,11 +100,11 @@ class configController extends Controller {
             return redirect('/')->with('login_errors', 'La sesión a expirado. Vuelva a logearse.');
         }
 
-        $datos = Empresa::on('contfpp')->find(Session::get('IdEmpresa'));
+        $datos = Empresa::on('contfpp')->find((int)Session::get('IdEmpresa'));
         
         $TipoContador = TipoContador::on('contfpp')->get();
         
-        dd(Session::get('IdEmpresa'));
+        //dd($datos);
         
         return view('datos.main')->with('datos', json_encode($datos))->with('TipoContador', json_encode($TipoContador));
     }
@@ -120,7 +120,9 @@ class configController extends Controller {
         $ext = explode('.',$fichero[count($fichero)-1]);
         $ext = $ext[1];
 
-        $response='';
+        $response['estado'] = 'OK';
+        $response['msj'] = '';
+        
         //si no es JPG y PNG devuelvo el error
         $JPG_text = 'OK';
         $PNG_text = 'OK';
@@ -128,7 +130,8 @@ class configController extends Controller {
             $PNG_text = "NO";
         }
         if($PNG_text === 'NO'){
-            echo "<b class='fileError'>&nbsp;&nbsp;&nbsp;NO es imagen PNG</b>";die;
+            $response['estado'] = 'ERROR';
+            $response['msj'] = "<b class='fileError'>&nbsp;&nbsp;&nbsp;NO es imagen PNG</b>";
         }
 
         //creamos la URL donde se guarda
@@ -144,14 +147,15 @@ class configController extends Controller {
             if (!is_dir($archivo))//verificamos si es o no un directorio
             {
                 if(strtoupper($archivo) === strtoupper($fichero[count($fichero)-1])){
-                    echo "<b class='fileError'>&nbsp;&nbsp;&nbsp;Este fichero EXISTE.</b>";die;
+                    $response['estado'] = 'ERROR';
+                    $response['msj'] = "<b class='fileError'>&nbsp;&nbsp;&nbsp;Este fichero EXISTE.</b>";
                 }
             }
         }
 
 
         //devuelvo la respuesta 
-        echo "";
+        echo json_encode($response);
     }
     
     
@@ -162,23 +166,45 @@ class configController extends Controller {
             return redirect('/')->with('login_errors', 'La sesión a expirado. Vuelva a logearse.');
         }
         
+        //subimos la imgan del logo
+        //obtenemos el campo file definido en el formulario
+        $file = $request->file('doc');
+        
+        if($file !== null){
+            //obtenemos el nombre del archivo
+            $nombre = $file->getClientOriginalName();
+
+            //indicamos que queremos guardar un nuevo archivo en el disco local
+            \Storage::disk('local')->put($nombre,  \File::get($file));
+        }
+        
+        
+        
         //dd($request);die;
 
-        $datos = Empresa::on('contfpp')
-                          ->where('identificacion', '=', Session::get('empresa'))
-                          ->get();
+        $datos = Empresa::on('contfpp')->find((int)Session::get('IdEmpresa'));
 
         $ok = 'Se ha editado correctamente los datos nuestros.';
-        $error = 'ERROR al edtar los datos nuestros.';
+        $error = 'ERROR al editar los datos nuestros.';
 
         
         //actualizo los datos
-        $datos[0]->identificacion = (isset($request->identificacion)) ? $request->identificacion : '';
-        
-        
+        $datos->identificacion = (isset($request->identificacion)) ? $request->identificacion : '';
+        $datos->CIF = (isset($request->CIF)) ? $request->CIF : '';
+        $datos->direccion = (isset($request->direccion)) ? $request->direccion : '';
+        $datos->municipio = (isset($request->municipio)) ? $request->municipio : '';
+        $datos->provincia = (isset($request->provincia)) ? $request->provincia : '';
+        $datos->CP = (isset($request->CP)) ? $request->CP : '';
+        $datos->telefono = (isset($request->telefono)) ? $request->telefono : '';
+        $datos->email1 = (isset($request->email1)) ? $request->email1 : '';
+        $datos->email2 = (isset($request->email2)) ? $request->email2 : '';
+        $datos->TipoContador = (isset($request->TipoContador)) ? $request->TipoContador : '';
+        $datos->Logo = (isset($nombre)) ? $nombre : '';
+        $datos->TextoPie = (isset($request->TextoPie)) ? $request->TextoPie : '';
+        $datos->productos = (isset($request->productos)) ? $request->productos : '';
         
         $txt = '';
-        if($datos[0]->save()){
+        if($datos->save()){
             $txt = $ok;
         }else{
             $txt = $error;

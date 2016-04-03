@@ -5,9 +5,7 @@
 $datos = json_decode($datos); 
 $TipoContador = json_decode($TipoContador); 
 
-//if($datos !== null){
-dd($datos);
-//}
+//dd($datos);
 ?>
 
 @section('principal')
@@ -51,7 +49,7 @@ $(document).ready(function() {
             <div class="form-group">
                 <label for="identificacion">Nombre de Empresa:</label>
                 <input type="text" class="form-control" id="identificacion" name="identificacion"
-                       maxlength="150" required="true" value="{{ $datos[0]->identificacion }}">
+                       maxlength="150" required="true" value="{{ $datos->identificacion }}">
             </div>
         </div>
     </div>
@@ -60,7 +58,7 @@ $(document).ready(function() {
         <div class="col-md-5">
             <div class="form-group">
                 <label for="Nombre">Nick: (Sólo Lectura)</label>
-                <input type="text" class="form-control" id="Nombre" name="Nombre"  maxlength="10" readonly value="{{ $datos[0]->Nombre }}">
+                <input type="text" class="form-control" id="Nombre" name="Nombre"  maxlength="10" readonly value="{{ $datos->Nombre }}">
             </div>
         </div>
         <div class="col-md-1">
@@ -68,7 +66,7 @@ $(document).ready(function() {
         <div class="col-md-5">
             <div class="form-group">
                 <label for="Password">Clave: (Sólo Lectura)</label>
-                <input type="text" class="form-control" id="Password" name="Password" maxlength="10" readonly value="{{ $datos[0]->Password }}">
+                <input type="text" class="form-control" id="Password" name="Password" maxlength="10" readonly value="{{ $datos->Password }}">
             </div>
         </div>
     </div>
@@ -77,7 +75,7 @@ $(document).ready(function() {
         <div class="col-md-5">
             <div class="form-group">
                 <label for="CIF">NIF/CIF:</label>
-                <input type="text" class="form-control" id="CIF" name="CIF" maxlength="50" value="{{ $datos[0]->CIF }}">
+                <input type="text" class="form-control" id="CIF" name="CIF" maxlength="50" value="{{ $datos->CIF }}">
             </div>
         </div>
         <div class="col-md-1">
@@ -90,7 +88,7 @@ $(document).ready(function() {
         <div class="col-md-11">
             <div class="form-group">
                 <label for="direccion">Dirección:</label>
-                <input type="text" class="form-control" id="direccion" name="direccion"  maxlength="150" value="{{ $datos[0]->direccion }}">
+                <input type="text" class="form-control" id="direccion" name="direccion"  maxlength="150" value="{{ $datos->direccion }}">
             </div>
         </div>
     </div>
@@ -99,7 +97,7 @@ $(document).ready(function() {
         <div class="col-md-5">
             <div class="form-group">
                 <label for="municipio">Municipio:</label>
-                <input type="text" class="form-control" id="municipio" name="municipio" maxlength="50" value="{{ $datos[0]->municipio }}">
+                <input type="text" class="form-control" id="municipio" name="municipio" maxlength="50" value="{{ $datos->municipio }}">
             </div>
         </div>
         <div class="col-md-1">
@@ -107,7 +105,7 @@ $(document).ready(function() {
         <div class="col-md-5">
             <div class="form-group">
                 <label for="provincia">Provincia:</label>
-                <input type="text" class="form-control" id="provincia" name="provincia" maxlength="50" value="{{ $datos[0]->provincia }}">
+                <input type="text" class="form-control" id="provincia" name="provincia" maxlength="50" value="{{ $datos->provincia }}">
             </div>
         </div>
     </div>
@@ -116,7 +114,7 @@ $(document).ready(function() {
         <div class="col-md-5">
             <div class="form-group">
                 <label for="CP">CP:</label>
-                <input type="text" class="form-control" id="CP" name="CP" maxlength="11" value="{{ $datos[0]->CP }}">
+                <input type="text" class="form-control" id="CP" name="CP" maxlength="11" value="{{ $datos->CP }}">
             </div>
         </div>
         <div class="col-md-1">
@@ -124,7 +122,7 @@ $(document).ready(function() {
         <div class="col-md-5">
             <div class="form-group">
                 <label for="telefono">Teléfono:</label>
-                <input type="text" class="form-control" id="telefono" name="telefono" maxlength="11" value="{{ $datos[0]->telefono }}">
+                <input type="text" class="form-control" id="telefono" name="telefono" maxlength="11" value="{{ $datos->telefono }}">
             </div>
         </div>
     </div>
@@ -133,7 +131,7 @@ $(document).ready(function() {
         <div class="col-md-5">
             <div class="form-group">
                 <label for="email1">Email 1:</label>
-                <input type="email" class="form-control" id="email1" name="email1" maxlength="100" value="{{ $datos[0]->email1 }}">
+                <input type="email" class="form-control" id="email1" name="email1" maxlength="100" value="{{ $datos->email1 }}">
             </div>
         </div>
         <div class="col-md-1">
@@ -141,7 +139,7 @@ $(document).ready(function() {
         <div class="col-md-5">
             <div class="form-group">
                 <label for="email2">Email 2:</label>
-                <input type="email" class="form-control" id="email2" name="email2" maxlength="100" value="{{ $datos[0]->email2 }}">
+                <input type="email" class="form-control" id="email2" name="email2" maxlength="100" value="{{ $datos->email2 }}">
             </div>
         </div>
     </div>
@@ -154,7 +152,7 @@ $(document).ready(function() {
                 <label for="TipoContador">Tipo Contador:</label>
                 <select class="form-control" id="TipoContador" name="TipoContador">
                     @foreach ($TipoContador as $tipo)
-                        <option value="{{ $tipo->idContador }}" @if($datos[0]->TipoContador === $tipo->idContador) selected @endif>{{ $tipo->tipo }}</option>
+                        <option value="{{ $tipo->idContador }}" @if($datos->TipoContador === $tipo->idContador) selected @endif>{{ $tipo->tipo }}</option>
                     @endforeach
                 </select>
             </div>
@@ -165,8 +163,8 @@ $(document).ready(function() {
             <div class="form-group">
                 <label for="productos">Utilizar la Base de Datos de Productos:</label>
                 <select class="form-control" id="productos" name="productos">
-                    <option value="SI" @if($datos[0]->productos === 'SI') selected @endif>SI</option>
-                    <option value="NO" @if($datos[0]->productos === 'NO') selected @endif>NO</option>
+                    <option value="SI" @if($datos->productos === 'SI') selected @endif>SI</option>
+                    <option value="NO" @if($datos->productos === 'NO') selected @endif>NO</option>
                 </select>
             </div>
         </div>
@@ -179,7 +177,8 @@ $(document).ready(function() {
             <div class="form-group">
                 <label for="tipo_contador">Logo:</label>
                 <input type="file" class="form-control" id="doc" name="doc" onchange="check_fileConsulta(this);" accept="image/png" /><br/>
-                <span class="nombreCampo" id="txt_file">El documento debe ser JPG, PNG y no superior a 100 kB</span><br/>
+                <span class="nombreCampo" id="txt_file">El documento debe ser PNG</span><br/>
+                <input type="hidden" id="errorFile" name="errorFile" />
                 <script>
                 function check_fileConsulta(file){
                     var respuesta = true;
@@ -188,10 +187,12 @@ $(document).ready(function() {
                         url: '{{ URL::asset("datos/logo") }}',
                         type:"get",
                         success: function(data) {
-                          $('#txt_file').html(data);
-                          if(data != ''){
-                              respuesta = false;
-                          }
+                            var datos = JSON.parse(data);
+                            $('#errorFile').val(datos.estado);
+                            $('#txt_file').html(datos.msj);
+//                          if(data != ''){
+//                              respuesta = false;
+//                          }
                         }
                     });
                 }
@@ -204,7 +205,7 @@ $(document).ready(function() {
             <div class="form-group">
               <div id="logoEmp">
                   <span id="img_file">
-                      <img id="imagen" height="70" width="140" src="{{ URL::asset('images/').'/'.$datos[0]->Logo }}" />
+                      <img id="imagen" height="70" width="140" src="{{ URL::asset('images/').'/'.$datos->Logo }}" />
                   </span><br/>
               </div>
             </div>
@@ -217,7 +218,7 @@ $(document).ready(function() {
         <div class="col-md-11">
             <div class="form-group">
                 <label for="TextoPie">Texto a pie de página:</label>
-                <textarea class="form-control" rows="4" name="TextoPie" id="TextoPie">{{ $datos[0]->TextoPie }}</textarea>
+                <textarea class="form-control" rows="4" name="TextoPie" id="TextoPie">{{ $datos->TextoPie }}</textarea>
             </div>
         </div>
     </div>
@@ -226,10 +227,24 @@ $(document).ready(function() {
     <br/>
 
     <!--<input type="hidden" id="idCliente" name="idCliente" value="" />-->
-    <input type="submit" id="submitir" class="btn btn-default" value="Guardar" />
+    <input type="button" id="submitir" class="btn btn-default" value="Guardar" onclick="submitDatos();" >
 </form>
 
 <script>
+function submitDatos(){
+    ok = "SI";
+    if($('#errorFile').val() === "ERROR"){
+        ok = "NO";
+    }
+    
+    if(ok === 'SI'){
+        document.datosForm.submit();
+        //$('#datosForm').submit();
+    }else{
+        alert('El fichero del Logo ya existe, eliga otro fichero');
+    }
+}
+    
 $(document).ready(function() {
     $('#datosForm').formValidation({
         framework: 'bootstrap',
