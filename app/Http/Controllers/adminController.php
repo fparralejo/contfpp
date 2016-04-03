@@ -128,7 +128,8 @@ class adminController extends Controller {
             //guardo las vbles de sesion para navegar por la app
             Session::put('usuario', $usuario[0]->usuario);
             Session::put('nombre_apellidos', $empleado[0]->nombre . ' ' . $empleado[0]->apellidos);
-            Session::put('empresa', $empresa[0]->identificacion);
+            Session::put('empresa', $empresa[0]->identificacion);//BORRAR
+            Session::put('IdEmpresa', $empresa[0]->IdEmpresa);
             Session::put('conexionBBDD', $empresa[0]->conexionBBDD);
             
 

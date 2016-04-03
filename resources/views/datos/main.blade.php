@@ -5,15 +5,23 @@
 $datos = json_decode($datos); 
 $TipoContador = json_decode($TipoContador); 
 
-
-//dd($TipoContador);die;
+//if($datos !== null){
+dd($datos);
+//}
 ?>
 
 @section('principal')
 <h4><span>Datos</span></h4>
 <br/>
 
-
+<script>
+//hacer desaparecer en cartel
+$(document).ready(function() {
+    setTimeout(function() {
+        $("#accionTabla2").fadeOut(1500);
+    },3000);
+});
+</script>
 
 @if (Session::has('errors'))
 <div class="alert alert-success" id="accionTabla2" role="alert" style="display: block; ">
@@ -33,7 +41,7 @@ $TipoContador = json_decode($TipoContador);
 </style>
 
 <form role="form" class="form-horizontal" id="datosForm" name="datosForm" 
-      action="{{ URL::asset('clientes') }}" method="post" enctype="multipart/form-data">
+      action="{{ URL::asset('datos') }}" method="post" enctype="multipart/form-data">
     <!-- CSRF Token -->
     <input type="hidden" name="_token" value="{{ csrf_token() }}">
     
@@ -51,16 +59,16 @@ $TipoContador = json_decode($TipoContador);
     <div class="row">
         <div class="col-md-5">
             <div class="form-group">
-                <label for="nombre">Nick: (Sólo Lectura)</label>
-                <input type="text" class="form-control" id="nombre" name="nombre"  maxlength="10" readonly>
+                <label for="Nombre">Nick: (Sólo Lectura)</label>
+                <input type="text" class="form-control" id="Nombre" name="Nombre"  maxlength="10" readonly value="{{ $datos[0]->Nombre }}">
             </div>
         </div>
         <div class="col-md-1">
         </div>
         <div class="col-md-5">
             <div class="form-group">
-                <label for="apellidos">Clave: (Sólo Lectura)</label>
-                <input type="text" class="form-control" id="apellidos" name="apellidos" maxlength="10" readonly>
+                <label for="Password">Clave: (Sólo Lectura)</label>
+                <input type="text" class="form-control" id="Password" name="Password" maxlength="10" readonly value="{{ $datos[0]->Password }}">
             </div>
         </div>
     </div>
@@ -69,7 +77,7 @@ $TipoContador = json_decode($TipoContador);
         <div class="col-md-5">
             <div class="form-group">
                 <label for="CIF">NIF/CIF:</label>
-                <input type="text" class="form-control" id="CIF" name="CIF" maxlength="50">
+                <input type="text" class="form-control" id="CIF" name="CIF" maxlength="50" value="{{ $datos[0]->CIF }}">
             </div>
         </div>
         <div class="col-md-1">
@@ -82,7 +90,7 @@ $TipoContador = json_decode($TipoContador);
         <div class="col-md-11">
             <div class="form-group">
                 <label for="direccion">Dirección:</label>
-                <input type="text" class="form-control" id="direccion" name="direccion"  maxlength="150">
+                <input type="text" class="form-control" id="direccion" name="direccion"  maxlength="150" value="{{ $datos[0]->direccion }}">
             </div>
         </div>
     </div>
@@ -91,7 +99,7 @@ $TipoContador = json_decode($TipoContador);
         <div class="col-md-5">
             <div class="form-group">
                 <label for="municipio">Municipio:</label>
-                <input type="text" class="form-control" id="municipio" name="municipio" maxlength="50">
+                <input type="text" class="form-control" id="municipio" name="municipio" maxlength="50" value="{{ $datos[0]->municipio }}">
             </div>
         </div>
         <div class="col-md-1">
@@ -99,7 +107,7 @@ $TipoContador = json_decode($TipoContador);
         <div class="col-md-5">
             <div class="form-group">
                 <label for="provincia">Provincia:</label>
-                <input type="email" class="form-control" id="provincia" name="provincia" maxlength="50">
+                <input type="text" class="form-control" id="provincia" name="provincia" maxlength="50" value="{{ $datos[0]->provincia }}">
             </div>
         </div>
     </div>
@@ -108,7 +116,7 @@ $TipoContador = json_decode($TipoContador);
         <div class="col-md-5">
             <div class="form-group">
                 <label for="CP">CP:</label>
-                <input type="text" class="form-control" id="CP" name="CP" maxlength="11">
+                <input type="text" class="form-control" id="CP" name="CP" maxlength="11" value="{{ $datos[0]->CP }}">
             </div>
         </div>
         <div class="col-md-1">
@@ -116,7 +124,7 @@ $TipoContador = json_decode($TipoContador);
         <div class="col-md-5">
             <div class="form-group">
                 <label for="telefono">Teléfono:</label>
-                <input type="email" class="form-control" id="telefono" name="telefono" maxlength="11">
+                <input type="text" class="form-control" id="telefono" name="telefono" maxlength="11" value="{{ $datos[0]->telefono }}">
             </div>
         </div>
     </div>
@@ -125,7 +133,7 @@ $TipoContador = json_decode($TipoContador);
         <div class="col-md-5">
             <div class="form-group">
                 <label for="email1">Email 1:</label>
-                <input type="text" class="form-control" id="email1" name="email1" maxlength="100">
+                <input type="email" class="form-control" id="email1" name="email1" maxlength="100" value="{{ $datos[0]->email1 }}">
             </div>
         </div>
         <div class="col-md-1">
@@ -133,7 +141,7 @@ $TipoContador = json_decode($TipoContador);
         <div class="col-md-5">
             <div class="form-group">
                 <label for="email2">Email 2:</label>
-                <input type="email" class="form-control" id="email2" name="email2" maxlength="100">
+                <input type="email" class="form-control" id="email2" name="email2" maxlength="100" value="{{ $datos[0]->email2 }}">
             </div>
         </div>
     </div>
@@ -143,10 +151,10 @@ $TipoContador = json_decode($TipoContador);
     <div class="row">
         <div class="col-md-5">
             <div class="form-group">
-                <label for="tipo_contador">Tipo Contador:</label>
-                <select class="form-control" id="tipo_contador" name="tipo_contador">
+                <label for="TipoContador">Tipo Contador:</label>
+                <select class="form-control" id="TipoContador" name="TipoContador">
                     @foreach ($TipoContador as $tipo)
-                        <option value="{{ $tipo->idContador }}">{{ $tipo->tipo }}</option>
+                        <option value="{{ $tipo->idContador }}" @if($datos[0]->TipoContador === $tipo->idContador) selected @endif>{{ $tipo->tipo }}</option>
                     @endforeach
                 </select>
             </div>
@@ -157,8 +165,8 @@ $TipoContador = json_decode($TipoContador);
             <div class="form-group">
                 <label for="productos">Utilizar la Base de Datos de Productos:</label>
                 <select class="form-control" id="productos" name="productos">
-                    <option value="SI">SI</option>
-                    <option value="NO">NO</option>
+                    <option value="SI" @if($datos[0]->productos === 'SI') selected @endif>SI</option>
+                    <option value="NO" @if($datos[0]->productos === 'NO') selected @endif>NO</option>
                 </select>
             </div>
         </div>
@@ -170,7 +178,7 @@ $TipoContador = json_decode($TipoContador);
         <div class="col-md-5">
             <div class="form-group">
                 <label for="tipo_contador">Logo:</label>
-                <input type="file" class="form-control" id="doc" name="doc" onchange="check_fileConsulta(this);" /><br/>
+                <input type="file" class="form-control" id="doc" name="doc" onchange="check_fileConsulta(this);" accept="image/png" /><br/>
                 <span class="nombreCampo" id="txt_file">El documento debe ser JPG, PNG y no superior a 100 kB</span><br/>
                 <script>
                 function check_fileConsulta(file){
@@ -205,18 +213,25 @@ $TipoContador = json_decode($TipoContador);
     
     <hr/>
 
-
+    <div class="row">
+        <div class="col-md-11">
+            <div class="form-group">
+                <label for="TextoPie">Texto a pie de página:</label>
+                <textarea class="form-control" rows="4" name="TextoPie" id="TextoPie">{{ $datos[0]->TextoPie }}</textarea>
+            </div>
+        </div>
+    </div>
     
     
     <br/>
 
     <!--<input type="hidden" id="idCliente" name="idCliente" value="" />-->
-    <input type="submit" id="submitir" class="btn btn-default" value="Nuevo" />
+    <input type="submit" id="submitir" class="btn btn-default" value="Guardar" />
 </form>
 
 <script>
 $(document).ready(function() {
-    $('#misdatosForm').formValidation({
+    $('#datosForm').formValidation({
         framework: 'bootstrap',
         icon: {
             valid: 'glyphicon glyphicon-ok',
@@ -224,14 +239,37 @@ $(document).ready(function() {
             validating: 'glyphicon glyphicon-refresh'
         },
         fields: {
-            nombre: {
+            Nombre: {
                 validators: {
                     notEmpty: {
-                        message: 'El nombre es obligatorio'
+                        message: 'El Nick es obligatorio'
+                    }
+                }
+            },
+            Password: {
+                validators: {
+                    notEmpty: {
+                        message: 'El Password es obligatorio'
+                    }
+                }
+            },
+            identificacion: {
+                validators: {
+                    notEmpty: {
+                        message: 'El Nombre de Empresa es obligatorio'
+                    }
+                }
+            },
+            email1: {
+                validators: {
+                    notEmpty: {
+                        message: 'El Email 1 es obligatorio'
                     }
                 }
             }
         }
+        
+        
     });
 });
 </script>

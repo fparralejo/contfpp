@@ -22,7 +22,7 @@ Route::get('main', 'adminController@main');
 
 //configuracion
 Route::get('datos', 'configController@main');
-Route::post('datos', 'configController@create_edit');
+Route::post('datos', 'configController@editDatos');
 Route::get('datos/logo', 'configController@buscar_fileLogo');
 
 
