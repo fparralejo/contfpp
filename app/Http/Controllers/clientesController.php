@@ -163,8 +163,8 @@ class clientesController extends Controller {
             $cliente->idCliente = $idClienteNuevo;
         
             if($request->tipoOpc === 'C'){
-                $ok = 'Se ha dado de alta correctamente el cliente.';
-                $error = 'ERROR al dar de alta el cliente.';
+                $ok = 'Se ha dado de alta correctamente el proveedor.';
+                $error = 'ERROR al dar de alta el proveedor.';
             }else{
                 $ok = 'Se ha dado de alta correctamente el proveedor.';
                 $error = 'ERROR al dar de alta el proveedor.';
