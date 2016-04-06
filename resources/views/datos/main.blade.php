@@ -177,7 +177,7 @@ $(document).ready(function() {
             <div class="form-group">
                 <label for="tipo_contador">Logo:</label>
                 <input type="file" class="form-control" id="doc" name="doc" onchange="check_fileConsulta(this);" accept="image/png" /><br/>
-                <span class="nombreCampo" id="txt_file">El documento debe ser PNG</span><br/>
+                <span id="txt_file">El documento debe ser PNG</span><br/>
                 <input type="hidden" id="errorFile" name="errorFile" />
                 <script>
                 function check_fileConsulta(file){

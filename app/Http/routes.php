@@ -44,6 +44,12 @@ Route::get('producto/delete', 'productosController@productoDelete');
 
 
 
+//presupuestos
+Route::get('presupuestos/alta', 'presupuestosController@alta');
+
+
+
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
