@@ -149,7 +149,7 @@ $(document).ready(function() {
     
     <!--lineas de conceptos-->
     <div id="conceptos">
-        <div class="col-md-12 col-lg-12 col-sm-12">
+        <div class="col-md-12 col-lg-12 col-sm-12" id="">
             <div class="row">
                 <div class="col-md-1">
                     <div class="form-group">
@@ -201,10 +201,11 @@ $(document).ready(function() {
                     </div>
                 </div>
             </div>
+            <hr style="border: 1px solid #0044cc;"/>
         </div>
-        <hr style="border: 1px solid #0044cc;"/>
     </div>
     
+    <br/><br/><br/><br/>
     
     <div class="col-md-12 col-lg-12 col-sm-12">
         <input type="button" id="addConcepto" class="btn btn-xs btn-default" value="Añadir Concepto" onclick="addConcepto();">
