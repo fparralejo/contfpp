@@ -2,11 +2,11 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class Cliente extends Model {
+class Presupuesto extends Model {
 
-    protected $table = 'clientes';
+    protected $table = 'presupuestos';
 
-    protected $primaryKey = "idCliente";
+    protected $primaryKey = "IdPresupuesto";
 
     public $timestamps = false;
         

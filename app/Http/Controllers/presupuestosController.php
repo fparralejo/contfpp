@@ -110,11 +110,53 @@ class presupuestosController extends Controller {
                           ->get();
         
 
-        return view('presupuestos.alta')->with('clientes', json_encode($clientes))->with('datos', json_encode($datos));
+        return view('presupuestos.ver')->with('clientes', json_encode($clientes))->with('datos', json_encode($datos));
     }
         
+    public function editar($idPresupuesto){
+        //control de sesion
+        $admin = new adminController();
+        if (!$admin->getControl()) {
+            return redirect('/')->with('login_errors', 'La sesión a expirado. Vuelva a logearse.');
+        }
         
+        $datos = Empresa::on('contfpp')->find((int)Session::get('IdEmpresa'));
         
+        $clientes = Cliente::on(Session::get('conexionBBDD'))
+                          ->where('borrado', '=', '1')
+                          ->where('tipo', '=', 'C')
+                          ->get();
+        
+        $presupuesto = Presupuesto::on(Session::get('conexionBBDD'))
+                        ->find($idPresupuesto);
+        
+        //var_dump($presupuesto);die;
+
+        return view('presupuestos.ver')->with('presupuesto', json_encode($presupuesto))->with('clientes', json_encode($clientes))->with('datos', json_encode($datos));
+    }
+        
+    public function listar(){
+        //control de sesion
+        $admin = new adminController();
+        if (!$admin->getControl()) {
+            return redirect('/')->with('login_errors', 'La sesión a expirado. Vuelva a logearse.');
+        }
+        
+        $presupuestos = Presupuesto::on(Session::get('conexionBBDD'))
+                        ->where('Borrado', '=', '1')
+                        ->get();
+        
+        $clientes = Cliente::on(Session::get('conexionBBDD'))
+                          ->where('borrado', '=', '1')
+                          ->where('tipo', '=', 'C')
+                          ->get();
+        
+
+        return view('presupuestos.listado')->with('presupuestos', json_encode($presupuestos))->with('clientes', json_encode($clientes));
+    }
+        
+
+    
     //NO
     public function main(){
         //control de sesion
