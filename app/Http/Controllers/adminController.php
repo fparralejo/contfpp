@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use App\Empresa;
 use App\Usuario;
 use App\Empleado;
+use App\TipoContador;
+use App\Presupuesto;
 
 
 class adminController extends Controller {
@@ -161,6 +163,118 @@ class adminController extends Controller {
         }
     }
 
+    //tools
+    public function formatearNumero($numero,$TipoContador){
+        //decido que tipo de contador es
+        //genero el nombre de la funcion poniendo "forNum".$TipoContador, que es un numero 
+        $txtFuncion = "forNum".$TipoContador;
+        //la llamada la hago asi
+        return $this->$txtFuncion($numero);
+    }
+
+    //Libre, solo debes comprobar que no se repita
+    private function forNum1($numero){
+        //el numero viene 201600001, las 4 primeras cifras son el año, las quito y quito los 0 que haya delante
+        $respuesta = substr($numero,4);
+        $respuesta = $this->quitarCerosDelante($respuesta);
+        return $respuesta;
+    }
     
+    //Simple, numeracion seguida
+    private function forNum2($numero){
+        //el numero viene 201600001, las 4 primeras cifras son el año, las quito y quito los 0 que haya delante
+        $respuesta = substr($numero,4);
+        $respuesta = $this->quitarCerosDelante($respuesta);
+        return $respuesta;
+    }
     
+    //Compuesto Número/Año
+    private function forNum3($numero){
+        //el numero viene 201600001, las 4 primeras cifras son el año, lo cojo como ejercicio y quito los 0 que haya delante
+        $ejercicio = substr($numero,0,4);
+        $num = substr($numero,4);
+        $num = $this->quitarCerosDelante($num);
+        return $num.'/'.$ejercicio;
+    }
+    
+    //Compuesto Año/Número
+    private function forNum4($numero){
+        //el numero viene 201600001, las 4 primeras cifras son el año, lo cojo como ejercicio y quito los 0 que haya delante
+        $ejercicio = substr($numero,0,4);
+        $num = substr($numero,4);
+        $num = $this->quitarCerosDelante($num);
+        return $ejercicio.'/'.$num;
+    }
+    
+    private function quitarCerosDelante($numero){
+        while(substr($numero,0,1) === '0'){
+            $numero = substr($numero,1);
+        }
+        return $numero;
+    }
+    
+    public function numeroNuevo($tipoDoc,$TipoContador){
+        //SOLO ESTA IMPLEMENTADO PRESUPUESTOS
+        
+        //extraigo el listado de los presupuestos
+        $listadoNumeros = Presupuesto::on(Session::get('conexionBBDD'))
+                        ->where('Borrado', '=', '1')
+                        ->select('NumPresupuesto')
+                        ->get();
+        
+        //ahora recorro este array y busco el mas alto
+        $numMasAlto = 0;
+        for ($i = 0; $i < count($listadoNumeros); $i++) {
+            if((int)$listadoNumeros[$i]->NumPresupuesto > (int)$numMasAlto){
+                $numMasAlto = $listadoNumeros[$i]->NumPresupuesto;
+            }
+        }
+
+        $ejercicio = substr($numMasAlto,0,4);
+        $num = substr($numMasAlto,4);
+        //ahora segun el $TipoContador, ejecuto la funcion para aumentar la numeracion un numero
+        $txtFuncion = "nuevoNumero".$TipoContador;
+        
+        return $this->$txtFuncion($ejercicio,$num);
+    }
+    
+    private function nuevoNumero1($ejercicio,$num){
+        //sumo 1 al $num
+        $num = (int)$num + 1;
+        return $ejercicio.$num;
+    }
+    
+    private function nuevoNumero2($ejercicio,$num){
+        //sumo 1 al $num
+        $num = (int)$num + 1;
+        return $ejercicio.$num;
+    }
+    
+    private function nuevoNumero3($ejercicio,$num){
+        //veo si el ejercicio coincide con el año actual
+        if($ejercicio === date('Y')){
+            //sumo 1 al $num
+            $num = (int)$num + 1;
+            $resultado = $ejercicio.$num;
+        }else{
+            //es distinto año, comienzo numeracion de este año
+            $resultado = date('Y').'00001';
+        }
+        
+        return $resultado;
+    }
+    
+    private function nuevoNumero4($ejercicio,$num){
+        //veo si el ejercicio coincide con el año actual
+        if($ejercicio === date('Y')){
+            //sumo 1 al $num
+            $num = (int)$num + 1;
+            $resultado = $ejercicio.$num;
+        }else{
+            //es distinto año, comienzo numeracion de este año
+            $resultado = date('Y').'1';
+        }
+        
+        return $resultado;
+    }
 }

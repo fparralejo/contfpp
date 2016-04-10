@@ -192,7 +192,7 @@ function sumas(){
     var importeTotal = 0;
     var cuotaTotal = 0;
     var total = 0;
-    $(document).ready(function(){
+//    $(document).ready(function(){
         $('#presupuestoForm').find(":input").each(function(){
             var elemento = this;
             //comprobamos el nombre del elemento y lo guardamos en ua array segun sea cantidad, precio, importe y concepto
@@ -204,7 +204,7 @@ function sumas(){
                 cuotaTotal = parseFloat(cuotaTotal) + parseFloat(elemento.value);
             }            
         });
-    });
+//    });
     
     importeTotal = parseFloat(importeTotal).toFixed(2);
     cuotaTotal = parseFloat(cuotaTotal).toFixed(2);
