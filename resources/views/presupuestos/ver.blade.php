@@ -636,10 +636,10 @@ if($presupuesto === ''){//nuevo
         
         //comprobacion del campo 'numPresupuesto'
         if ($('#numPresupuesto').val() === ''){ 
-          textoError = textoError + "Es necesario introducir un número de factura.\n";
+          textoError = textoError + "Es necesario introducir un número del presupuesto.\n";
           //document.form1.numPresupuesto.style.borderColor='#FF0000';
           //document.form1.numPresupuesto.title ='Se debe introducir un número de factura';
-          esValido.value = false;
+          esValido.value = "false";
         }
 
 

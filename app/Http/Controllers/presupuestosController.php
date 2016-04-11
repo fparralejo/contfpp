@@ -148,7 +148,7 @@ class presupuestosController extends Controller {
         //numero
         $numero = $admin->formatearNumero($presupuesto->NumPresupuesto,$datos->TipoContador);
                 
-        //var_dump($presupuestoDetalle[0]->Cantidad);die;
+        //var_dump($numero);die;
 
         return view('presupuestos.ver')->with('presupuesto', json_encode($presupuesto))->with('clientes', json_encode($clientes))
                                        ->with('datos', json_encode($datos))->with('presupuestoDetalle', json_encode($presupuestoDetalle))
@@ -177,34 +177,22 @@ class presupuestosController extends Controller {
        
     
     public function createEdit(Request $request){
-        dd($request);die;
+        //dd($request);die;
         
         //hago las operaciones en transaccion, trabajo con las tablas presupuestos y presupuestosdetalle
         //1º inserto o actualizo los datos de la tabla presupuesots por el IdPresupuesto
-        //2º si edito, borro los datos de la tabla presupuestosdetalle por el IdPresupuesto
+        //2º si edito, borro los datos de la tabla presupuestosdetalle por el IdPresupuesto (campo Borrado=0)
         //3º inserto los nuevos detalles con el IdPresupuesto
         
-        DB::beginTransaction(); //Comienza transaccion
+//        \DB::beginTransaction(); //Comienza transaccion
         
-        try{
+//        try{
             //1º
+            //editar
             if(isset($request->IdPresupuesto) && $request->IdPresupuesto !== ""){
                 //sino se edita este IdPresupuesto
                 $presupuesto = Presupuesto::on(Session::get('conexionBBDD'))->find($request->IdPresupuesto);
                 
-                $presupuesto->NumPresupuesto = (isset($request->NumPresupuesto)) ? $request->NumPresupuesto : '';
-                $presupuesto->FechaPresupuesto = (isset($request->fechaPresup)) ? \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$request->fechaPresup)->format('Y-m-d H:i:s') : '';
-                $presupuesto->FechaVtoPresupuesto = (isset($request->FechaVtoPresupuesto)) ? \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$request->FechaVtoPresupuesto)->format('Y-m-d H:i:s') : '';
-                $presupuesto->FormaPago = (isset($request->FormaPago)) ? $request->FormaPago : '';
-                $presupuesto->Estado = 'Emitida';
-                $presupuesto->Retencion = (isset($request->Retencion)) ? $request->Retencion : '';
-                $presupuesto->Proforma = (isset($request->Proforma)) ? $request->Proforma : '';
-                $presupuesto->Borrado = '1';
-                $presupuesto->BaseImponible = (isset($request->totalImporte)) ? $request->totalImporte : '';
-                $presupuesto->Cuota = (isset($request->totalImporte)) ? $request->totalCuota : '';
-                $presupuesto->total = (isset($request->totalImporte)) ? $request->total : '';
-                //guardo los cambios
-                $presupuesto->save();
                 
                 //2º
                 $presupuestoDetalle = PresupuestoDetalle::on(Session::get('conexionBBDD'))
@@ -212,71 +200,164 @@ class presupuestosController extends Controller {
                                      ->where('Borrado', '=', '1')
                                      ->get();
                 
-                
+                foreach ($presupuestoDetalle as $detalle) {
+                    $detalle->Borrado = 0;
+                    $detalle->save();
+                }
 
                 $ok = 'Se ha editado correctamente el presupuesto.';
                 $error = 'ERROR al edtar el presupuesto.';
             }
+            //nuevo
             else{
                 //si es nuevo este valor viene vacio
                 $presupuesto = new Presupuesto();
                 $presupuesto->setConnection(Session::get('conexionBBDD'));
 
-                //indicamos el nuevo idCliente
-                $idClienteNuevo = Cliente::on(Session::get('conexionBBDD'))
-                                  ->max('idCliente') + 1;
-                $cliente->idCliente = $idClienteNuevo;
+                //indicamos el nuevo IdPresupuesto
+                $idPresupNuevo = Presupuesto::on(Session::get('conexionBBDD'))
+                                  ->max('IdPresupuesto') + 1;
+                $presupuesto->IdPresupuesto = $idPresupNuevo;
+                
 
-                if($request->tipoOpc === 'C'){
-                    $ok = 'Se ha dado de alta correctamente el proveedor.';
-                    $error = 'ERROR al dar de alta el proveedor.';
-                }else{
-                    $ok = 'Se ha dado de alta correctamente el proveedor.';
-                    $error = 'ERROR al dar de alta el proveedor.';
+                $ok = 'Se ha dado de alta correctamente el presupuesto.';
+                $error = 'ERROR al dar de alta el presupuesto.';
+            }
+            
+            //Continuo 1º (editar o nuevo), recojo los datos del formulario
+            $presupuesto->NumPresupuesto = (isset($request->NumPresupuesto)) ? $request->NumPresupuesto : '';
+            $presupuesto->FechaPresupuesto = (isset($request->fechaPresup)) ? \Carbon\Carbon::createFromFormat('d/m/Y',$request->fechaPresup)->format('Y-m-d H:i:s') : '';
+            $presupuesto->FechaVtoPresupuesto = (isset($request->FechaVtoPresupuesto)) ? \Carbon\Carbon::createFromFormat('d/m/Y',$request->FechaVtoPresupuesto)->format('Y-m-d H:i:s') : '';
+            $presupuesto->FormaPago = (isset($request->FormaPago)) ? $request->FormaPago : '';
+            $presupuesto->Estado = 'Emitida';
+            $presupuesto->Retencion = (isset($request->Retencion)) ? $request->Retencion : '';
+            $presupuesto->Proforma = (isset($request->Proforma)) ? $request->Proforma : '';
+            $presupuesto->Borrado = '1';
+            $presupuesto->BaseImponible = (isset($request->totalImporte)) ? $request->totalImporte : '';
+            $presupuesto->Cuota = (isset($request->totalImporte)) ? $request->totalCuota : '';
+            $presupuesto->total = (isset($request->totalImporte)) ? $request->total : '';
+            //guardo los cambios
+            $presupuesto->save();
+            
+            
+            //3º
+            //recojo en un array los valores nuevos, que vienen de las variables 
+            foreach ($request as $key => $value) {
+                if($key === 'request'){
+                    foreach ($value as $key2 => $value2) {
+                        //ahora vamos buscando las distintas request que comiencen por:
+                        //busco Cantidad
+                        if(substr($key2,0,8) === 'Cantidad'){
+                            //extraigo en numero de cantidad para buscar el resto de valores que terminen en ese numero 
+                            //(son de la misma linea de presupuesto)
+                            $num = substr($key2,8);
+                            //Cantidad
+                            $propCantidad = 'Cantidad' . $num;
+                            $valorCantidad = $request->$propCantidad;
+                            if($valorCantidad === ''){
+                                $valorCantidad = 0;
+                            }
+
+                            //Concepto
+                            $propConcepto = 'Concepto' . $num;
+                            $valorConcepto = $request->$propConcepto;
+                            //cambio las comillas simples si hay por dobles, me da error sino al leer este dato el formulario html
+                            $valorConcepto = str_replace("'", "\"", $valorConcepto);
+
+                            //SIN HACER, TENERLO EN CUENTA PARA ARTICULOS
+                            //IdArticulo
+//                                $propIdArticulo='IdArticulo'.$num;
+//                                $valorIdArticulo=$post[$propIdArticulo];
+
+                            //Importe
+                            $propImporte = 'Importe' . $num;
+                            $valorImporte = $request->$propImporte;
+                            if($valorImporte === ''){
+                                $valorImporte = 0;
+                            }
+
+                            //Precio
+                            $propPrecio = 'Precio' . $num;
+                            $valorPrecio = $request->$propPrecio;
+                            if($valorPrecio === ''){
+                                $valorPrecio = 0;
+                            }
+
+                            //iva
+                            $propIVA = 'IVA' . $num;
+                            $valorIVA = $request->$propIVA;
+
+                            //cuota
+                            $propCuota = 'Cuota' . $num;
+                            $valorCuota = $request->$propCuota;
+
+                            //REVISAR  *************************  11/4/2016
+                            //compruebo que la cuota viene bien (importe * IVA / 100), sino la recalculo
+                            //por si del formulario viene mal 
+                            $cuotaCalculada = round($valorImporte * $valorIVA,2);
+
+                            if((int)($valorCuota * 100) !== (int)($cuotaCalculada)){
+                                $valorCuota = (float) $cuotaCalculada / 100;
+                            }
+
+                            //ahora guardo el valor en el array
+                            $presupuestoDetalleNuevo[]=array(
+                                "Cantidad"=>$valorCantidad, 
+                                "Concepto"=>$valorConcepto,
+                                "Precio"=>$valorPrecio,
+                                "Importe"=>$valorImporte,
+                                "IVA"=>$valorIVA,
+                                "Cuota"=>$valorCuota,
+                            );
+                        }
+                    }
                 }
             }
 
-            $cliente->tipo = (isset($request->tipoOpc)) ? $request->tipoOpc : '';
-            $cliente->nombre = (isset($request->nombre)) ? $request->nombre : '';
-            $cliente->apellidos = (isset($request->apellidos)) ? $request->apellidos : '';
-            $cliente->telefono = (isset($request->telefono)) ? $request->telefono : '';
-            $cliente->email = (isset($request->email)) ? $request->email : '';
-            $cliente->notas = (isset($request->notas)) ? $request->notas : '';
-            $cliente->nombreEmpresa = (isset($request->nombreEmpresa)) ? $request->nombreEmpresa : '';
-            $cliente->CIF = (isset($request->cifnif)) ? $request->cifnif : '';
-            $cliente->direccion = (isset($request->direccion)) ? $request->direccion : '';
-            $cliente->municipio = (isset($request->municipio)) ? $request->municipio : '';
-            $cliente->CP = (isset($request->CP)) ? $request->CP : '';
-            $cliente->provincia = (isset($request->provincia)) ? $request->provincia : '';
-            $cliente->forma_pago_habitual = (isset($request->forma_pago_habitual)) ? $request->forma_pago_habitual : '' ;
-            $cliente->borrado = 1;
+            //por ultimo inserto estas lineas en la tabla presupuesotsDetalle
+            for ($i = 0; $i < count($presupuestoDetalleNuevo); $i++) {
+                $nuevoDetalle = new PresupuestoDetalle();
+                $nuevoDetalle->setConnection(Session::get('conexionBBDD'));
+                $idNuevo = PresupuestoDetalle::on(Session::get('conexionBBDD'))
+                                             ->max('IdPresupDetalle') + 1;
+                
+                //**** SIN TERMINAR DAR DE ALTA LAS LINEAS DE DETALLE
 
-            //var_dump($cliente);die;
+                $nuevoDetalle->IdPresupDetalle = $idNuevo;
+                $nuevoDetalle->IdPresupuesto = $presupuesto->IdPresupuesto;
+                $nuevoDetalle->NumLineaPresup = (int)($i +1);
+                $nuevoDetalle->IdArticulo = (isset($presupuestoDetalleNuevo[$i]['IdArticulo'])) ? $presupuestoDetalleNuevo[$i]['IdArticulo'] : '';
+                $nuevoDetalle->DescripcionProducto = (isset($presupuestoDetalleNuevo[$i]['Concepto'])) ? $presupuestoDetalleNuevo[$i]['Concepto'] : '';
+                $nuevoDetalle->TipoIVA = (isset($presupuestoDetalleNuevo[$i]['IVA'])) ? $presupuestoDetalleNuevo[$i]['IVA'] : '';
+                $nuevoDetalle->Cantidad = (isset($presupuestoDetalleNuevo[$i]['Cantidad'])) ? $presupuestoDetalleNuevo[$i]['Cantidad'] : '';
+                $nuevoDetalle->ImporteUnidad = (isset($presupuestoDetalleNuevo[$i]['Precio'])) ? $presupuestoDetalleNuevo[$i]['Precio'] : '';
+                $nuevoDetalle->Importe = (isset($presupuestoDetalleNuevo[$i]['Importe'])) ? $presupuestoDetalleNuevo[$i]['Importe'] : '';
+                $nuevoDetalle->CuotaIva = (isset($presupuestoDetalleNuevo[$i]['Cuota'])) ? $presupuestoDetalleNuevo[$i]['Cuota'] : '';
 
-            $txt = '';
-            if($cliente->save()){
-                $txt = $ok;
-            }else{
-                $txt = $error;
+                
+                
+                $nuevoDetalle->save();
+
             }
+
+
+            //***********************************************************
+
+
 
             //echo json_encode($txt);
-            if($cliente->tipo === 'C'){
-                return redirect('clientes')->with('errors', json_encode($txt))->with('tipo', json_encode('C'));
-            }else{
-                return redirect('proveedores')->with('errors', json_encode($txt))->with('tipo', json_encode('P'));
-            }
+            return redirect('presupuestos/mdb');
         
-        }
-        catch(\Exception $e)
-        {
-          //failed logic here
-           DB::rollback();
-           throw $e;
-           echo "falla";die;
-        }
-
-        DB::commit();
+//        }
+//        catch(\Exception $e)
+//        {
+//          //failed logic here
+//           \DB::rollback();
+//           throw $e;
+//           echo "falla";die;
+//        }
+//
+//        \DB::commit();
     }
     
 
