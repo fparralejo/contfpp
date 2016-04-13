@@ -279,6 +279,7 @@ if($presupuesto === ''){//nuevo
                                             '<div class="form-group">'+
                                                 '<label for="Concepto'+linea+'">Concepto</label>'+
                                                 '<textarea class="form-control" id="Concepto'+linea+'" name="Concepto'+linea+'" rows="0"></textarea>'+
+                                                '<input type="hidden" id="IdArticulo'+linea+'" name="IdArticulo'+linea+'" value=""/>'+
                                             '</div>'+
                                         '</div>'+
                                         '<div class="col-md-1">'+
@@ -365,6 +366,7 @@ if($presupuesto === ''){//nuevo
                 //ahora relleno los datos de esta linea
                 $('#Cantidad'+lineaAux).val(parseFloat(<?php echo $presupuestoDetalle[$i]->Cantidad; ?>).toFixed(2));
                 $('#Concepto'+lineaAux).val('<?php echo $presupuestoDetalle[$i]->DescripcionProducto; ?>');
+                $('#IdArticulo'+lineaAux).val('<?php echo $presupuestoDetalle[$i]->IdArticulo; ?>');
                 $('#Precio'+lineaAux).val(parseFloat(<?php echo $presupuestoDetalle[$i]->ImporteUnidad; ?>).toFixed(2));
                 $('#Importe'+lineaAux).val(parseFloat(<?php echo $presupuestoDetalle[$i]->Importe; ?>).toFixed(2));
                 $('#IVA'+lineaAux).val(parseFloat(<?php echo $presupuestoDetalle[$i]->TipoIVA; ?>).toFixed(2));
@@ -460,6 +462,13 @@ if($presupuesto === ''){//nuevo
                         <label for="validez">Fecha Validez</label>
                         <input type="text" class="form-control" id="FechaVtoPresupuesto" name="FechaVtoPresupuesto" style="text-align:right;" 
                                value="{{ $fechaVtoPresupuesto }}">
+                        <script>
+                        $("#FechaVtoPresupuesto").datepicker({
+                            format: 'dd/mm/yyyy',
+                            changeMonth: true,
+                            changeYear: true
+                        });
+                        </script>
                     </div>
                 </div>
             </div>
@@ -546,13 +555,13 @@ if($presupuesto === ''){//nuevo
                 }else            
                 if(nombreElemento.substring(0,8) === 'Concepto'){//es un elemento concepto
                     conceptos[nombreElemento.substr(8,3)] = elemento.value;
-//                }else
-//                //compruebo si IdArticulo esta NULL o vacio
-//                if(nombreElemento.substring(0,10)==='IdArticulo'){//es un elemento IdArticulo
-//                    if(elemento.value === '' || elemento.value === 'null'){
-//                        //es una vble. hidden del formulario
-//                        guardarArticulosNuevos.value = 'SI';
-//                    }
+                }else
+                //compruebo si IdArticulo esta NULL o vacio
+                if(nombreElemento.substring(0,10)==='IdArticulo'){//es un elemento IdArticulo
+                    if(elemento.value === '' || elemento.value === 'null'){
+                        //es una vble. hidden del formulario
+                        //guardarArticulosNuevos.value = 'SI';
+                    }
                 }
             });
 //        });

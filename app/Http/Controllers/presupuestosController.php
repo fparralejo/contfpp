@@ -162,6 +162,8 @@ class presupuestosController extends Controller {
             return redirect('/')->with('login_errors', 'La sesión a expirado. Vuelva a logearse.');
         }
         
+        $datos = Empresa::on('contfpp')->find((int)Session::get('IdEmpresa'));
+        
         $presupuestos = Presupuesto::on(Session::get('conexionBBDD'))
                         ->where('Borrado', '=', '1')
                         ->get();
@@ -171,12 +173,17 @@ class presupuestosController extends Controller {
                           ->where('tipo', '=', 'C')
                           ->get();
         
+        for ($i = 0; $i < count($presupuestos); $i++) {
+            $presupuestos[$i]->NumPresupuesto = $admin->formatearNumero($presupuestos[$i]->NumPresupuesto,$datos->TipoContador);
+        }
 
         return view('presupuestos.listado')->with('presupuestos', json_encode($presupuestos))->with('clientes', json_encode($clientes));
     }
        
     
     public function createEdit(Request $request){
+        $admin = new adminController();
+        $datos = Empresa::on('contfpp')->find((int)Session::get('IdEmpresa'));
         //dd($request);die;
         
         //hago las operaciones en transaccion, trabajo con las tablas presupuestos y presupuestosdetalle
@@ -184,14 +191,15 @@ class presupuestosController extends Controller {
         //2º si edito, borro los datos de la tabla presupuestosdetalle por el IdPresupuesto (campo Borrado=0)
         //3º inserto los nuevos detalles con el IdPresupuesto
         
-//        \DB::beginTransaction(); //Comienza transaccion
+        \DB::connection(Session::get('conexionBBDD'))->beginTransaction(); //Comienza transaccion
         
-//        try{
+        try{
             //1º
             //editar
             if(isset($request->IdPresupuesto) && $request->IdPresupuesto !== ""){
                 //sino se edita este IdPresupuesto
                 $presupuesto = Presupuesto::on(Session::get('conexionBBDD'))->find($request->IdPresupuesto);
+                $presupuesto->Estado = 'Emitida';
                 
                 
                 //2º
@@ -225,17 +233,19 @@ class presupuestosController extends Controller {
             }
             
             //Continuo 1º (editar o nuevo), recojo los datos del formulario
-            $presupuesto->NumPresupuesto = (isset($request->NumPresupuesto)) ? $request->NumPresupuesto : '';
+            //NumPresupuesto: formateo el numero que viene 
+            $numPresupuesto = $admin->desFormatearNumero($request->numPresupuesto,$datos->TipoContador);
+            $presupuesto->NumPresupuesto = $numPresupuesto;
+            $presupuesto->IdCliente = (isset($request->idCliente)) ? $request->idCliente : '';
             $presupuesto->FechaPresupuesto = (isset($request->fechaPresup)) ? \Carbon\Carbon::createFromFormat('d/m/Y',$request->fechaPresup)->format('Y-m-d H:i:s') : '';
             $presupuesto->FechaVtoPresupuesto = (isset($request->FechaVtoPresupuesto)) ? \Carbon\Carbon::createFromFormat('d/m/Y',$request->FechaVtoPresupuesto)->format('Y-m-d H:i:s') : '';
             $presupuesto->FormaPago = (isset($request->FormaPago)) ? $request->FormaPago : '';
-            $presupuesto->Estado = 'Emitida';
             $presupuesto->Retencion = (isset($request->Retencion)) ? $request->Retencion : '';
             $presupuesto->Proforma = (isset($request->Proforma)) ? $request->Proforma : '';
             $presupuesto->Borrado = '1';
             $presupuesto->BaseImponible = (isset($request->totalImporte)) ? $request->totalImporte : '';
-            $presupuesto->Cuota = (isset($request->totalImporte)) ? $request->totalCuota : '';
-            $presupuesto->total = (isset($request->totalImporte)) ? $request->total : '';
+            $presupuesto->Cuota = (isset($request->totalCuota)) ? $request->totalCuota : '';
+            $presupuesto->total = (isset($request->Total)) ? $request->Total : '';
             //guardo los cambios
             $presupuesto->save();
             
@@ -264,10 +274,9 @@ class presupuestosController extends Controller {
                             //cambio las comillas simples si hay por dobles, me da error sino al leer este dato el formulario html
                             $valorConcepto = str_replace("'", "\"", $valorConcepto);
 
-                            //SIN HACER, TENERLO EN CUENTA PARA ARTICULOS
                             //IdArticulo
-//                                $propIdArticulo='IdArticulo'.$num;
-//                                $valorIdArticulo=$post[$propIdArticulo];
+                            $propIdArticulo='IdArticulo' . $num;
+                            $valorIdArticulo = $request->$propIdArticulo;
 
                             //Importe
                             $propImporte = 'Importe' . $num;
@@ -291,19 +300,20 @@ class presupuestosController extends Controller {
                             $propCuota = 'Cuota' . $num;
                             $valorCuota = $request->$propCuota;
 
-                            //REVISAR  *************************  11/4/2016
+                            //REVISAR  *************************  13/4/2016 FALLA
                             //compruebo que la cuota viene bien (importe * IVA / 100), sino la recalculo
                             //por si del formulario viene mal 
-                            $cuotaCalculada = round($valorImporte * $valorIVA,2);
-
-                            if((int)($valorCuota * 100) !== (int)($cuotaCalculada)){
-                                $valorCuota = (float) $cuotaCalculada / 100;
-                            }
+//                            $cuotaCalculada = round($valorImporte * $valorIVA,2);
+//
+//                            if((int)($valorCuota * 100) !== (int)($cuotaCalculada)){
+//                                $valorCuota = (float) $cuotaCalculada / 100;
+//                            }
 
                             //ahora guardo el valor en el array
                             $presupuestoDetalleNuevo[]=array(
                                 "Cantidad"=>$valorCantidad, 
                                 "Concepto"=>$valorConcepto,
+                                "IdArticulo"=>$valorIdArticulo,
                                 "Precio"=>$valorPrecio,
                                 "Importe"=>$valorImporte,
                                 "IVA"=>$valorIVA,
@@ -345,19 +355,21 @@ class presupuestosController extends Controller {
 
 
 
-            //echo json_encode($txt);
-            return redirect('presupuestos/mdb');
         
-//        }
-//        catch(\Exception $e)
-//        {
-//          //failed logic here
-//           \DB::rollback();
-//           throw $e;
-//           echo "falla";die;
-//        }
-//
-//        \DB::commit();
+        }
+        catch(\Exception $e)
+        {
+          //failed logic here
+           \DB::connection(Session::get('conexionBBDD'))->rollback();
+           throw $e;
+           echo "falla";die;
+        }
+
+        \DB::connection(Session::get('conexionBBDD'))->commit();
+        
+        
+        //echo json_encode($txt);
+        return redirect('presupuestos/mdb');
     }
     
 

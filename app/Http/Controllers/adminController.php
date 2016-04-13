@@ -172,11 +172,10 @@ class adminController extends Controller {
         return $this->$txtFuncion($numero);
     }
 
-    //Libre, solo debes comprobar que no se repita
+    //Libre, solo debes comprobar que no se repita **SIN HACER
     private function forNum1($numero){
-        //el numero viene 201600001, las 4 primeras cifras son el año, las quito y quito los 0 que haya delante
-        $respuesta = substr($numero,4);
-        $respuesta = $this->quitarCerosDelante($respuesta);
+        $respuesta = $numero;
+//        $respuesta = $this->quitarCerosDelante($respuesta);
         return $respuesta;
     }
     
@@ -258,7 +257,7 @@ class adminController extends Controller {
             $resultado = $ejercicio.$num;
         }else{
             //es distinto año, comienzo numeracion de este año
-            $resultado = date('Y').'00001';
+            $resultado = date('Y').'1';
         }
         
         return $resultado;
@@ -276,5 +275,44 @@ class adminController extends Controller {
         }
         
         return $resultado;
+    }
+    
+    public function desFormatearNumero($numero,$TipoContador){
+        //decido que tipo de contador es
+        //genero el nombre de la funcion poniendo "forNum".$TipoContador, que es un numero 
+        $txtFuncion = "desForNum".$TipoContador;
+        //la llamada la hago asi
+        return $this->$txtFuncion($numero);
+    }
+
+    //Libre, solo debes comprobar que no se repita **SIN HACER
+    private function desForNum1($numero){
+        $respuesta = $numero;
+//        $respuesta = $this->quitarCerosDelante($respuesta);
+        return $respuesta;
+    }
+    
+    //Simple, numeracion seguida
+    private function desForNum2($numero){
+        //el numero viene 1, las 4 primeras cifras son el año, las quito
+        $respuesta = date('Y') . $numero;
+//        $respuesta = $this->quitarCerosDelante($respuesta);
+        return $respuesta;
+    }
+    
+    //Compuesto Número/Año
+    private function desForNum3($numero){
+        //el numero viene 1/2016,divido el numero y lo uno primero el año y despues el numero
+        $divido = explode('/',$numero);
+        $num = $divido[1] . $divido[0];
+        return $num;
+    }
+    
+    //Compuesto Año/Número
+    private function desForNum4($numero){
+        //el numero viene 2016/1 ,divido el numero y lo uno primero el año y despues el numero
+        $divido = explode('/',$numero);
+        $num = $divido[0] . $divido[1];
+        return $num;
     }
 }

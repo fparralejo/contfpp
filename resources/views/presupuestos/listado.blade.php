@@ -180,13 +180,13 @@ $clientes = json_decode($clientes);
     $url="";
     ?>
         <tr>
-            <td class="sgsiRow" onClick="{{ $url }}">{{ $presupuesto->NumPresupuesto }}</td>
+            <td class="sgsiRow" onClick="{{ $url }}" style="text-align: right;">{{ $presupuesto->NumPresupuesto }}</td>
             <td class="sgsiRow" onClick="{{ $url }}">{{ $txtCliente }}</td>
             <td class="sgsiRow" onClick="{{ $url }}">{{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$presupuesto->FechaPresupuesto)->format('d/m/Y') }}</td>
             <td class="sgsiRow" style="text-align: right;" onClick="{{ $url }}">{{ number_format($presupuesto->total, 2, ',', '.') }}</td>
             <td class="sgsiRow" onClick="{{ $url }}"><?php echo $htmlEstado; ?></td>
             <td>
-                <button type="button" onclick="verPresupuesto({{ $presupuesto->IdPresupuesto }})" class="btn btn-xs btn-primary">Ver</button>
+                <button type="button" onclick="verPresupuesto({{ $presupuesto->IdPresupuesto }})" class="btn btn-xs btn-primary">Ver/Editar</button>
             </td>
             <td>
                 <button type="button" onclick="duplicarPresupuesto({{ $presupuesto->IdPresupuesto }})" class="btn btn-xs btn-success">Duplicar</button>
