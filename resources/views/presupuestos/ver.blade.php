@@ -71,12 +71,16 @@ if($presupuesto === ''){//nuevo
         <div class="col-md-3 col-lg-3 col-sm-3">
         </div>
         <div class="col-md-5 col-lg-5 col-sm-5">
-            <div class="form-group">
+            <div class="form-group" id="groupNumPresupuesto">
                 <label class="col-md-6 control-label" for="identificacion">Presupuesto Nº:</label>
                 <div class="col-md-6">
                     <input type="text" class="form-control" id="numPresupuesto" name="numPresupuesto" style="text-align:right;"
-                           maxlength="50" required="true" value="{{ $numero }}" onblur="">
+                           maxlength="50" required="true" value="{{ $numero }}" onkeypress="limpiar('groupNumPresupuesto','txtValidarNumPresupuesto');" 
+                           onblur="validar(this,'groupNumPresupuesto','txtValidarNumPresupuesto');">
                     <input type="hidden" id="IdPresupuesto" name="IdPresupuesto" value="{{ $idPresupuesto }}">
+                </div>
+                <div class="alert alert-dander" role="alert" style="display: none; text-align: right;" id="txtValidarNumPresupuesto">
+                    <small class="help-block text-danger">Debes introducir un número</small>
                 </div>
             </div>
         </div>
@@ -135,7 +139,7 @@ if($presupuesto === ''){//nuevo
         <div class="col-md-3 col-lg-3 col-sm-3">
         </div>
         <div class="col-md-5 col-lg-5 col-sm-5">
-            <div class="form-group">
+            <div class="form-group" id="groupIdCliente">
                 <label class="col-md-3 control-label" for="idCliente">Cliente:</label>
                 <div class="col-md-9">
                     <select class="form-control" id="idCliente" name="idCliente" onchange="cargaCliente(this.value);">
@@ -145,6 +149,9 @@ if($presupuesto === ''){//nuevo
                         <option value="{{ $cliente->idCliente }}">{{ $cliente->nombre }} {{ $cliente->apellidos }}</option>
                         @endforeach
                     </select>
+                </div>
+                <div class="alert alert-dander" role="alert" style="display: none; text-align: right;" id="txtIdCliente">
+                    <small class="help-block text-danger">Debes Seleccionar un cliente</small>
                 </div>
             </div>
             <div class="form-group">
@@ -251,9 +258,12 @@ if($presupuesto === ''){//nuevo
     </div>
 
 
-    <div class="col-md-12 col-lg-12 col-sm-12">
+    <div class="col-md-12 col-lg-12 col-sm-12" id="groupAddConcepto">
         <div class="form-group">
             <input type="button" id="" class="btn btn-xs btn-default" value="Añadir Concepto" onclick="addConcepto($('#numLinea').val());">
+        </div>
+        <div class="alert alert-dander" role="alert" style="display: none;" id="txtAddConcepto">
+            <small class="help-block text-danger">Debe introducidir alguna línea en el presupuesto</small>
         </div>
     </div>
     
@@ -262,17 +272,23 @@ if($presupuesto === ''){//nuevo
 
     <script>
         function addConcepto(linea) {
+            //quito el texto de validaciones de líneas de conceptos 8si huebiese dado el error anteriormente)
+            $('#txtAddConcepto').css({"display": "none"});
+            
             $('#numLinea').val(parseInt($('#numLinea').val())+1);
             
             var txtLinea='<div class="col-md-12 col-lg-12 col-sm-12" id="linea'+linea+'">'+
                                 '<div class="thumbnail row">'+
                                     '<div class="caption">'+
                                         '<div class="col-md-1">'+
-                                            '<div class="form-group">'+
+                                            '<div class="form-group" id="groupCantidad'+linea+'">'+
                                                 '<label for="Cantidad'+linea+'">Cantidad</label>'+
                                                 '<input type="text" class="form-control" id="Cantidad'+linea+'" name="Cantidad'+linea+'" maxlength="20" '+
-                                                        'onkeypress="return solonumeros(event);" style="text-align:right;" value=""'+
+                                                        'onkeypress="return solonumeros(event);limpiarCantidad('+linea+');" style="text-align:right;" value=""'+
                                                         'onblur="calculoCantidad('+linea+');sumas();formatear(this);">'+
+                                                '<div class="alert alert-dander" role="alert" style="display: none;" id="txtCantidad'+linea+'">'+
+                                                    '<small class="help-block text-danger">Campo numérico</small>'+
+                                                '</div>'+
                                             '</div>'+
                                         '</div>'+
                                         '<div class="col-md-5">'+
@@ -341,6 +357,10 @@ if($presupuesto === ''){//nuevo
             objeto.value = parseFloat(objeto.value).toFixed(2);
         }
         
+        function limpiarCantidad(linea){
+            $('#txtCantidad'+linea).css({"display": "none"});
+            $('#groupCantidad'+linea).removeClass("has-feedback has-error");
+        }
 
         //veo si vienen datos de editar ($presupuesto y $presupuestoDetalle
         $(document).ready(function() {
@@ -506,9 +526,24 @@ if($presupuesto === ''){//nuevo
     </div>
 
 </form>
-
 <script>
+    function limpiar(group,txt){
+        $('#'+txt).css({"display": "none"});
+        $('#'+group).removeClass("has-feedback has-error");
+    }
+    
+    function validar(objeto,group,txt){
+        if(objeto.value === ''){
+            $('#'+txt).css({"display": "block"});
+            $('#'+group).addClass("has-feedback has-error");
+        }
+    }
+    
     function cargaCliente(IdCliente){
+        //formateo el campo por si esta señalado de anteriores validaciones
+        $('#txtIdCliente').css({"display": "none"});
+        $('#groupIdCliente').removeClass("has-feedback has-error");
+        
         if(IdCliente === 'Nuevo'){
             location.href = "{{ URL::asset('clientes') }}";
         }else{
@@ -533,42 +568,60 @@ if($presupuesto === ''){//nuevo
         esValido.value = "true";
         textoError='';
 
+
+        //reviso los campos de la cabecera 
+        //numPresupuesto 
+        if($('#numPresupuesto').val() === ''){
+            $('#txtValidarNumPresupuesto').css({"display": "block"});
+            $('#groupNumPresupuesto').addClass("has-feedback has-error");
+            esValido.value = "false";
+        }
+        
+        //idCliente 
+        if($('#idCliente').val() === ''){
+            $('#txtIdCliente').css({"display": "block"});
+            $('#groupIdCliente').addClass("has-feedback has-error");
+            esValido.value = "false";
+        }
+        
+
         //revisamos toda la tabla de lineas de presupuesto, hay que revisar cantidad, precio, concepto
         // importe que se cumpla importe = cantidad x precio
         var cantidades = new Array();
         var precios = new Array();
         var importes = new Array();
         var conceptos = new Array();
-//        $(document).ready(function(){
-            $('#presupuestoForm').find(":input").each(function(){
-                var elemento = this;
-                //comprobamos el nombre del elemento y lo guardamos en ua array segun sea cantidad, precio, importe y concepto
-                var nombreElemento = elemento.name;
-                if(nombreElemento.substring(0,8) === 'Cantidad'){//es un elemento cantidad
-                    cantidades[nombreElemento.substr(8,3)] = elemento.value;
-                }else 
-                if(nombreElemento.substring(0,6) === 'Precio'){//es un elemento precio
-                    precios[nombreElemento.substr(6,3)] = elemento.value;
-                }else
-                if(nombreElemento.substring(0,7) === 'Importe'){//es un elemento importe
-                    importes[nombreElemento.substr(7,3)] = elemento.value;
-                }else            
-                if(nombreElemento.substring(0,8) === 'Concepto'){//es un elemento concepto
-                    conceptos[nombreElemento.substr(8,3)] = elemento.value;
-                }else
-                //compruebo si IdArticulo esta NULL o vacio
-                if(nombreElemento.substring(0,10)==='IdArticulo'){//es un elemento IdArticulo
-                    if(elemento.value === '' || elemento.value === 'null'){
-                        //es una vble. hidden del formulario
-                        //guardarArticulosNuevos.value = 'SI';
-                    }
+        
+        $('#presupuestoForm').find(":input").each(function(){
+            var elemento = this;
+            //comprobamos el nombre del elemento y lo guardamos en ua array segun sea cantidad, precio, importe y concepto
+            var nombreElemento = elemento.name;
+            if(nombreElemento.substring(0,8) === 'Cantidad'){//es un elemento cantidad
+                cantidades[nombreElemento.substr(8,3)] = elemento.value;
+            }else 
+            if(nombreElemento.substring(0,6) === 'Precio'){//es un elemento precio
+                precios[nombreElemento.substr(6,3)] = elemento.value;
+            }else
+            if(nombreElemento.substring(0,7) === 'Importe'){//es un elemento importe
+                importes[nombreElemento.substr(7,3)] = elemento.value;
+            }else            
+            if(nombreElemento.substring(0,8) === 'Concepto'){//es un elemento concepto
+                conceptos[nombreElemento.substr(8,3)] = elemento.value;
+            }else
+            //compruebo si IdArticulo esta NULL o vacio
+            if(nombreElemento.substring(0,10)==='IdArticulo'){//es un elemento IdArticulo
+                if(elemento.value === '' || elemento.value === 'null'){
+                    //es una vble. hidden del formulario
+                    //guardarArticulosNuevos.value = 'SI';
                 }
-            });
-//        });
+            }
+        });
+        
         //compruebo que los arrays lleven datos (lentgh)
         //si fuese 0 es que no se a introducido ninguna linea de factura y eso es incongruente
         if(cantidades.length === 0){
-            textoError = textoError + "Debe introducidir alguna linea en el presupuesto.\n";
+            $('#txtAddConcepto').css({"display": "block"});
+            $('#groupAddConcepto').addClass("has-feedback has-error");
             esValido.value = 'false';
         }
 
@@ -654,10 +707,11 @@ if($presupuesto === ''){//nuevo
 
         //indicar el mensaje de error si es 'esValido.value'='false'
         if (esValido.value === 'false'){
-            if(textoError === ''){
-                textoError = 'Revise los datos. NO estan correctos';
-            }
-            alert(textoError);
+            //$('#submitir').prop( "disabled", true );
+//            if(textoError === ''){
+//                textoError = 'Revise los datos. NO estan correctos';
+//            }
+//            alert(textoError);
         }
 
         if(esValido.value === 'true'){
@@ -673,7 +727,8 @@ if($presupuesto === ''){//nuevo
 //            }
             $("#submitir").val("Enviando...");
             document.getElementById("submitir").disabled = true;
-            document.presupuestoForm.submit();
+            alert('submite');
+            //document.presupuestoForm.submit();
         }else{
             return false;
         }  

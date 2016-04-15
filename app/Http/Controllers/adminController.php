@@ -137,7 +137,7 @@ class adminController extends Controller {
 
             return redirect('main');
         } else {
-            return redirect('/')->with('login_errors', 'Datos incorrectos2.');
+            return redirect('/')->with('login_errors', 'Datos incorrectos.');
         }
     }
 

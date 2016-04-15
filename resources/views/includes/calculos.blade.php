@@ -10,10 +10,12 @@ function calculoCantidad(linea){
     if(isNaN(cantidad)){
         //indico que no es numerico y lo borro
         //hace el calculo
-        alert('Este campo no es numerico');
-        setTimeout(function(){
-            $('#Cantidad'+linea).val('');
-        },1000);
+        //alert('Este campo no es numerico');
+        
+        $('#txtCantidad'+linea).css({"display": "block"});
+        $('#groupCantidad'+linea).addClass("has-feedback has-error");
+        
+        $('#Cantidad'+linea).val('');
         return false;
     }
     
