@@ -28,6 +28,20 @@ if($presupuesto === ''){//nuevo
 ?>
 
 @section('principal')
+<!--libreria angular JS-->
+<!--<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+<script>
+function Controlador($scope, $log) {
+
+  $scope.registrar = function(usuario) {
+//    $log.info('Usuario: ');
+//    $log.info(usuario);
+//    $log.info('fue registrado correctamente!');
+  };
+};    
+</script>-->
+
+
 <h4><span>Presupuesto</span></h4>
 <br/>
 
@@ -283,7 +297,7 @@ if($presupuesto === ''){//nuevo
                                         '<div class="col-md-1">'+
                                             '<div class="form-group" id="groupCantidad'+linea+'">'+
                                                 '<label for="Cantidad'+linea+'">Cantidad</label>'+
-                                                '<input type="number" class="form-control" id="Cantidad'+linea+'" name="Cantidad'+linea+'" maxlength="20" '+
+                                                '<input type="number" step="any" class="form-control" id="Cantidad'+linea+'" name="Cantidad'+linea+'" maxlength="20" '+
                                                         'onkeypress="limpiarCantidad('+linea+');" style="text-align:right;" value=""'+
                                                         'onblur="calculoCantidad('+linea+');sumas();formatear(this);">'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtCantidad'+linea+'">'+
@@ -305,7 +319,7 @@ if($presupuesto === ''){//nuevo
                                         '<div class="col-md-1">'+
                                             '<div class="form-group" id="groupPrecio'+linea+'">'+
                                                 '<label for="Precio'+linea+'">Precio</label>'+
-                                                '<input type="number" class="form-control" id="Precio'+linea+'" name="Precio'+linea+'" maxlength="20" value=""'+
+                                                '<input type="number" step="any" class="form-control" id="Precio'+linea+'" name="Precio'+linea+'" maxlength="20" value=""'+
                                                         'onkeypress="limpiarPrecio('+linea+');" style="text-align:right;" value=""'+
                                                         'onblur="calculoPrecio('+linea+');sumas();formatear(this);">'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtPrecio'+linea+'">'+
@@ -316,18 +330,18 @@ if($presupuesto === ''){//nuevo
                                         '<div class="col-md-1">'+
                                             '<div class="form-group" id="groupImporte'+linea+'">'+
                                                 '<label for="Importe'+linea+'">Importe</label>'+
-                                                '<input type="number" class="form-control" id="Importe'+linea+'" name="Importe'+linea+'" maxlength="20" value=""'+
+                                                '<input type="number" step="any" class="form-control" id="Importe'+linea+'" name="Importe'+linea+'" maxlength="20" value=""'+
                                                         'onkeypress="limpiarImporte('+linea+');" style="text-align:right;" value=""'+
                                                         'onblur="calculoImporte('+linea+');sumas();formatear(this);">'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtImporte'+linea+'">'+
-                                                    '<small class="help-block text-danger">Es numérico</small>'+
+                                                    '<small class="help-block text-danger">No puede ser cero</small>'+
                                                 '</div>'+
                                             '</div>'+
                                         '</div>'+
                                         '<div class="col-md-1">'+
                                             '<div class="form-group" id="groupIVA'+linea+'">'+
                                                 '<label for="IVA'+linea+'">IVA</label>'+
-                                                '<input type="number" class="form-control" id="IVA'+linea+'" name="IVA'+linea+'" maxlength="20" value="21"'+
+                                                '<input type="number" step="any" class="form-control" id="IVA'+linea+'" name="IVA'+linea+'" maxlength="20" value="21"'+
                                                         'onkeypress="limpiarIVA('+linea+');" style="text-align:right;" value=""'+
                                                         'onblur="calculoIVA('+linea+');sumas();formatear(this);">'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtIVA'+linea+'">'+
@@ -352,6 +366,7 @@ if($presupuesto === ''){//nuevo
                                                 '<button type="button" onclick="borrarLinea('+linea+');" class="btn btn-xs btn-danger">Borrar</button>'+
                                             '</div>'+
                                         '</div>'+
+                                        
                                     '</div>'+
                                 '</div>'+
                             '</div>';
@@ -533,7 +548,7 @@ if($presupuesto === ''){//nuevo
                 </div>
                 <div class="col-md-2 col-lg-2 col-sm-2 col-xs-2">
                     <div class="form-group">
-                        <input type="button" id="submitir" class="btn btn-default" value="Guardar" onclick="submitDatos();" >
+                        <input type="button" id="submitir" class="btn btn-default" value="Guardar" onclick="submitDatos();" ng-disabled="presupuestoForm.$invalid">
                     </div>
                 </div>
                 <div class="col-md-1 col-lg-1 col-sm-1 col-xs-1">
@@ -666,86 +681,81 @@ if($presupuesto === ''){//nuevo
         for(i=0;i<cantidades.length;i++){
             //comprobamos que este control existe
             if(typeof cantidades[i] !== 'undefined' && cantidades[i] !== 'null'){
+                //si precios[i] o cantidades[i] esta vacio
                 if(isNaN(parseFloat(precios[i])) || isNaN(parseFloat(cantidades[i]))){
-                }else{
-                    //importe no sea 0
+                    //veo que importes[i] no sea 0
                     var importeNumero = parseFloat(importes[i]);
-                    if(importeNumero === 0){
-                        var importe = 'Importe' + i;
-                        //document.getElementById(importe).style.borderColor='#FF0000';
+                    if(importeNumero === 0 || isNaN(importeNumero)){
+                        //importe es 0 o NaN
                         esValido.value = 'false';
-                        falloImporte0 = 'SI';
+                        $('#txtImporte'+i).css({"display": "block"});
+                        $('#groupImporte'+i).addClass("has-feedback has-error");
                     }
-
-                    //importe no este vacio
-                    if(conceptos[i] === ''){
-                        var concepto = 'Concepto' + i;
-                        //document.getElementById(concepto).style.borderColor='#FF0000';
-                        esValido.value = 'false';
-                        falloConceptoVacio = 'SI';
-                    }
-
-                    //compruebo que importe= cantidad x precio en esta linea
-                    if(cantidades[i] === 0 || precios[i] === 0 || cantidades[i] === '0.00' || precios[i] === '0.00' ||
-                       cantidades[i] === '' || precios[i] === ''){
-                        //nada
-                    }else{
-                        var importeComp = parseFloat(cantidades[i]) * parseFloat(precios[i]);
-                        importeComp = parseFloat(importeComp).toFixed(2);
-                        if(importeComp !== parseFloat(importeNumero).toFixed(2)){
-                            //var cantidad = 'Cantidad'+i;
-                            //document.getElementById(cantidad).style.borderColor='#FF0000';
-                            //var precio='precio'+i;
-                            //document.getElementById(precio).style.borderColor='#FF0000';
-                            //var importe='importe'+i;
-                            //document.getElementById(importe).style.borderColor='#FF0000';
-                            esValido.value = 'false';
-                            falloComp = 'SI';
-                        }
-                    }
+//                }else{
+//                    //compruebo que importe= cantidad x precio en esta linea
+//                    if(cantidades[i] === 0 || precios[i] === 0 || cantidades[i] === '0.00' || precios[i] === '0.00' ||
+//                       cantidades[i] === '' || precios[i] === ''){
+//                        //nada
+//                    }else{
+//                        var importeComp = parseFloat(cantidades[i]) * parseFloat(precios[i]);
+//                        importeComp = parseFloat(importeComp).toFixed(2);
+//                        if(importeComp !== parseFloat(importeNumero).toFixed(2)){
+//                            esValido.value = 'false';
+//                            $('#txtImporte'+i).css({"display": "block"});
+//                            $('#groupImporte'+i).addClass("has-feedback has-error");
+//                        }
+//                    }
+                }
+                //ahora compruebo que los cnceptos tengan datos
+                if(conceptos[i] === ''){
+                    esValido.value = 'false';
+                    $('#txtConcepto'+i).css({"display": "block"});
+                    $('#groupConcepto'+i).addClass("has-feedback has-error");
                 }
             }
         }
 
-        //compruebo si esValido.value viene en false, si es asi indico el error
-        if(esValido.value === 'false'){
-            if(falloComp === 'SI'){
-                textoError = textoError + "Los datos introducidos no son correctos, hay una incongruencia en cantidad, precio e importe.\n";
-            }
-            if(falloImporte0 === 'SI'){
-                textoError = textoError + "El importe debe ser un valor positivo.\n";
-            }
-            if(falloConceptoVacio === 'SI'){
-                textoError = textoError + "Debe haber algún dato en el concepto.\n";
-            }
-        }
+        
 
-        //comprobacion del Cliente
-        if ($('#idCliente').val() === ''){ 
-          textoError = textoError + "Es necesario introducir un cliente.\n";
-      //    document.form1.Contacto.style.borderColor='#FF0000';
-          //document.form1.Contacto.title ='Se debe introducir un cliente';
-          esValido.value = false;
-        }
-        
-        
-        //comprobacion del campo 'numPresupuesto'
-        if ($('#numPresupuesto').val() === ''){ 
-          textoError = textoError + "Es necesario introducir un número del presupuesto.\n";
-          //document.form1.numPresupuesto.style.borderColor='#FF0000';
-          //document.form1.numPresupuesto.title ='Se debe introducir un número de factura';
-          esValido.value = "false";
-        }
+        //compruebo si esValido.value viene en false, si es asi indico el error
+//        if(esValido.value === 'false'){
+//            if(falloComp === 'SI'){
+//                textoError = textoError + "Los datos introducidos no son correctos, hay una incongruencia en cantidad, precio e importe.\n";
+//            }
+//            if(falloImporte0 === 'SI'){
+//                textoError = textoError + "El importe debe ser un valor positivo.\n";
+//            }
+//            if(falloConceptoVacio === 'SI'){
+//                textoError = textoError + "Debe haber algún dato en el concepto.\n";
+//            }
+//        }
+
+//        //comprobacion del Cliente
+//        if ($('#idCliente').val() === ''){ 
+//          textoError = textoError + "Es necesario introducir un cliente.\n";
+//      //    document.form1.Contacto.style.borderColor='#FF0000';
+//          //document.form1.Contacto.title ='Se debe introducir un cliente';
+//          esValido.value = false;
+//        }
+//        
+//        
+//        //comprobacion del campo 'numPresupuesto'
+//        if ($('#numPresupuesto').val() === ''){ 
+//          textoError = textoError + "Es necesario introducir un número del presupuesto.\n";
+//          //document.form1.numPresupuesto.style.borderColor='#FF0000';
+//          //document.form1.numPresupuesto.title ='Se debe introducir un número de factura';
+//          esValido.value = "false";
+//        }
 
 
         //indicar el mensaje de error si es 'esValido.value'='false'
-        if (esValido.value === 'false'){
-            //$('#submitir').prop( "disabled", true );
-//            if(textoError === ''){
-//                textoError = 'Revise los datos. NO estan correctos';
-//            }
-//            alert(textoError);
-        }
+//        if (esValido.value === 'false'){
+//            //$('#submitir').prop( "disabled", true );
+////            if(textoError === ''){
+////                textoError = 'Revise los datos. NO estan correctos';
+////            }
+////            alert(textoError);
+//        }
 
         if(esValido.value === 'true'){
 //            if(guardarArticulosNuevos.value === 'SI'){

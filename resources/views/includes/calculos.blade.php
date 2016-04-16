@@ -79,7 +79,7 @@ function calculoImporte(linea){
     var importe = $('#Importe'+linea).val();
     
     //compruebo si es numerico o no
-    if(isNaN(importe)){
+    if(isNaN(importe) || importe === ''){
         //indico que no es numerico y lo borro
         //hace el calculo
         $('#Importe'+linea).css({"display": "block"});
@@ -207,19 +207,25 @@ function sumas(){
     var importeTotal = 0;
     var cuotaTotal = 0;
     var total = 0;
-//    $(document).ready(function(){
-        $('#presupuestoForm').find(":input").each(function(){
-            var elemento = this;
-            //comprobamos el nombre del elemento y lo guardamos en ua array segun sea cantidad, precio, importe y concepto
-            var nombreElemento = elemento.name;
+    
+    $('#presupuestoForm').find(":input").each(function(){
+        var elemento = this;
+        //comprobamos el nombre del elemento y lo guardamos en ua array segun sea cantidad, precio, importe y concepto
+        var nombreElemento = elemento.name;
+        if(isNaN(elemento.value) || elemento.value === ''){
+        }else{
             if(nombreElemento.substring(0,7) === 'Importe'){//es un elemento importe
                 importeTotal = parseFloat(importeTotal) + parseFloat(elemento.value);
             }            
             if(nombreElemento.substring(0,5) === 'Cuota'){//es un elemento cuota
                 cuotaTotal = parseFloat(cuotaTotal) + parseFloat(elemento.value);
-            }            
-        });
-//    });
+            }
+        }
+    });
+    
+    if(isNaN(importeTotal)){
+        
+    }
     
     importeTotal = parseFloat(importeTotal).toFixed(2);
     cuotaTotal = parseFloat(cuotaTotal).toFixed(2);
