@@ -283,43 +283,56 @@ if($presupuesto === ''){//nuevo
                                         '<div class="col-md-1">'+
                                             '<div class="form-group" id="groupCantidad'+linea+'">'+
                                                 '<label for="Cantidad'+linea+'">Cantidad</label>'+
-                                                '<input type="text" class="form-control" id="Cantidad'+linea+'" name="Cantidad'+linea+'" maxlength="20" '+
-                                                        'onkeypress="return solonumeros(event);limpiarCantidad('+linea+');" style="text-align:right;" value=""'+
+                                                '<input type="number" class="form-control" id="Cantidad'+linea+'" name="Cantidad'+linea+'" maxlength="20" '+
+                                                        'onkeypress="limpiarCantidad('+linea+');" style="text-align:right;" value=""'+
                                                         'onblur="calculoCantidad('+linea+');sumas();formatear(this);">'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtCantidad'+linea+'">'+
-                                                    '<small class="help-block text-danger">Campo numérico</small>'+
+                                                    '<small class="help-block text-danger">Es numérico</small>'+
                                                 '</div>'+
                                             '</div>'+
                                         '</div>'+
                                         '<div class="col-md-5">'+
-                                            '<div class="form-group">'+
+                                            '<div class="form-group" id="groupConcepto'+linea+'">'+
                                                 '<label for="Concepto'+linea+'">Concepto</label>'+
-                                                '<textarea class="form-control" id="Concepto'+linea+'" name="Concepto'+linea+'" rows="0"></textarea>'+
+                                                '<textarea class="form-control" id="Concepto'+linea+'" name="Concepto'+linea+'" rows="0"'+
+                                                'onkeypress="limpiarConcepto('+linea+');" onblur="comprobar('+linea+');"></textarea>'+
+                                                '<div class="alert alert-dander" role="alert" style="display: none;" id="txtConcepto'+linea+'">'+
+                                                    '<small class="help-block text-danger">Debe rellenar el concepto</small>'+
+                                                '</div>'+
                                                 '<input type="hidden" id="IdArticulo'+linea+'" name="IdArticulo'+linea+'" value=""/>'+
                                             '</div>'+
                                         '</div>'+
                                         '<div class="col-md-1">'+
-                                            '<div class="form-group">'+
+                                            '<div class="form-group" id="groupPrecio'+linea+'">'+
                                                 '<label for="Precio'+linea+'">Precio</label>'+
-                                                '<input type="text" class="form-control" id="Precio'+linea+'" name="Precio'+linea+'" maxlength="20" value=""'+
-                                                        'onkeypress="return solonumerosNeg(event);" style="text-align:right;" value=""'+
+                                                '<input type="number" class="form-control" id="Precio'+linea+'" name="Precio'+linea+'" maxlength="20" value=""'+
+                                                        'onkeypress="limpiarPrecio('+linea+');" style="text-align:right;" value=""'+
                                                         'onblur="calculoPrecio('+linea+');sumas();formatear(this);">'+
+                                                '<div class="alert alert-dander" role="alert" style="display: none;" id="txtPrecio'+linea+'">'+
+                                                    '<small class="help-block text-danger">Es numérico</small>'+
+                                                '</div>'+
                                             '</div>'+
                                         '</div>'+
                                         '<div class="col-md-1">'+
-                                            '<div class="form-group">'+
+                                            '<div class="form-group" id="groupImporte'+linea+'">'+
                                                 '<label for="Importe'+linea+'">Importe</label>'+
-                                                '<input type="text" class="form-control" id="Importe'+linea+'" name="Importe'+linea+'" maxlength="20" value=""'+
-                                                        'onkeypress="return solonumerosNeg(event);" style="text-align:right;" value=""'+
+                                                '<input type="number" class="form-control" id="Importe'+linea+'" name="Importe'+linea+'" maxlength="20" value=""'+
+                                                        'onkeypress="limpiarImporte('+linea+');" style="text-align:right;" value=""'+
                                                         'onblur="calculoImporte('+linea+');sumas();formatear(this);">'+
+                                                '<div class="alert alert-dander" role="alert" style="display: none;" id="txtImporte'+linea+'">'+
+                                                    '<small class="help-block text-danger">Es numérico</small>'+
+                                                '</div>'+
                                             '</div>'+
                                         '</div>'+
                                         '<div class="col-md-1">'+
-                                            '<div class="form-group">'+
+                                            '<div class="form-group" id="groupIVA'+linea+'">'+
                                                 '<label for="IVA'+linea+'">IVA</label>'+
-                                                '<input type="text" class="form-control" id="IVA'+linea+'" name="IVA'+linea+'" maxlength="20" value="21"'+
-                                                        'onkeypress="return solonumeros(event);" style="text-align:right;" value=""'+
+                                                '<input type="number" class="form-control" id="IVA'+linea+'" name="IVA'+linea+'" maxlength="20" value="21"'+
+                                                        'onkeypress="limpiarIVA('+linea+');" style="text-align:right;" value=""'+
                                                         'onblur="calculoIVA('+linea+');sumas();formatear(this);">'+
+                                                '<div class="alert alert-dander" role="alert" style="display: none;" id="txtIVA'+linea+'">'+
+                                                    '<small class="help-block text-danger">Es numérico</small>'+
+                                                '</div>'+
                                             '</div>'+
                                         '</div>'+
                                         '<div class="col-md-1">'+
@@ -360,6 +373,26 @@ if($presupuesto === ''){//nuevo
         function limpiarCantidad(linea){
             $('#txtCantidad'+linea).css({"display": "none"});
             $('#groupCantidad'+linea).removeClass("has-feedback has-error");
+        }
+
+        function limpiarPrecio(linea){
+            $('#txtPrecio'+linea).css({"display": "none"});
+            $('#groupPrecio'+linea).removeClass("has-feedback has-error");
+        }
+
+        function limpiarConcepto(linea){
+            $('#txtConcepto'+linea).css({"display": "none"});
+            $('#groupConcepto'+linea).removeClass("has-feedback has-error");
+        }
+
+        function limpiarImporte(linea){
+            $('#txtImporte'+linea).css({"display": "none"});
+            $('#groupImporte'+linea).removeClass("has-feedback has-error");
+        }
+
+        function limpiarIVA(linea){
+            $('#txtIVA'+linea).css({"display": "none"});
+            $('#groupIVA'+linea).removeClass("has-feedback has-error");
         }
 
         //veo si vienen datos de editar ($presupuesto y $presupuestoDetalle
@@ -727,8 +760,8 @@ if($presupuesto === ''){//nuevo
 //            }
             $("#submitir").val("Enviando...");
             document.getElementById("submitir").disabled = true;
-            alert('submite');
-            //document.presupuestoForm.submit();
+            //alert('submite');
+            document.presupuestoForm.submit();
         }else{
             return false;
         }  

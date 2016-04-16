@@ -10,12 +10,12 @@ function calculoCantidad(linea){
     if(isNaN(cantidad)){
         //indico que no es numerico y lo borro
         //hace el calculo
-        //alert('Este campo no es numerico');
-        
         $('#txtCantidad'+linea).css({"display": "block"});
         $('#groupCantidad'+linea).addClass("has-feedback has-error");
+        setTimeout(function(){
+            $('#Cantidad'+linea).val('');
+        },500);
         
-        $('#Cantidad'+linea).val('');
         return false;
     }
     
@@ -26,11 +26,22 @@ function calculoCantidad(linea){
     //si los tres valores son numericos hacemos calculo    
     if(isNaN(cantidad) || isNaN(precio) || isNaN(importe)){
         //en cuanto uno de ellos no sea numerico nos salimos
-        return false;
+    return false;
     }else{
         //calculamos
         calculo(linea,cantidad,precio,IVA);
     }
+}
+
+function comprobar(linea){
+    var concepto = $('#Concepto'+linea).val();
+    
+    if(concepto === ''){
+        $('#txtConcepto'+linea).css({"display": "block"});
+        $('#groupConcepto'+linea).addClass("has-feedback has-error");
+        return false;
+    }
+    return false;
 }
 
 function calculoPrecio(linea){
@@ -41,10 +52,11 @@ function calculoPrecio(linea){
     if(isNaN(precio)){
         //indico que no es numerico y lo borro
         //hace el calculo
-        alert('Este campo no es numerico');
+        $('#txtPrecio'+linea).css({"display": "block"});
+        $('#groupPrecio'+linea).addClass("has-feedback has-error");
         setTimeout(function(){
             $('#Precio'+linea).val('');
-        },1000);
+        },500);
         return false;
     }
     
@@ -70,7 +82,8 @@ function calculoImporte(linea){
     if(isNaN(importe)){
         //indico que no es numerico y lo borro
         //hace el calculo
-        alert('Este campo no es numerico');
+        $('#Importe'+linea).css({"display": "block"});
+        $('#Importe'+linea).addClass("has-feedback has-error");
         setTimeout(function(){
             $('#Importe'+linea).val('');
         },1000);
@@ -148,22 +161,22 @@ function calculoIVA_Total(linea,importe,IVA){
 function solonumeros(e)
 {
 
-    key = e.keyCode || e.which;
-    tecla = String.fromCharCode(key).toLowerCase();
-    letras = "0123456789";
-    especiales = [8,9,37,39,46];
-
-    tecla_especial = false
-    for(var i in especiales){
-         if(key == especiales[i]){
-             tecla_especial = true;
-             break;
-         }
-     }
-
-     if(letras.indexOf(tecla)==-1 && !tecla_especial){
-         return false;
-     }    
+//    key = e.keyCode || e.which;
+//    tecla = String.fromCharCode(key).toLowerCase();
+//    letras = "0123456789";
+//    especiales = [8,9,37,39,46];
+//
+//    tecla_especial = false
+//    for(var i in especiales){
+//         if(key == especiales[i]){
+//             tecla_especial = true;
+//             break;
+//         }
+//     }
+//
+//     if(letras.indexOf(tecla)==-1 && !tecla_especial){
+//         return false;
+//     }    
 }
 
 //comprobar que los campos solo sean numericos
