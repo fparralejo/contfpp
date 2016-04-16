@@ -297,9 +297,9 @@ function Controlador($scope, $log) {
                                         '<div class="col-md-1">'+
                                             '<div class="form-group" id="groupCantidad'+linea+'">'+
                                                 '<label for="Cantidad'+linea+'">Cantidad</label>'+
-                                                '<input type="number" step="any" class="form-control" id="Cantidad'+linea+'" name="Cantidad'+linea+'" maxlength="20" '+
+                                                '<input type="number" step="any" min="0" class="form-control" id="Cantidad'+linea+'" name="Cantidad'+linea+'" maxlength="20" '+
                                                         'onkeypress="limpiarCantidad('+linea+');" style="text-align:right;" value=""'+
-                                                        'onblur="calculoCantidad('+linea+');sumas();formatear(this);">'+
+                                                        'onblur="calculoCantidad('+linea+');sumas();formatear(this);" pattern="">'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtCantidad'+linea+'">'+
                                                     '<small class="help-block text-danger">Es numérico</small>'+
                                                 '</div>'+

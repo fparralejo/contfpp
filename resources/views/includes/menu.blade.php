@@ -4,7 +4,7 @@
                   <li><a href="{{ URL::asset('datos') }}">Datos</a></li>
                   <li><a href="{{ URL::asset('clientes') }}">Clientes</a></li>
                   <li><a href="{{ URL::asset('proveedores') }}">Proveedores</a></li>
-                  <li><a href="{{ URL::asset('productos') }}">Productos</a></li>
+                  <li><a href="{{ URL::asset('articulos') }}">Articulos</a></li>
                 </ul>            
             </li>
             <li class="dropdown">

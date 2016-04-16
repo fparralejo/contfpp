@@ -6,7 +6,7 @@
 ?>
 
 @section('principal')
-<h4><span>Productos</span></h4>
+<h4><span>Artículos</span></h4>
 <br/>
 
 <style>
@@ -51,31 +51,31 @@
 	});
 
 
-	function leerProducto(IdProducto){
+	function leerArticulo(IdArticulo){
             $.ajax({
-              data:{"IdProducto":IdProducto},  
-              url: '{{ URL::asset("producto/show") }}',
+              data:{"IdArticulo":IdArticulo},  
+              url: '{{ URL::asset("articulo/show") }}',
               type:"get",
               success: function(data) {
-                var producto = JSON.parse(data);
-                $('#IdProducto').val(producto.IdProducto);
-                $('#Referencia').val(producto.Referencia);
-                $('#Descripcion').val(producto.Descripcion);
-                $('#Precio').val(parseFloat(producto.Precio).toFixed(2));
-                $('#tipoIVA').val(producto.tipoIVA);
+                var articulo = JSON.parse(data);
+                $('#IdArticulo').val(articulo.IdArticulo);
+                $('#Referencia').val(articulo.Referencia);
+                $('#Descripcion').val(articulo.Descripcion);
+                $('#Precio').val(parseFloat(articulo.Precio).toFixed(2));
+                $('#tipoIVA').val(articulo.tipoIVA);
                 //cambiar nombre del titulo del formulario
-                $("#tituloForm").html('Editar Producto');
+                $("#tituloForm").html('Editar Artículo');
                 $("#submitir").val('OK');
               }
             });
 	}
 
-	function borrarProducto(IdProducto){
-            if (confirm("¿Desea borrar el producto?"))
+	function borrarArticulo(IdArticulo){
+            if (confirm("¿Desea borrar el artículo?"))
             {
                 $.ajax({
-                  data:{"IdProducto":IdProducto},  
-                  url: '{{ URL::asset("producto/delete") }}',
+                  data:{"IdArticulo":IdArticulo},  
+                  url: '{{ URL::asset("articulo/delete") }}',
                   type:"get",
                   success: function(data) {
                       $('#accionTabla').html(data);
@@ -84,7 +84,7 @@
                 });
                 setTimeout(function ()
                 {
-                    document.location.href='{{ URL::asset("productos") }}';
+                    document.location.href='{{ URL::asset("articulos") }}';
                 }, 2000);
             }
 	}
@@ -128,20 +128,20 @@
     <tbody>
     <?php 
     //decodifico los datos JSON
-    $productos = json_decode($productos); 
+    $articulos = json_decode($articulos); 
     ?>   
-    @foreach ($productos as $producto)
+    @foreach ($articulos as $articulo)
     <?php
     //carga los datos en el formulario para editarlos
-    $url="javascript:leerProducto(".$producto->IdProducto.");";
+    $url="javascript:leerArticulo(".$articulo->IdArticulo.");";
     ?>
         <tr>
-            <td class="sgsiRow" onClick="{{ $url }}">{{ $producto->Referencia }}</td>
-            <td class="sgsiRow" onClick="{{ $url }}">{{ $producto->Descripcion }}</td>
-            <td class="sgsiRow" style="text-align: right;" onClick="{{ $url }}">{{ number_format($producto->Precio, 2, ',', '.') }}</td>
-            <td class="sgsiRow" style="text-align: right;" onClick="{{ $url }}">{{ $producto->tipoIVA }}</td>
+            <td class="sgsiRow" onClick="{{ $url }}">{{ $articulo->Referencia }}</td>
+            <td class="sgsiRow" onClick="{{ $url }}">{{ $articulo->Descripcion }}</td>
+            <td class="sgsiRow" style="text-align: right;" onClick="{{ $url }}">{{ number_format($articulo->Precio, 2, ',', '.') }}</td>
+            <td class="sgsiRow" style="text-align: right;" onClick="{{ $url }}">{{ $articulo->tipoIVA }}</td>
             <td>
-                <button type="button" onclick="borrarProducto({{ $producto->IdProducto }})" class="btn btn-xs btn-danger">Borrar</button>
+                <button type="button" onclick="borrarArticulo({{ $articulo->IdArticulo }})" class="btn btn-xs btn-danger">Borrar</button>
             </td>
         </tr>
     @endforeach
@@ -150,7 +150,7 @@
 
 <br/><br/><br/><br/><br/>
 
-<h4><span id="tituloForm">Producto Nuevo</span></h4>
+<h4><span id="tituloForm">Artículo Nuevo</span></h4>
 <hr/>
 
 <style type="text/css">
@@ -161,7 +161,7 @@
 }
 </style>
 
-<form role="form" class="form-horizontal" id="productosForm" name="productosForm" action="{{ URL::asset('productos') }}" method="post">
+<form role="form" class="form-horizontal" id="articulosForm" name="articulosForm" action="{{ URL::asset('articulos') }}" method="post">
     <!-- CSRF Token -->
     <input type="hidden" name="_token" value="{{ csrf_token() }}">
     
@@ -202,13 +202,13 @@
 
     <br/>
 
-    <input type="hidden" id="IdProducto" name="IdProducto" value="" />
+    <input type="hidden" id="IdArticulo" name="IdArticulo" value="" />
     <input type="submit" id="submitir" class="btn btn-default" value="Nuevo"/>
 </form>
 
 <script>
 $(document).ready(function() {
-    $('#productosForm').formValidation({
+    $('#articulosForm').formValidation({
         framework: 'bootstrap',
         icon: {
             valid: 'glyphicon glyphicon-ok',

@@ -2,11 +2,11 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class Producto extends Model {
+class Articulo extends Model {
 
-    protected $table = 'productos';
+    protected $table = 'articulos';
 
-    protected $primaryKey = "IdProducto";
+    protected $primaryKey = "IdArticulo";
 
     public $timestamps = false;
         

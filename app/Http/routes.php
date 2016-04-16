@@ -36,11 +36,11 @@ Route::get('cliente/delete', 'clientesController@clienteDelete');
 //proveedores
 Route::get('proveedores', 'clientesController@mainProveedores');
 
-//productos
-Route::get('productos', 'productosController@main');
-Route::post('productos', 'productosController@createEdit');
-Route::get('producto/show', 'productosController@productoShow');
-Route::get('producto/delete', 'productosController@productoDelete');
+//articulos
+Route::get('articulos', 'articulosController@main');
+Route::post('articulos', 'articulosController@createEdit');
+Route::get('articulo/show', 'articulosController@articuloShow');
+Route::get('articulo/delete', 'articulosController@articuloDelete');
 
 
 
