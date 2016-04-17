@@ -49,6 +49,7 @@ Route::get('presupuestos/alta', 'presupuestosController@alta');
 Route::get('presupuestos/editar/{idPresupuesto}', 'presupuestosController@editar');
 Route::get('presupuestos/mdb', 'presupuestosController@listar');
 Route::post('presupuestos/createEdit', 'presupuestosController@createEdit');
+Route::get('presupuestos/verPDF/{idPresupuesto}', 'presupuestosController@verPDF');
 
 
 

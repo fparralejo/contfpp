@@ -16,6 +16,10 @@ use App\Presupuesto;
 use App\PresupuestoDetalle;
 
 use App\Http\Controllers\adminController;
+use Anouar\Fpdf\Facades\Fpdf;
+
+//cargo la libreria FPDF
+//use App\lib\fpdf\FPDF;
 
 
 class presupuestosController extends Controller {
@@ -199,7 +203,6 @@ class presupuestosController extends Controller {
             if(isset($request->IdPresupuesto) && $request->IdPresupuesto !== ""){
                 //sino se edita este IdPresupuesto
                 $presupuesto = Presupuesto::on(Session::get('conexionBBDD'))->find($request->IdPresupuesto);
-                $presupuesto->Estado = 'Emitida';
                 
                 
                 //2º
@@ -226,6 +229,7 @@ class presupuestosController extends Controller {
                 $idPresupNuevo = Presupuesto::on(Session::get('conexionBBDD'))
                                   ->max('IdPresupuesto') + 1;
                 $presupuesto->IdPresupuesto = $idPresupNuevo;
+                $presupuesto->Estado = 'Emitida';
                 
 
                 $ok = 'Se ha dado de alta correctamente el presupuesto.';
@@ -368,96 +372,67 @@ class presupuestosController extends Controller {
         \DB::connection(Session::get('conexionBBDD'))->commit();
         
         
-        //echo json_encode($txt);
+        //echo json_encode($txt);**PONER RESULTADO DE EDITAR BORRAR, ETC..
         return redirect('presupuestos/mdb');
     }
     
 
     
-    //NO
-    public function main(){
+    public function verPDF($idPresupuesto){
         //control de sesion
         $admin = new adminController();
         if (!$admin->getControl()) {
             return redirect('/')->with('login_errors', 'La sesión a expirado. Vuelva a logearse.');
         }
+
         
-        $productos = Producto::on(Session::get('conexionBBDD'))
+        //busco los datos
+        $datos = Empresa::on('contfpp')->find((int)Session::get('IdEmpresa'));
+
+        $presupuesto = Presupuesto::on(Session::get('conexionBBDD'))
+                        ->find($idPresupuesto);
+        
+        $cliente = Cliente::on(Session::get('conexionBBDD'))
                           ->where('borrado', '=', '1')
+                          ->where('tipo', '=', 'C')
+                          ->where('idCliente', '=', $presupuesto->IdCliente)
                           ->get();
-        
 
-        return view('productos.main')->with('productos', json_encode($productos));
+        $presupuestoDetalle = PresupuestoDetalle::on(Session::get('conexionBBDD'))
+                          ->where('IdPresupuesto', '=', $idPresupuesto)
+                          ->where('Borrado', '=', '1')
+                          ->get();
+
+        //numero
+        $numero = $admin->formatearNumero($presupuesto->NumPresupuesto,$datos->TipoContador);
+        
+        
+//$pdf = new Fpdf();
+// $pdf::AddPage();
+// $pdf::SetFont('Arial','B',18);
+// $pdf::Cell(0,10,"Title",0,"","C");
+// $pdf::Ln();
+// $pdf::Ln();
+// $pdf::SetFont('Arial','B',12);
+// $pdf::cell(25,8,"ID",1,"","C");
+// $pdf::cell(45,8,"Name",1,"","L");
+// $pdf::cell(35,8,"Address",1,"","L");
+// $pdf::Ln();
+// $pdf::SetFont("Arial","",10);
+// $pdf::cell(25,8,"1",1,"","C");
+// $pdf::cell(45,8,"John",1,"","L");
+// $pdf::cell(35,8,"New York",1,"","L");
+// $pdf::Ln();
+// $pdf::Output();
+// exit;        
+        
+        return view('pdf.pdf')->with('datos', json_encode($datos))
+                              ->with('cliente', json_encode($cliente))
+                              ->with('presupuesto', json_encode($presupuesto))
+                              ->with('presupuestoDetalle', json_encode($presupuestoDetalle))
+                              ->with('numero', json_encode($numero));
     }
-
-    //NO
-    public function productoShow()
-    {
-        $producto = Producto::on(Session::get('conexionBBDD'))->find(Input::get('IdProducto'));
-
-        //devuelvo la respuesta al send
-        echo json_encode($producto);
-    }
-    
-    //NO
-    public function createEditNO(Request $request){
-        //dd($request->cifnif);die;
-        
-        if(isset($request->IdProducto) && $request->IdProducto !== ""){
-            //sino se edita este IdProducto
-            $producto = Producto::on(Session::get('conexionBBDD'))->find($request->IdProducto);
-            
-            $ok = 'Se ha editado correctamente el producto.';
-            $error = 'ERROR al edtar el producto.';
-        }
-        else{
-            //si es nuevo este valor viene vacio
-            $producto = new Producto();
-            $producto->setConnection(Session::get('conexionBBDD'));
-            $producto->fecha = date('Y-m-d H:i:s');
-            
-            //indicamos el nuevo IdProducto
-            $idProductoNuevo = Producto::on(Session::get('conexionBBDD'))
-                              ->max('IdProducto') + 1;
-            $producto->IdProducto = $idProductoNuevo;
-        
-            $ok = 'Se ha dado de alta correctamente el producto.';
-            $error = 'ERROR al dar de alta el producto.';
-        }
-            
-        $producto->Referencia = (isset($request->Referencia)) ? $request->Referencia : '';
-        $producto->Descripcion = (isset($request->Descripcion)) ? $request->Descripcion : '';
-        $producto->Precio = (isset($request->Precio)) ? $request->Precio : '';
-        $producto->tipoIVA = (isset($request->tipoIVA)) ? $request->tipoIVA : '';
-        $producto->borrado = 1;
-
-        //var_dump($cliente);die;
-
-        $txt = '';
-        if($producto->save()){
-            $txt = $ok;
-        }else{
-            $txt = $error;
-        }
-        
-        //echo json_encode($txt);
-        return redirect('productos')->with('errors', json_encode($txt));
-    }
-    
-
-    //NO
-    public function productoDelete(){
-        $producto = Producto::on(Session::get('conexionBBDD'))->find(Input::get('IdProducto'));
-        
-        $producto->borrado = 0;
-        
-        if($producto->save()){
-            echo json_encode("Producto " . Input::get('IdProducto') ." borrado correctamente.");
-        }else{
-            echo json_encode("Producto " . Input::get('IdProducto') ." NO ha sido borrado.");
-        }
-    }
-
 
     
 }
+

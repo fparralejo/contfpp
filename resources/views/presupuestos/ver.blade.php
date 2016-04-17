@@ -75,6 +75,7 @@ function Controlador($scope, $log) {
       action="{{ URL::asset('presupuestos/createEdit') }}" method="post">
     <!-- CSRF Token -->
     <input type="hidden" name="_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="SePuedeImprimir" value="SI">
 
     <div class="row">
         <div class="col-md-4 col-lg-4 col-sm-4">
@@ -309,7 +310,7 @@ function Controlador($scope, $log) {
                                             '<div class="form-group" id="groupConcepto'+linea+'">'+
                                                 '<label for="Concepto'+linea+'">Concepto</label>'+
                                                 '<textarea class="form-control" id="Concepto'+linea+'" name="Concepto'+linea+'" rows="0"'+
-                                                'onkeypress="limpiarConcepto('+linea+');" onblur="comprobar('+linea+');"></textarea>'+
+                                                'onfocus="limpiarConcepto('+linea+');" onblur="comprobar('+linea+');"></textarea>'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtConcepto'+linea+'">'+
                                                     '<small class="help-block text-danger">Debe rellenar el concepto</small>'+
                                                 '</div>'+
@@ -548,14 +549,25 @@ function Controlador($scope, $log) {
                 </div>
                 <div class="col-md-2 col-lg-2 col-sm-2 col-xs-2">
                     <div class="form-group">
-                        <input type="button" id="submitir" class="btn btn-default" value="Guardar" onclick="submitDatos();" ng-disabled="presupuestoForm.$invalid">
+                        <input type="button" id="submitir" class="btn btn-default" value="Guardar" onclick="submitDatos();">
                     </div>
                 </div>
                 <div class="col-md-1 col-lg-1 col-sm-1 col-xs-1">
                 </div>
                 <div class="col-md-2 col-lg-2 col-sm-2 col-xs-2">
                     <div class="form-group">
-                        <input type="button" id="" class="btn btn-default" value="Ver PDF" onclick="" >
+                        <input type="button" id="" class="btn btn-default" value="Ver PDF" onclick="verPDF();">
+                        <script>
+                        function verPDF(){
+                            if(document.presupuestoForm.SePuedeImprimir.value==='SI'){    
+                                //var datos=preparaURL(i,'imprimir');
+
+                                window.open('{{ URL::asset("presupuestos/verPDF") }}<?php echo "/" . $idPresupuesto; ?>', '', 'scrollbars=yes,menubar=no,height=600,width=800,resizable=yes,toolbar=no,status=no,location=no');
+                            }else{
+                                alert('No se puede ver el PDF sin haber guardado el presupuesto');
+                            }
+                        }
+                        </script>
                     </div>
                 </div>
                 <div class="col-md-1 col-lg-1 col-sm-1 col-xs-1">
@@ -715,7 +727,18 @@ function Controlador($scope, $log) {
             }
         }
 
-        
+        //comprobamos que las sumas esten bien (no salga NaN)
+        if($('#totalImporte').val() === 'NaN'){
+            $('#totalImporte').val('');
+        }
+        if($('#totalCuota').val() === 'NaN'){
+            $('#totalCuota').val('');
+        }
+        if($('#Total').val() === 'NaN'){
+            $('#Total').val('');
+        }
+            
+            
 
         //compruebo si esValido.value viene en false, si es asi indico el error
 //        if(esValido.value === 'false'){
@@ -730,22 +753,6 @@ function Controlador($scope, $log) {
 //            }
 //        }
 
-//        //comprobacion del Cliente
-//        if ($('#idCliente').val() === ''){ 
-//          textoError = textoError + "Es necesario introducir un cliente.\n";
-//      //    document.form1.Contacto.style.borderColor='#FF0000';
-//          //document.form1.Contacto.title ='Se debe introducir un cliente';
-//          esValido.value = false;
-//        }
-//        
-//        
-//        //comprobacion del campo 'numPresupuesto'
-//        if ($('#numPresupuesto').val() === ''){ 
-//          textoError = textoError + "Es necesario introducir un número del presupuesto.\n";
-//          //document.form1.numPresupuesto.style.borderColor='#FF0000';
-//          //document.form1.numPresupuesto.title ='Se debe introducir un número de factura';
-//          esValido.value = "false";
-//        }
 
 
         //indicar el mensaje de error si es 'esValido.value'='false'
