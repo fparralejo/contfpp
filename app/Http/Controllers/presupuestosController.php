@@ -407,29 +407,11 @@ class presupuestosController extends Controller {
         $numero = $admin->formatearNumero($presupuesto->NumPresupuesto,$datos->TipoContador);
         
         
-//$pdf = new Fpdf();
-// $pdf::AddPage();
-// $pdf::SetFont('Arial','B',18);
-// $pdf::Cell(0,10,"Title",0,"","C");
-// $pdf::Ln();
-// $pdf::Ln();
-// $pdf::SetFont('Arial','B',12);
-// $pdf::cell(25,8,"ID",1,"","C");
-// $pdf::cell(45,8,"Name",1,"","L");
-// $pdf::cell(35,8,"Address",1,"","L");
-// $pdf::Ln();
-// $pdf::SetFont("Arial","",10);
-// $pdf::cell(25,8,"1",1,"","C");
-// $pdf::cell(45,8,"John",1,"","L");
-// $pdf::cell(35,8,"New York",1,"","L");
-// $pdf::Ln();
-// $pdf::Output();
-// exit;        
-        
         return view('pdf.pdf')->with('datos', json_encode($datos))
                               ->with('cliente', json_encode($cliente))
                               ->with('presupuesto', json_encode($presupuesto))
                               ->with('presupuestoDetalle', json_encode($presupuestoDetalle))
+                              ->with('accion', json_encode('ver'))
                               ->with('numero', json_encode($numero));
     }
 

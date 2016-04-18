@@ -315,4 +315,14 @@ class adminController extends Controller {
         $num = $divido[0] . $divido[1];
         return $num;
     }
+    
+    //formatear valores numericos con puntos de miles y comas para decimales
+    public function formateaNumeroContabilidad($valor) {
+        if(!is_numeric($valor)){
+            return '';
+        }else{
+            return number_format($valor,2,",",".");
+        }
+    }
+    
 }
