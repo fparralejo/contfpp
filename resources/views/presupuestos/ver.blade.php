@@ -7,8 +7,9 @@ $datos = json_decode($datos);
 $presupuesto = json_decode($presupuesto);
 $presupuestoDetalle = json_decode($presupuestoDetalle);
 $numero = json_decode($numero);
+$editarCampoNumero = json_decode($editarCampoNumero);
 
-//var_dump($presupuestoDetalle);die;
+//var_dump($editarCampoNumero);die;
 
 //averiguo si estamos editando o es nuevo
 if($presupuesto === ''){//nuevo
@@ -75,7 +76,6 @@ function Controlador($scope, $log) {
       action="{{ URL::asset('presupuestos/createEdit') }}" method="post">
     <!-- CSRF Token -->
     <input type="hidden" name="_token" value="{{ csrf_token() }}">
-    <input type="hidden" name="SePuedeImprimir" value="SI">
 
     <div class="row">
         <div class="col-md-4 col-lg-4 col-sm-4">
@@ -91,7 +91,7 @@ function Controlador($scope, $log) {
                 <div class="col-md-6">
                     <input type="text" class="form-control" id="numPresupuesto" name="numPresupuesto" style="text-align:right;"
                            maxlength="50" required="true" value="{{ $numero }}" onkeypress="limpiar('groupNumPresupuesto','txtValidarNumPresupuesto');" 
-                           onblur="validar(this,'groupNumPresupuesto','txtValidarNumPresupuesto');">
+                           onblur="validar(this,'groupNumPresupuesto','txtValidarNumPresupuesto');" <?php if($editarCampoNumero[0]->editar === 'NO'){echo 'disabled';} ?> >
                     <input type="hidden" id="IdPresupuesto" name="IdPresupuesto" value="{{ $idPresupuesto }}">
                 </div>
                 <div class="alert alert-dander" role="alert" style="display: none; text-align: right;" id="txtValidarNumPresupuesto">
@@ -120,7 +120,7 @@ function Controlador($scope, $log) {
             </div>
             <div class="form-group">
                 <label class="col-md-12">{{ $datos->municipio }},&nbsp;&nbsp; 
-                    <input type="text" id="fechaPresup" name="fechaPresup" value="{{ $fechaHoy }}" size="7" style="border-color: #FFF;border-width:0;" />
+                    <input type="text" id="fechaPresup" name="fechaPresup" value="{{ $fechaHoy }}" onchange="DesactivaImprimir();" size="7" style="border-color: #FFF;border-width:0;" />
                 </label>
                 <script language="JavaScript">
 //                    NO FUNCIONA
@@ -157,7 +157,7 @@ function Controlador($scope, $log) {
             <div class="form-group" id="groupIdCliente">
                 <label class="col-md-3 control-label" for="idCliente">Cliente:</label>
                 <div class="col-md-9">
-                    <select class="form-control" id="idCliente" name="idCliente" onchange="cargaCliente(this.value);">
+                    <select class="form-control" id="idCliente" name="idCliente" onchange="cargaCliente(this.value);DesactivaImprimir();">
                         <option value="">Elige Cliente...</option>
                         <option value="Nuevo">Nuevo...</option>
                         @foreach ($clientes as $cliente)
@@ -179,7 +179,7 @@ function Controlador($scope, $log) {
             <div class="form-group">
                 <label class="col-md-3 control-label" for="Dirección">Dirección:</label>
                 <div class="col-md-9">
-                    <input type="text" class="form-control" id="Dirección" name="Dirección"
+                    <input type="text" class="form-control" id="Direccion" name="Direccion"
                            readonly required="true" value="">
                 </div>
             </div>
@@ -299,7 +299,7 @@ function Controlador($scope, $log) {
                                             '<div class="form-group" id="groupCantidad'+linea+'">'+
                                                 '<label for="Cantidad'+linea+'">Cantidad</label>'+
                                                 '<input type="number" step="any" min="0" class="form-control" id="Cantidad'+linea+'" name="Cantidad'+linea+'" maxlength="20" '+
-                                                        'onkeypress="limpiarCantidad('+linea+');" style="text-align:right;" value=""'+
+                                                        'onkeypress="limpiarCantidad('+linea+');DesactivaImprimir();" style="text-align:right;" value=""'+
                                                         'onblur="calculoCantidad('+linea+');sumas();formatear(this);" pattern="">'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtCantidad'+linea+'">'+
                                                     '<small class="help-block text-danger">Es numérico</small>'+
@@ -310,7 +310,7 @@ function Controlador($scope, $log) {
                                             '<div class="form-group" id="groupConcepto'+linea+'">'+
                                                 '<label for="Concepto'+linea+'">Concepto</label>'+
                                                 '<textarea class="form-control" id="Concepto'+linea+'" name="Concepto'+linea+'" rows="0"'+
-                                                'onfocus="limpiarConcepto('+linea+');" onblur="comprobar('+linea+');"></textarea>'+
+                                                'onfocus="limpiarConcepto('+linea+');" onkeypress="DesactivaImprimir();" onblur="comprobar('+linea+');"></textarea>'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtConcepto'+linea+'">'+
                                                     '<small class="help-block text-danger">Debe rellenar el concepto</small>'+
                                                 '</div>'+
@@ -321,7 +321,7 @@ function Controlador($scope, $log) {
                                             '<div class="form-group" id="groupPrecio'+linea+'">'+
                                                 '<label for="Precio'+linea+'">Precio</label>'+
                                                 '<input type="number" step="any" class="form-control" id="Precio'+linea+'" name="Precio'+linea+'" maxlength="20" value=""'+
-                                                        'onkeypress="limpiarPrecio('+linea+');" style="text-align:right;" value=""'+
+                                                        'onkeypress="limpiarPrecio('+linea+');DesactivaImprimir();" style="text-align:right;" value=""'+
                                                         'onblur="calculoPrecio('+linea+');sumas();formatear(this);">'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtPrecio'+linea+'">'+
                                                     '<small class="help-block text-danger">Es numérico</small>'+
@@ -332,7 +332,7 @@ function Controlador($scope, $log) {
                                             '<div class="form-group" id="groupImporte'+linea+'">'+
                                                 '<label for="Importe'+linea+'">Importe</label>'+
                                                 '<input type="number" step="any" class="form-control" id="Importe'+linea+'" name="Importe'+linea+'" maxlength="20" value=""'+
-                                                        'onkeypress="limpiarImporte('+linea+');" style="text-align:right;" value=""'+
+                                                        'onkeypress="limpiarImporte('+linea+');DesactivaImprimir();" style="text-align:right;" value=""'+
                                                         'onblur="calculoImporte('+linea+');sumas();formatear(this);">'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtImporte'+linea+'">'+
                                                     '<small class="help-block text-danger">No puede ser cero</small>'+
@@ -343,7 +343,7 @@ function Controlador($scope, $log) {
                                             '<div class="form-group" id="groupIVA'+linea+'">'+
                                                 '<label for="IVA'+linea+'">IVA</label>'+
                                                 '<input type="number" step="any" class="form-control" id="IVA'+linea+'" name="IVA'+linea+'" maxlength="20" value="21"'+
-                                                        'onkeypress="limpiarIVA('+linea+');" style="text-align:right;" value=""'+
+                                                        'onkeypress="limpiarIVA('+linea+');DesactivaImprimir();" style="text-align:right;" value=""'+
                                                         'onblur="calculoIVA('+linea+');sumas();formatear(this);">'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtIVA'+linea+'">'+
                                                     '<small class="help-block text-danger">Es numérico</small>'+
@@ -451,9 +451,23 @@ function Controlador($scope, $log) {
             }
             ?>
         
+        <?php
+        //veo si es nuevo o es edicion
+        if($presupuesto === ''){
+            //si es nueva se desactiva la impresion y Enviar
+            echo "DesactivaImprimir();";
+        }else{
+        }
+        
+        
+        ?>
         
         });
         
+        function DesactivaImprimir(){
+            $('#btnVerPDF').attr("disabled",true);
+            $('#btnEnviar').attr("disabled",true);
+        }
         
         
         
@@ -503,7 +517,7 @@ function Controlador($scope, $log) {
                 <div class="col-md-3">
                     <div class="form-group">
                         <label for="FormaPago">Forma de Pago:</label>
-                        <select class="form-control" id="FormaPago" name="FormaPago">
+                        <select class="form-control" id="FormaPago" name="FormaPago" onchange="DesactivaImprimir();">
                             <option value=""></option>
                             <option value="Contado">Contado</option>
                             <option value="Pagare">Pagaré</option>
@@ -518,7 +532,7 @@ function Controlador($scope, $log) {
                 <div class="col-md-3">
                     <div class="form-group">
                         <label for="Proforma">Factura Proforma:</label>
-                        <select class="form-control" id="Proforma" name="Proforma">
+                        <select class="form-control" id="Proforma" name="Proforma" onchange="DesactivaImprimir();">
                             <option value="NO">NO</option>
                             <option value="SI">SI</option>
                         </select>
@@ -530,7 +544,7 @@ function Controlador($scope, $log) {
                     <div class="form-group">
                         <label for="validez">Fecha Validez</label>
                         <input type="text" class="form-control" id="FechaVtoPresupuesto" name="FechaVtoPresupuesto" style="text-align:right;" 
-                               value="{{ $fechaVtoPresupuesto }}">
+                               value="{{ $fechaVtoPresupuesto }}" onchange="DesactivaImprimir();">
                         <script>
                         $("#FechaVtoPresupuesto").datepicker({
                             format: 'dd/mm/yyyy',
@@ -556,16 +570,10 @@ function Controlador($scope, $log) {
                 </div>
                 <div class="col-md-2 col-lg-2 col-sm-2 col-xs-2">
                     <div class="form-group">
-                        <input type="button" id="" class="btn btn-default" value="Ver PDF" onclick="verPDF();">
+                        <input type="button" id="btnVerPDF" class="btn btn-default" value="Ver PDF" onclick="verPDF();">
                         <script>
                         function verPDF(){
-                            if(document.presupuestoForm.SePuedeImprimir.value==='SI'){    
-                                //var datos=preparaURL(i,'imprimir');
-
-                                window.open('{{ URL::asset("presupuestos/verPDF") }}<?php echo "/" . $idPresupuesto; ?>', '', 'scrollbars=yes,menubar=no,height=600,width=800,resizable=yes,toolbar=no,status=no,location=no');
-                            }else{
-                                alert('No se puede ver el PDF sin haber guardado el presupuesto');
-                            }
+                            window.open('{{ URL::asset("presupuestos/verPDF") }}<?php echo "/" . $idPresupuesto; ?>', '', 'scrollbars=yes,menubar=no,height=600,width=800,resizable=yes,toolbar=no,status=no,location=no');
                         }
                         </script>
                     </div>
@@ -574,7 +582,7 @@ function Controlador($scope, $log) {
                 </div>
                 <div class="col-md-2 col-lg-2 col-sm-2 col-xs-2">
                     <div class="form-group">
-                        <input type="button" id="" class="btn btn-success" value="Enviar" onclick="" >
+                        <input type="button" id="btnEnviar" class="btn btn-success" value="Enviar" onclick="" data-toggle="modal" data-target="#formEnviar">
                     </div>
                 </div>
                 
@@ -584,8 +592,53 @@ function Controlador($scope, $log) {
         
         <!--<input type="hidden" id="idCliente" name="idCliente" value="" />-->
     </div>
-
 </form>
+
+<!-- Modal Enviar -->
+<div class="modal fade" id="formEnviar" tabindex="-1" role="dialog" 
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <button type="button" class="close" 
+                        data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Cerrar</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    Enviar
+                </h4>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+
+                <form class="form-horizontal" id="enviarForm" name="enviarForm" role="form" action="{{ URL::asset('presupuestos/enviar') }}" method="post">
+                    <!-- CSRF Token -->
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+
+                    <div class="form-group">
+                        <label  class="col-sm-4 control-label"
+                                for="motivo">Nuevo Motivo</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" 
+                                   id="motivo" name="motivo" placeholder="Nuevo Motivo"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <button type="submit" class="btn btn-default" disabled>OK</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>   
+
+
 <script>
     function limpiar(group,txt){
         $('#'+txt).css({"display": "none"});

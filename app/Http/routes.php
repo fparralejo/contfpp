@@ -50,8 +50,43 @@ Route::get('presupuestos/editar/{idPresupuesto}', 'presupuestosController@editar
 Route::get('presupuestos/mdb', 'presupuestosController@listar');
 Route::post('presupuestos/createEdit', 'presupuestosController@createEdit');
 Route::get('presupuestos/verPDF/{idPresupuesto}', 'presupuestosController@verPDF');
+Route::get('presupuestos/duplicar/{idPresupuesto}', 'presupuestosController@duplicar');
+Route::get('presupuestos/borrar/{idPresupuesto}', 'presupuestosController@borrar');
 
 
+Route::get('fact_prep', function () {
+    return view('construccion');
+});
+Route::get('ped_prep', function () {
+    return view('construccion');
+});
+
+
+
+
+//pedidos
+Route::get('pedidos/alta', function () {
+    return view('construccion');
+});
+Route::get('pedidos/mdb', function () {
+    return view('construccion');
+});
+Route::get('fact_ped', function () {
+    return view('construccion');
+});
+
+
+
+//facturas
+Route::get('facturas/alta', function () {
+    return view('construccion');
+});
+Route::get('facturas/mdb', function () {
+    return view('construccion');
+});
+Route::get('facturas/cobrar_facturas', function () {
+    return view('construccion');
+});
 
 
 /*

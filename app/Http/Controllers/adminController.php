@@ -325,4 +325,14 @@ class adminController extends Controller {
         }
     }
     
+    public function editarCampoNumero($TipoContador) {
+        //extraigo eld dato
+        $editar = TipoContador::on('contfpp')        
+                               ->where('idContador', '=', $TipoContador)
+                               ->select('editar')
+                               ->get();
+        
+        return $editar;
+    }
+    
 }

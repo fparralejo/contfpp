@@ -120,11 +120,11 @@ class presupuestosController extends Controller {
         $numeroNuevo = $admin->numeroNuevo('Presupuesto',$datos->TipoContador);
         
         $numero = $admin->formatearNumero($numeroNuevo,$datos->TipoContador);
-        //var_dump($numero);die;
+        $editarCampoNumero = $admin->editarCampoNumero($datos->TipoContador);
 
         return view('presupuestos.ver')->with('presupuesto', json_encode(''))->with('clientes', json_encode($clientes))
                                        ->with('datos', json_encode($datos))->with('presupuestoDetalle', json_encode(''))
-                                       ->with('numero', json_encode($numero));
+                                       ->with('numero', json_encode($numero))->with('editarCampoNumero', json_encode($editarCampoNumero));
     }
         
     public function editar($idPresupuesto){
@@ -151,12 +151,13 @@ class presupuestosController extends Controller {
         
         //numero
         $numero = $admin->formatearNumero($presupuesto->NumPresupuesto,$datos->TipoContador);
+        $editarCampoNumero = $admin->editarCampoNumero($datos->TipoContador);
                 
         //var_dump($numero);die;
 
         return view('presupuestos.ver')->with('presupuesto', json_encode($presupuesto))->with('clientes', json_encode($clientes))
                                        ->with('datos', json_encode($datos))->with('presupuestoDetalle', json_encode($presupuestoDetalle))
-                                       ->with('numero', json_encode($numero));
+                                       ->with('numero', json_encode($numero))->with('editarCampoNumero', json_encode($editarCampoNumero));
     }
         
     public function listar(){
@@ -229,7 +230,7 @@ class presupuestosController extends Controller {
                 $idPresupNuevo = Presupuesto::on(Session::get('conexionBBDD'))
                                   ->max('IdPresupuesto') + 1;
                 $presupuesto->IdPresupuesto = $idPresupNuevo;
-                $presupuesto->Estado = 'Emitida';
+                $presupuesto->Estado = 'Pendiente';
                 
 
                 $ok = 'Se ha dado de alta correctamente el presupuesto.';
@@ -335,8 +336,6 @@ class presupuestosController extends Controller {
                 $idNuevo = PresupuestoDetalle::on(Session::get('conexionBBDD'))
                                              ->max('IdPresupDetalle') + 1;
                 
-                //**** SIN TERMINAR DAR DE ALTA LAS LINEAS DE DETALLE
-
                 $nuevoDetalle->IdPresupDetalle = $idNuevo;
                 $nuevoDetalle->IdPresupuesto = $presupuesto->IdPresupuesto;
                 $nuevoDetalle->NumLineaPresup = (int)($i +1);
@@ -373,7 +372,7 @@ class presupuestosController extends Controller {
         
         
         //echo json_encode($txt);**PONER RESULTADO DE EDITAR BORRAR, ETC..
-        return redirect('presupuestos/mdb');
+        return redirect('presupuestos/editar/'.$presupuesto->IdPresupuesto);
     }
     
 
@@ -407,7 +406,7 @@ class presupuestosController extends Controller {
         $numero = $admin->formatearNumero($presupuesto->NumPresupuesto,$datos->TipoContador);
         
         
-        return view('pdf.pdf')->with('datos', json_encode($datos))
+        return view('presupuestos.presupuesto_pdf')->with('datos', json_encode($datos))
                               ->with('cliente', json_encode($cliente))
                               ->with('presupuesto', json_encode($presupuesto))
                               ->with('presupuestoDetalle', json_encode($presupuestoDetalle))
@@ -416,5 +415,127 @@ class presupuestosController extends Controller {
     }
 
     
+    public function duplicar($idPresupuesto){
+        //control de sesion
+        $admin = new adminController();
+        if (!$admin->getControl()) {
+            return redirect('/')->with('login_errors', 'La sesión a expirado. Vuelva a logearse.');
+        }
+        
+        //extraigo los datos de este presupuesto
+        $presupuesto = Presupuesto::on(Session::get('conexionBBDD'))
+                        ->find($idPresupuesto);
+        //lo clono
+        $nuevo_presupuesto = $presupuesto->replicate();
+        $nuevo_presupuesto->setConnection(Session::get('conexionBBDD'));
+
+        //indicamos el nuevo IdPresupuesto
+        $idPresupNuevo = Presupuesto::on(Session::get('conexionBBDD'))
+                          ->max('IdPresupuesto') + 1;
+        $nuevo_presupuesto->IdPresupuesto = $idPresupNuevo;
+        $nuevo_presupuesto->Estado = 'Pendiente';
+        
+        //saco un numero nuevo
+        $datos = Empresa::on('contfpp')->find((int)Session::get('IdEmpresa'));
+        $numeroNuevo = $admin->numeroNuevo('Presupuesto',$datos->TipoContador);
+        $numero = $admin->formatearNumero($numeroNuevo,$datos->TipoContador);
+        
+        $nuevo_presupuesto->NumPresupuesto = $numeroNuevo;
+        date_default_timezone_set('Europe/Madrid');
+        $nuevo_presupuesto->FechaPresupuesto = date('Y-m-d H:i:s');
+        $nuevo_presupuesto->FechaVtoPresupuesto = date('Y-m-d H:i:s');
+        
+        
+        //ahora busco las lineas del presupuesto
+        $presupuestoDetalleNuevo = PresupuestoDetalle::on(Session::get('conexionBBDD'))
+                          ->where('IdPresupuesto', '=', $idPresupuesto)
+                          ->where('Borrado', '=', '1')
+                          ->get();
+        
+        //ahora las operaciones que voy a hacer son por transaccion
+        
+        \DB::connection(Session::get('conexionBBDD'))->beginTransaction(); //Comienza transaccion
+        try{
+            //guardo el presupuesto
+            $nuevo_presupuesto->push();
+
+            //ahora inserto estas lineas en la tabla presupuesotsDetalle
+            for ($i = 0; $i < count($presupuestoDetalleNuevo); $i++) {
+                $nuevoDetalle = new PresupuestoDetalle();
+                $nuevoDetalle->setConnection(Session::get('conexionBBDD'));
+                $idNuevo = PresupuestoDetalle::on(Session::get('conexionBBDD'))
+                                             ->max('IdPresupDetalle') + 1;
+
+                $nuevoDetalle->IdPresupDetalle = $idNuevo;
+                $nuevoDetalle->IdPresupuesto = $nuevo_presupuesto->IdPresupuesto;
+                $nuevoDetalle->NumLineaPresup = (int)($i +1);
+                $nuevoDetalle->IdArticulo = (isset($presupuestoDetalleNuevo[$i]->IdArticulo)) ? $presupuestoDetalleNuevo[$i]->IdArticulo : '';
+                $nuevoDetalle->DescripcionProducto = (isset($presupuestoDetalleNuevo[$i]->DescripcionProducto)) ? $presupuestoDetalleNuevo[$i]->DescripcionProducto : '';
+                $nuevoDetalle->TipoIVA = (isset($presupuestoDetalleNuevo[$i]->TipoIVA)) ? $presupuestoDetalleNuevo[$i]->TipoIVA : '';
+                $nuevoDetalle->Cantidad = (isset($presupuestoDetalleNuevo[$i]->Cantidad)) ? $presupuestoDetalleNuevo[$i]->Cantidad : '';
+                $nuevoDetalle->ImporteUnidad = (isset($presupuestoDetalleNuevo[$i]->ImporteUnidad)) ? $presupuestoDetalleNuevo[$i]->ImporteUnidad : '';
+                $nuevoDetalle->Importe = (isset($presupuestoDetalleNuevo[$i]->Importe)) ? $presupuestoDetalleNuevo[$i]->Importe : '';
+                $nuevoDetalle->CuotaIva = (isset($presupuestoDetalleNuevo[$i]->CuotaIva)) ? $presupuestoDetalleNuevo[$i]->CuotaIva : '';
+
+                $nuevoDetalle->save();
+            }
+        }
+        catch(\Exception $e)
+        {
+          //failed logic here
+           \DB::connection(Session::get('conexionBBDD'))->rollback();
+           throw $e;
+           echo "falla";die;
+        }
+
+        \DB::connection(Session::get('conexionBBDD'))->commit();
+        
+
+        //por ultimo voy al nuevo presupuesto clonado
+        return redirect('presupuestos/editar/'.$nuevo_presupuesto->IdPresupuesto);
+    }
+    
+    public function borrar($idPresupuesto){
+        //control de sesion
+        $admin = new adminController();
+        if (!$admin->getControl()) {
+            return redirect('/')->with('login_errors', 'La sesión a expirado. Vuelva a logearse.');
+        }
+        
+        $txt = '';
+        
+        \DB::connection(Session::get('conexionBBDD'))->beginTransaction(); //Comienza transaccion
+        try{
+            //se busca este presupuesto
+            $presupuesto = Presupuesto::on(Session::get('conexionBBDD'))->find($idPresupuesto);
+            $presupuesto->Borrado = 0;
+            $presupuesto->save();
+
+            //2º
+            $presupuestoDetalle = PresupuestoDetalle::on(Session::get('conexionBBDD'))
+                                 ->where('IdPresupuesto', '=', $idPresupuesto)
+                                 ->where('Borrado', '=', '1')
+                                 ->get();
+
+            foreach ($presupuestoDetalle as $detalle) {
+                $detalle->Borrado = 0;
+                $detalle->save();
+            }
+
+            $txt = 'Se ha borrado correctamente el presupuesto.';
+        }
+        catch(\Exception $e)
+        {
+          //failed logic here
+           \DB::connection(Session::get('conexionBBDD'))->rollback();
+           throw $e;
+           $txt = 'ERROR al borrar el presupuesto.';
+        }
+
+        \DB::connection(Session::get('conexionBBDD'))->commit();
+        
+        //por ultimo voy al nuevo presupuesto clonado
+        return redirect('presupuestos/mdb')->with('errors', json_encode($txt));
+    }
 }
 

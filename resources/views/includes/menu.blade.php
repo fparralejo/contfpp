@@ -13,6 +13,15 @@
                   <li><a href="{{ URL::asset('presupuestos/alta') }}">Alta</a></li>
                   <li><a href="{{ URL::asset('presupuestos/mdb') }}">Modificación/Duplicar/Borrar</a></li>
                   <li><a href="{{ URL::asset('fact_prep') }}">Facturar Presupuesto</a></li>
+                  <li><a href="{{ URL::asset('ped_prep') }}">Preparar Pedido</a></li>
+                </ul>            
+            </li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Pedidos<span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  <li><a href="{{ URL::asset('pedidos/alta') }}">Alta</a></li>
+                  <li><a href="{{ URL::asset('pedidos/mdb') }}">Modificación/Duplicar/Borrar</a></li>
+                  <li><a href="{{ URL::asset('fact_ped') }}">Preparar Factura</a></li>
                 </ul>            
             </li>
             <li class="dropdown">

@@ -10,6 +10,21 @@ $clientes = json_decode($clientes);
 <h4><span>Listado Presupuestos</span></h4>
 <br/>
 
+<!--<script>
+//hacer desaparecer en cartel
+    $(document).ready(function () {
+        setTimeout(function () {
+            $("#accionTabla2").fadeOut(1500);
+        }, 3000);
+    });
+</script>
+
+@if (Session::has('errors'))
+<div class="alert alert-success" id="accionTabla2" role="alert" style="display: block; ">
+    <?php //echo json_decode($errors); ?>
+</div>
+@endif-->
+
 <style>
     .sgsiRow:hover{
         cursor: pointer;
@@ -161,17 +176,33 @@ $clientes = json_decode($clientes);
     }
     //estado, si está Emitida o Anulada se presenta en un select, si está Contabilizada se escribe directamente
     $htmlEstado = '';
-    if($presupuesto->Estado === 'Contabilizada'){
-        $htmlEstado = $presupuesto->Estado;
-    }else if($presupuesto->Estado === 'Emitida'){
+    if($presupuesto->Estado === 'Pendiente'){
         $htmlEstado = '<select class="form-control" name="Estado" id="Estado">';
-        $htmlEstado = $htmlEstado . '<option value="Emitida" selected>Emitida</option>';
-        $htmlEstado = $htmlEstado . '<option value="Anulada">Anulada</option>';
+        $htmlEstado = $htmlEstado . '<option value="Pendiente" selected>Pendiente</option>';
+        $htmlEstado = $htmlEstado . '<option value="Aceptado">Aceptado</option>';
+        $htmlEstado = $htmlEstado . '<option value="Rechazado">Rechazado</option>';
+        $htmlEstado = $htmlEstado . '<option value="Cancelado">Cancelado</option>';
         $htmlEstado = $htmlEstado . '</select>';
-    }else if($presupuesto->Estado === 'Anulada'){
+    }else if($presupuesto->Estado === 'Aceptado'){
         $htmlEstado = '<select class="form-control" name="Estado" id="Estado">';
-        $htmlEstado = $htmlEstado . '<option value="Emitida">Emitida</option>';
-        $htmlEstado = $htmlEstado . '<option value="Anulada" selected>Anulada</option>';
+        $htmlEstado = $htmlEstado . '<option value="Pendiente">Pendiente</option>';
+        $htmlEstado = $htmlEstado . '<option value="Aceptado" selected>Aceptado</option>';
+        $htmlEstado = $htmlEstado . '<option value="Rechazado">Rechazado</option>';
+        $htmlEstado = $htmlEstado . '<option value="Cancelado">Cancelado</option>';
+        $htmlEstado = $htmlEstado . '</select>';
+    }else if($presupuesto->Estado === 'Rechazado'){
+        $htmlEstado = '<select class="form-control" name="Estado" id="Estado">';
+        $htmlEstado = $htmlEstado . '<option value="Pendiente">Pendiente</option>';
+        $htmlEstado = $htmlEstado . '<option value="Aceptado">Aceptado</option>';
+        $htmlEstado = $htmlEstado . '<option value="Rechazado" selected>Rechazado</option>';
+        $htmlEstado = $htmlEstado . '<option value="Cancelado">Cancelado</option>';
+        $htmlEstado = $htmlEstado . '</select>';
+    }else if($presupuesto->Estado === 'Cancelado'){
+        $htmlEstado = '<select class="form-control" name="Estado" id="Estado">';
+        $htmlEstado = $htmlEstado . '<option value="Pendiente">Pendiente</option>';
+        $htmlEstado = $htmlEstado . '<option value="Aceptado">Aceptado</option>';
+        $htmlEstado = $htmlEstado . '<option value="Rechazado">Rechazado</option>';
+        $htmlEstado = $htmlEstado . '<option value="Cancelado" selected>Cancelado</option>';
         $htmlEstado = $htmlEstado . '</select>';
     }
     
@@ -192,7 +223,9 @@ $clientes = json_decode($clientes);
                 <button type="button" onclick="duplicarPresupuesto({{ $presupuesto->IdPresupuesto }})" class="btn btn-xs btn-success">Duplicar</button>
             </td>
             <td>
+                @if($presupuesto->Facturada === 'NF' && $presupuesto->Pedido === 'NP')
                 <button type="button" onclick="borrarPresupuesto({{ $presupuesto->IdPresupuesto }})" class="btn btn-xs btn-danger">Borrar</button>
+                @endif
             </td>
         </tr>
     @endforeach
@@ -202,6 +235,15 @@ $clientes = json_decode($clientes);
 <script>
     function verPresupuesto(idPresupuesto){
         location.href = "{{ URL::asset('presupuestos/editar/') }}/"+idPresupuesto;
+    }
+    function duplicarPresupuesto(idPresupuesto){
+        location.href = "{{ URL::asset('presupuestos/duplicar/') }}/"+idPresupuesto;
+    }
+    function borrarPresupuesto(idPresupuesto){
+        if (confirm("¿Desea borrar este presupuesto?"))
+        {
+            location.href = "{{ URL::asset('presupuestos/borrar/') }}/"+idPresupuesto;
+        }
     }
 </script>
 

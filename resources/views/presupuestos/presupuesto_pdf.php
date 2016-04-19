@@ -92,7 +92,7 @@ class PDF extends baseFpdf{
         $this->Cell(25, $altura, 'Forma de Pago:',0,'L', 'R');
         $this->Cell(35, $altura, utf8_decode($this->presupuesto->FormaPago),0,'R', 'L',true);
         $this->Cell(40, $altura, 'Vencimiento:',0,'L', 'R');
-        $this->Cell(10, $altura, $this->presupuesto->FechaVtoPresupuesto,0,'R', 'C',true);
+        $this->Cell(25, $altura, \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$this->presupuesto->FechaVtoPresupuesto)->format('d/m/Y'),0,'R', 'C',true);
         //$this->Cell(10, $altura, utf8_decode('días f.f.'),0,'L', 'L');
         $this->Ln();
 //        $this->Cell(25, $altura, '',0,'L', 'R');
