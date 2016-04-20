@@ -1,6 +1,10 @@
 <?php 
+namespace App\Http\Controllers;
+
 //cargo la libreria FPDF
 use Anouar\Fpdf\Fpdf as baseFpdf;
+
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\adminController;
 
 
@@ -414,7 +418,13 @@ for ($i = 0;$i < count($pdf->presupuestoDetalle);$i++){
 $pdf->Cell(185, 0,'','B',0,'R');
 $pdf->Ln();
 
-
+class redirec extends Controller{
+    public function volverListado($IdPresupuesto)
+    {
+        return redirect('presupuestos/editar/'.$IdPresupuesto);
+    }
+    
+}
 
 
 //header('Content-type: application/pdf');
@@ -422,9 +432,20 @@ $pdf->Ln();
 if($pdf->accion === 'ver'){
     //se renderiza el PDF
     $pdf->Output();
+    exit;
 }else{
     //se renderiza el PDF y se guarda
-    //$pdf->Output("../docEnviados/Presupuesto_".$datos->IdEmpresa.'-'.$pdf->presupuesto->NumPresupuesto.".pdf","F");
-    //$pdf->Close();
+    $root = getenv('DOCUMENT_ROOT');
+    $uri  = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
+    $uri = explode('/',$uri);
+    $url = $root.'/'.$uri[1].'/public/pdf_files/';
+    
+    $file = $url . "Presupuesto_".$pdf->datos->IdEmpresa.'-'.$pdf->presupuesto->NumPresupuesto.".pdf";
+    $pdf->Output($file,"F");
+    $pdf->Close();
+    
+    //vuelvo al listado de presupuestos
+    $redireccionar = new redirec();
+    $redireccionar->volverListado($pdf->presupuesto->IdPresupuesto);
+    
 }
-exit;

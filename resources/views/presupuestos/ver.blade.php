@@ -9,7 +9,7 @@ $presupuestoDetalle = json_decode($presupuestoDetalle);
 $numero = json_decode($numero);
 $editarCampoNumero = json_decode($editarCampoNumero);
 
-//var_dump($editarCampoNumero);die;
+//var_dump($clientes);die;
 
 //averiguo si estamos editando o es nuevo
 if($presupuesto === ''){//nuevo
@@ -29,20 +29,6 @@ if($presupuesto === ''){//nuevo
 ?>
 
 @section('principal')
-<!--libreria angular JS-->
-<!--<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
-<script>
-function Controlador($scope, $log) {
-
-  $scope.registrar = function(usuario) {
-//    $log.info('Usuario: ');
-//    $log.info(usuario);
-//    $log.info('fue registrado correctamente!');
-  };
-};    
-</script>-->
-
-
 <h4><span>Presupuesto</span></h4>
 <br/>
 
@@ -91,7 +77,7 @@ function Controlador($scope, $log) {
                 <div class="col-md-6">
                     <input type="text" class="form-control" id="numPresupuesto" name="numPresupuesto" style="text-align:right;"
                            maxlength="50" required="true" value="{{ $numero }}" onkeypress="limpiar('groupNumPresupuesto','txtValidarNumPresupuesto');" 
-                           onblur="validar(this,'groupNumPresupuesto','txtValidarNumPresupuesto');" <?php if($editarCampoNumero[0]->editar === 'NO'){echo 'disabled';} ?> >
+                           onblur="validar(this,'groupNumPresupuesto','txtValidarNumPresupuesto');" <?php if($editarCampoNumero[0]->editar === 'NO'){echo 'readonly';} ?> >
                     <input type="hidden" id="IdPresupuesto" name="IdPresupuesto" value="{{ $idPresupuesto }}">
                 </div>
                 <div class="alert alert-dander" role="alert" style="display: none; text-align: right;" id="txtValidarNumPresupuesto">
@@ -573,7 +559,7 @@ function Controlador($scope, $log) {
                         <input type="button" id="btnVerPDF" class="btn btn-default" value="Ver PDF" onclick="verPDF();">
                         <script>
                         function verPDF(){
-                            window.open('{{ URL::asset("presupuestos/verPDF") }}<?php echo "/" . $idPresupuesto; ?>', '', 'scrollbars=yes,menubar=no,height=600,width=800,resizable=yes,toolbar=no,status=no,location=no');
+                            window.open('{{ URL::asset("presupuestos/verPDF") }}<?php echo "/" . $idPresupuesto; ?>/ver', '', 'scrollbars=yes,menubar=no,height=600,width=800,resizable=yes,toolbar=no,status=no,location=no');
                         }
                         </script>
                     </div>
@@ -607,29 +593,36 @@ function Controlador($scope, $log) {
                     <span class="sr-only">Cerrar</span>
                 </button>
                 <h4 class="modal-title" id="myModalLabel">
-                    Enviar
+                    Enviar PDF
                 </h4>
             </div>
 
             <!-- Modal Body -->
             <div class="modal-body">
 
-                <form class="form-horizontal" id="enviarForm" name="enviarForm" role="form" action="{{ URL::asset('presupuestos/enviar') }}" method="post">
+                <form class="form-horizontal" id="enviarForm" name="enviarForm" role="form" action="{{ URL::asset('presupuestos/verPDF') }}<?php echo "/" . $idPresupuesto; ?>/enviar" method="get">
                     <!-- CSRF Token -->
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
                     <div class="form-group">
                         <label  class="col-sm-4 control-label"
-                                for="motivo">Nuevo Motivo</label>
+                                for="motivo">Para</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" 
-                                   id="motivo" name="motivo" placeholder="Nuevo Motivo"/>
+                            <input type="text" class="form-control" value=""
+                                   id="email" name="email" placeholder="E-mail"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label  class="col-sm-4 control-label"
+                                for="motivo">Mensaje</label>
+                        <div class="col-sm-8">
+                            <textarea class="form-control" id="mensaje" name="mensaje" rows="4"></textarea>                            
                         </div>
                     </div>
 
                     <div class="form-group">
                         <div class="col-sm-offset-2 col-sm-10">
-                            <button type="submit" class="btn btn-default" disabled>OK</button>
+                            <button type="submit" class="btn btn-default">OK</button>
                         </div>
                     </div>
                 </form>
@@ -670,6 +663,7 @@ function Controlador($scope, $log) {
                     $('#Direccion').val(cliente.direccion);
                     $('#Poblacion').val(cliente.municipio);
                     $('#Provincia').val(cliente.provincia);
+                    $('#email').val(cliente.email);
                     //$('#FormaPago').val(cliente.forma_pago_habitual);
                 }
             });

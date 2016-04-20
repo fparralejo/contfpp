@@ -49,9 +49,10 @@ Route::get('presupuestos/alta', 'presupuestosController@alta');
 Route::get('presupuestos/editar/{idPresupuesto}', 'presupuestosController@editar');
 Route::get('presupuestos/mdb', 'presupuestosController@listar');
 Route::post('presupuestos/createEdit', 'presupuestosController@createEdit');
-Route::get('presupuestos/verPDF/{idPresupuesto}', 'presupuestosController@verPDF');
+Route::get('presupuestos/verPDF/{idPresupuesto}/{accion}', 'presupuestosController@verPDF');
 Route::get('presupuestos/duplicar/{idPresupuesto}', 'presupuestosController@duplicar');
 Route::get('presupuestos/borrar/{idPresupuesto}', 'presupuestosController@borrar');
+//Route::post('presupuestos/enviar', 'presupuestosController@enviar');
 
 
 Route::get('fact_prep', function () {

@@ -163,8 +163,8 @@ $(document).ready(function() {
             <div class="form-group">
                 <label for="productos">Utilizar la Base de Datos de Productos:</label>
                 <select class="form-control" id="productos" name="productos">
-                    <option value="SI" @if($datos->productos === 'SI') selected @endif>SI</option>
-                    <option value="NO" @if($datos->productos === 'NO') selected @endif>NO</option>
+                    <option value="SI" @if($datos->articulos === 'SI') selected @endif>SI</option>
+                    <option value="NO" @if($datos->articulos === 'NO') selected @endif>NO</option>
                 </select>
             </div>
         </div>
