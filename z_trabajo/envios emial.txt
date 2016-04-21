@@ -1,0 +1,8 @@
+https://laravel.com/docs/5.1/mail
+
+
+
+PHP Mailer
+http://stackoverflow.com/questions/29486522/laravel-5-and-phpmailer
+https://github.com/PHPMailer/PHPMailer/issues/469
+

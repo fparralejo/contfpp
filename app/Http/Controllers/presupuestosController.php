@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Session;
 use Input;
 use Illuminate\Http\Request;
+//use Mail;
 
 
 use App\Empresa;
@@ -403,8 +404,6 @@ class presupuestosController extends Controller {
                           ->where('Borrado', '=', '1')
                           ->get();
 
-        //numero
-        $numero = $admin->formatearNumero($presupuesto->NumPresupuesto,$datos->TipoContador);
         
         
         //ahora hacemos el fichero PDF
@@ -420,7 +419,9 @@ class presupuestosController extends Controller {
         $pdf->datos = json_decode($datos);
         $pdf->presupuesto = json_decode($presupuesto);
         $pdf->presupuestoDetalle = json_decode($presupuestoDetalle);
-        $pdf->numero = json_decode($numero);
+        //numero
+        $numero = $admin->formatearNumero($pdf->presupuesto->NumPresupuesto,$pdf->datos->TipoContador);
+        $pdf->numero = $numero;
         $pdf->accion = $accion;
         //var_dump($pdf->datos);die;
 
@@ -640,6 +641,50 @@ class presupuestosController extends Controller {
             //SIN HACER 20/4/2016
             //ahora hago el envio por email
             //dd($request);die;
+
+//            $data['key'] = 'value';
+//            Mail::send('emails.welcome', $data, function ($message) {
+//                //$message->from('us@example.com', 'Prueba de envio de correos por laravel 5');
+//                $message->subject('Prueba de envio de correos por laravel 5');
+//
+//                $message->to('fparralejo1970@gmail.com')->cc('fparralejo1970@yahoo.es');
+//            });
+
+            
+//Mail::raw('Text to e-mail', function($message)
+//{
+//    $message->from('us@example.com', 'Laravel');
+//
+//    $message->to('fparralejo1970@gmail.com')->cc('fparralejo1970@yahoo.es');
+//});            
+
+
+    $mail = new \PHPMailer(true); // notice the \  you have to use root namespace here
+    try {
+        $mail->isSMTP(); // tell to use smtp
+        $mail->CharSet = "utf-8"; // set charset to utf8
+        $mail->SMTPAuth = true;  // use smpt auth
+        $mail->SMTPSecure = "tls"; // or ssl
+        $mail->Host = "stmp.gmail.com";
+        $mail->Port = 587; // most likely something different for you. This is the mailtrap.io port i use for testing. 
+        $mail->Username = "fparralejo1970@gmail.com";
+        $mail->Password = "paco1970";
+        
+        $mail->setFrom("xxxx@yahoo.es", "Firstname Lastname");
+        $mail->Subject = "Test";
+        $mail->MsgHTML("This is a test");
+        $mail->addAddress("fparralejo1970@yahoo.es", "Recipient Name");
+        $mail->send();
+    } catch (phpmailerException $e) {
+        dd($e);
+    } catch (Exception $e) {
+        dd($e);
+    }
+    die('success');
+
+
+
+
             
             return redirect('presupuestos/editar/'.$pdf->presupuesto->IdPresupuesto);    
         }
