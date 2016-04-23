@@ -47,9 +47,9 @@
         <div class="container well" id="sha">
             <div class="row">
                 <div class="col-xs-12">
-                    <span><center><h3>Contabilidad</h3></center></span>	
-                    <span><center><h5>Versión 0.1</h5></center></span>	
-                    <span><center><h6>19/04/2016</h6></center></span>	
+                    <span><center><h3>Contabilidad FPP</h3></center></span>	
+                    <span><center><h5>Versión 0.20160423</h5></center></span>	
+                    <span><center><h6>23/04/2016</h6></center></span>	
                     <br/>
                 </div>
             </div>
