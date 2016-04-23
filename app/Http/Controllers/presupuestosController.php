@@ -20,9 +20,6 @@ use App\Http\Controllers\adminController;
 //cargo la libreria FPDF
 use Anouar\Fpdf\Fpdf as baseFpdf;
 
-//cargo la libreria FPDF
-//use App\lib\fpdf\FPDF;
-
 
 class presupuestosController extends Controller {
 
@@ -628,128 +625,122 @@ class presupuestosController extends Controller {
             exit;
         }else{
             //se renderiza el PDF y se guarda
-            //URL::asset('presupuestos/createEdit');
-//            $root = getenv('DOCUMENT_ROOT');
-//            $uri  = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
-//            $uri = explode('/',$uri);
-//            $url = $root.'/public/pdf_files/';
-
             $file = "../public/pdf_files/Presupuesto_".$pdf->datos->IdEmpresa.'-'.$pdf->presupuesto->NumPresupuesto.".pdf";
             $pdf->Output($file,"F");
             $pdf->Close();
             
-//            //me redirecciono a un php NO laravel
-            return redirect('presupuestos/enviar/'.$pdf->presupuesto->IdPresupuesto);    
             
+
+            //envio del correo en si
+            $to = $request->email;
+//            $Cc = $request->emailCC;
+//            if($Cc<>''){
+//                $mail->addAddress($Cc, '');
+//            }
             
-            
-            //SIN HACER 20/4/2016
-            //ahora hago el envio por email
-            //dd($request);die;
+            //ESTE CAMPO FALLA MISTERIOSAMENTE
+            //NO SE DEBE PONER EL CORREO AL QUE SE ENVIA, ES INCONGRUENTE 23/4/2016
+            //$from = $pdf->datos->email1;
+            $from = "soporte@aluminiosmarquez.esy.es";
+            $subject = $pdf->datos->identificacion.'. Presupuesto: '.$numero;
 
-//            $data['key'] = 'value';
-//            Mail::send('emails.welcome', $data, function ($message) {
-//                //$message->from('us@example.com', 'Prueba de envio de correos por laravel 5');
-//                $message->subject('Prueba de envio de correos por laravel 5');
-//
-//                $message->to('fparralejo1970@gmail.com')->cc('fparralejo1970@yahoo.es');
-//            });
+            require '../resources/views/emails/phpmailer/PHPMailerAutoload.php';
+            $mail = new \PHPMailer();
 
-            
-//Mail::raw('Text to e-mail', function($message)
-//{
-//    $message->from('us@example.com', 'Laravel');
-//
-//    $message->to('fparralejo1970@yahoo.es')->cc('fparralejo1970@gmail.com');
-//});            
-
-//MIRAR POR SI LAS MOSCARDAS 23/4/2016
-
-//    //$mail = new \PHPMailer(true); // notice the \  you have to use root namespace here
-//    $mail = new \PHPMailer(); // notice the \  you have to use root namespace here
-//    try {
-////        $mail->isSMTP(); // tell to use smtp
-//        $mail->CharSet = "utf-8"; // set charset to utf8
-//        
-//        
-////        $mail->SMTPAuth = true;  // use smpt auth
-////        $mail->SMTPSecure = "tls"; // or ssl
-////        $mail->Host = "smtp.gmail.com";
-////        $mail->Port = 587; // most likely something different for you. This is the mailtrap.io port i use for testing. 
-////        $mail->Username = "parraparte@gmail.com";
-////        $mail->Password = "parra1970";
-//
-//        
-//        $mail->setFrom("fparralejo1970@yahoo.es", "Firstname Lastname");
-//        $mail->addAddress("fparralejo1970@yahoo.es", '');
-//        $mail->Subject = "Test";
-//        $mail->MsgHTML("This is a test");
-////        $mail->addAddress("fparralejo1970@yahoo.es", "Recipient Name");
-//        $mail->send();
-//    } catch (phpmailerException $e) {
-//        dd($e);
-//    } catch (Exception $e) {
-//        dd($e);
-//    }
-
-
-
+            //Correo desde donde se envía (from)
+            $mail->setFrom($from, '');
+            //Correo de envío (to)
+            $mail->addAddress($to, '');
+            //copia oculta al correo del usuario
+            $mail->addBCC($from);
 
             
-            return redirect('presupuestos/editar/'.$pdf->presupuesto->IdPresupuesto);    
+            $mail->CharSet = "UTF-8";
+            $mail->Subject = $subject;
+
+            $html='<!DOCTYPE html>
+                    <html>
+                        <head>
+                            <title>'.$pdf->datos->identificacion.'. Presupuesto: '.$numero.'</title>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width">
+                        </head>
+                        <body>
+                            <div>'.($request->mensaje).'</div><br/><br/>
+                        </body>
+                    </html>';
+
+            //Lee un HTML message body desde un fichero externo,
+            //convierte HTML un plain-text básico 
+            $mail->msgHTML($html);
+            //Reemplaza al texto plano del body
+            $mail->AltBody = 'Presupuesto';
+            //incluye el fichero adjunto
+            $mail->addAttachment($file);
+
+            $txtError = '';
+            if($mail->send()){
+                $txtError = 'El presupuesto ha sido enviado correctamente.';
+            }else{
+                $txtError = 'El presupuesto NO ha sido enviado.';
+            }
+
+
+            //redirecciono al presupuesto
+            return redirect('presupuestos/editar/'.$pdf->presupuesto->IdPresupuesto)->with('errors', json_encode($txtError));    
         }
     }
 
     //NO VALE 22/4/2016
-    public function enviar($idPresupuesto){
-        dd($idPresupuesto);die;
-        //control de sesion
-        $admin = new adminController();
-        if (!$admin->getControl()) {
-            return redirect('/')->with('login_errors', 'La sesión a expirado. Vuelva a logearse.');
-        }
-
-        
-
-
-
-
-
-
-        
-        //busco los datos
-        $datos = Empresa::on('contfpp')->find((int)Session::get('IdEmpresa'));
-
-        $presupuesto = Presupuesto::on(Session::get('conexionBBDD'))
-                        ->find($request->idPresupuesto);
-        
-        $cliente = Cliente::on(Session::get('conexionBBDD'))
-                          ->where('borrado', '=', '1')
-                          ->where('tipo', '=', 'C')
-                          ->where('idCliente', '=', $presupuesto->IdCliente)
-                          ->get();
-
-        $presupuestoDetalle = PresupuestoDetalle::on(Session::get('conexionBBDD'))
-                          ->where('IdPresupuesto', '=', $request->idPresupuesto)
-                          ->where('Borrado', '=', '1')
-                          ->get();
-
-        //numero
-        $numero = $admin->formatearNumero($presupuesto->NumPresupuesto,$datos->TipoContador);
-        
-        
-        return view('presupuestos.presupuesto_pdf')->with('datos', json_encode($datos))
-                              ->with('cliente', json_encode($cliente))
-                              ->with('presupuesto', json_encode($presupuesto))
-                              ->with('presupuestoDetalle', json_encode($presupuestoDetalle))
-                              ->with('accion', json_encode('file'))
-                              ->with('numero', json_encode($numero));
-
-        dd($url);die;
-
-
-        
-    }
+//    public function enviar($idPresupuesto){
+//        dd($idPresupuesto);die;
+//        //control de sesion
+//        $admin = new adminController();
+//        if (!$admin->getControl()) {
+//            return redirect('/')->with('login_errors', 'La sesión a expirado. Vuelva a logearse.');
+//        }
+//    
+//        
+//
+//
+//
+//
+//
+//
+//        
+//        //busco los datos
+//        $datos = Empresa::on('contfpp')->find((int)Session::get('IdEmpresa'));
+//
+//        $presupuesto = Presupuesto::on(Session::get('conexionBBDD'))
+//                        ->find($request->idPresupuesto);
+//        
+//        $cliente = Cliente::on(Session::get('conexionBBDD'))
+//                          ->where('borrado', '=', '1')
+//                          ->where('tipo', '=', 'C')
+//                          ->where('idCliente', '=', $presupuesto->IdCliente)
+//                          ->get();
+//
+//        $presupuestoDetalle = PresupuestoDetalle::on(Session::get('conexionBBDD'))
+//                          ->where('IdPresupuesto', '=', $request->idPresupuesto)
+//                          ->where('Borrado', '=', '1')
+//                          ->get();
+//
+//        //numero
+//        $numero = $admin->formatearNumero($presupuesto->NumPresupuesto,$datos->TipoContador);
+//        
+//        
+//        return view('presupuestos.presupuesto_pdf')->with('datos', json_encode($datos))
+//                              ->with('cliente', json_encode($cliente))
+//                              ->with('presupuesto', json_encode($presupuesto))
+//                              ->with('presupuestoDetalle', json_encode($presupuestoDetalle))
+//                              ->with('accion', json_encode('file'))
+//                              ->with('numero', json_encode($numero));
+//
+//        dd($url);die;
+//
+//
+//        
+//    }
     
     public function duplicar($idPresupuesto){
         //control de sesion

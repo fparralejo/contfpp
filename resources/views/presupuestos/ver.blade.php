@@ -614,6 +614,14 @@ if($presupuesto === ''){//nuevo
                     </div>
                     <div class="form-group">
                         <label  class="col-sm-4 control-label"
+                                for="motivo">CC</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" value=""
+                                   id="emailCC" name="emailCC" placeholder="E-mail CC"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label  class="col-sm-4 control-label"
                                 for="motivo">Mensaje</label>
                         <div class="col-sm-8">
                             <textarea class="form-control" id="mensaje" name="mensaje" rows="4"></textarea>                            

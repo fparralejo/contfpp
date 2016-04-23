@@ -51,14 +51,10 @@ $mail->AltBody = 'Factura';
 //incluye el fichero adjunto
 //$mail->addAttachment($file);
 
-if ($mail->send()) {
-    echo 'ok mkey ';
-} else {
-    echo 'Mierda ';
-}
+$mail->send();
 
-//ESTOY CON LA REDIRECCION 23/4/2016
-//header('Location: ../public/presupuestos/mdb');
+//redirecciono a el listado
+header('Location: ../../../public/presupuestos/mdb');
 
 
 echo 'Enviado';
