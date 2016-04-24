@@ -149,6 +149,15 @@ $clientes = json_decode($clientes);
 @endif
 
 
+<script>
+function actualizarEstadoPresupuesto(IdPresupuesto,opcion){
+    $.ajax({
+        data:{"IdPresupuesto":IdPresupuesto,"opcion":opcion},  
+        url: "{{ URL::asset('presupuestos/actualizarEstado') }}",
+        type:"get"
+    });
+}
+</script>
 
 <table id="presupuestos" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%">
     <thead>
@@ -175,36 +184,29 @@ $clientes = json_decode($clientes);
         }
     }
     //estado, si está Emitida o Anulada se presenta en un select, si está Contabilizada se escribe directamente
-    $htmlEstado = '';
+    $htmlEstado = '<select class="form-control" name="Estado" id="Estado" onchange="actualizarEstadoPresupuesto(' . $presupuesto->IdPresupuesto . ',this.value);">';
     if($presupuesto->Estado === 'Pendiente'){
-        $htmlEstado = '<select class="form-control" name="Estado" id="Estado">';
         $htmlEstado = $htmlEstado . '<option value="Pendiente" selected>Pendiente</option>';
         $htmlEstado = $htmlEstado . '<option value="Aceptado">Aceptado</option>';
         $htmlEstado = $htmlEstado . '<option value="Rechazado">Rechazado</option>';
         $htmlEstado = $htmlEstado . '<option value="Cancelado">Cancelado</option>';
-        $htmlEstado = $htmlEstado . '</select>';
     }else if($presupuesto->Estado === 'Aceptado'){
-        $htmlEstado = '<select class="form-control" name="Estado" id="Estado">';
         $htmlEstado = $htmlEstado . '<option value="Pendiente">Pendiente</option>';
         $htmlEstado = $htmlEstado . '<option value="Aceptado" selected>Aceptado</option>';
         $htmlEstado = $htmlEstado . '<option value="Rechazado">Rechazado</option>';
         $htmlEstado = $htmlEstado . '<option value="Cancelado">Cancelado</option>';
-        $htmlEstado = $htmlEstado . '</select>';
     }else if($presupuesto->Estado === 'Rechazado'){
-        $htmlEstado = '<select class="form-control" name="Estado" id="Estado">';
         $htmlEstado = $htmlEstado . '<option value="Pendiente">Pendiente</option>';
         $htmlEstado = $htmlEstado . '<option value="Aceptado">Aceptado</option>';
         $htmlEstado = $htmlEstado . '<option value="Rechazado" selected>Rechazado</option>';
         $htmlEstado = $htmlEstado . '<option value="Cancelado">Cancelado</option>';
-        $htmlEstado = $htmlEstado . '</select>';
     }else if($presupuesto->Estado === 'Cancelado'){
-        $htmlEstado = '<select class="form-control" name="Estado" id="Estado">';
         $htmlEstado = $htmlEstado . '<option value="Pendiente">Pendiente</option>';
         $htmlEstado = $htmlEstado . '<option value="Aceptado">Aceptado</option>';
         $htmlEstado = $htmlEstado . '<option value="Rechazado">Rechazado</option>';
         $htmlEstado = $htmlEstado . '<option value="Cancelado" selected>Cancelado</option>';
-        $htmlEstado = $htmlEstado . '</select>';
     }
+    $htmlEstado = $htmlEstado . '</select>';
     
     //carga los datos en el formulario para editarlos
     //$url="javascript:leerCliente(".$presupuesto->IdPresupuesto.");";

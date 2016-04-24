@@ -846,6 +846,20 @@ class presupuestosController extends Controller {
         //devuelvo el array en JSON
         echo json_encode($articulo);
     }
+
+    
+    public function actualizarEstado(){
+        $IdPresupuesto = Input::get('IdPresupuesto');
+        $opcion = Input::get('opcion');
+
+        Presupuesto::on(Session::get('conexionBBDD'))
+                   ->where('IdPresupuesto','=',$IdPresupuesto)
+                   ->where('Borrado','=','1')
+                   ->update(['Estado' => $opcion]);
+        
+        echo true;
+    }
+    
 }
 
 //defino el objeto PDF

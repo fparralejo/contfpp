@@ -54,6 +54,9 @@ Route::get('presupuestos/duplicar/{idPresupuesto}', 'presupuestosController@dupl
 Route::get('presupuestos/borrar/{idPresupuesto}', 'presupuestosController@borrar');
 Route::get('presupuestos/buscar_articulos', 'presupuestosController@buscar_articulos');
 Route::get('presupuestos/datos_articulo', 'presupuestosController@datos_articulo');
+Route::get('presupuestos/actualizarEstado', 'presupuestosController@actualizarEstado');
+
+
 
 
 Route::get('fact_prep', function () {

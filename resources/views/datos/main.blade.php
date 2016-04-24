@@ -241,7 +241,7 @@ function submitDatos(){
         document.datosForm.submit();
         //$('#datosForm').submit();
     }else{
-        alert('El fichero del Logo ya existe, eliga otro fichero');
+        alert('El fichero del Logo ya existe, eliga otro nombre de fichero (recomendación: logo_NombreEmpresa.Extension)');
     }
 }
     
