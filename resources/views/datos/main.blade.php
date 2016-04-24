@@ -31,8 +31,8 @@ $(document).ready(function() {
 
 
 <style type="text/css">
-#productForm .inputGroupContainer .form-control-feedback,
-#productForm .selectContainer .form-control-feedback {
+#datosForm .inputGroupContainer .form-control-feedback,
+#datosForm .selectContainer .form-control-feedback {
     top: 0;
     right: -15px;
 }
@@ -161,8 +161,8 @@ $(document).ready(function() {
         </div>
         <div class="col-md-5">
             <div class="form-group">
-                <label for="productos">Utilizar la Base de Datos de Productos:</label>
-                <select class="form-control" id="productos" name="productos">
+                <label for="articulos">Utilizar la Base de Datos de Artículos:</label>
+                <select class="form-control" id="articulos" name="articulos">
                     <option value="SI" @if($datos->articulos === 'SI') selected @endif>SI</option>
                     <option value="NO" @if($datos->articulos === 'NO') selected @endif>NO</option>
                 </select>

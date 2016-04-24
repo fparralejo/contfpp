@@ -633,15 +633,12 @@ class presupuestosController extends Controller {
 
             //envio del correo en si
             $to = $request->email;
-//            $Cc = $request->emailCC;
-//            if($Cc<>''){
-//                $mail->addAddress($Cc, '');
-//            }
+            $Cc = $request->emailCC;
             
             //ESTE CAMPO FALLA MISTERIOSAMENTE
             //NO SE DEBE PONER EL CORREO AL QUE SE ENVIA, ES INCONGRUENTE 23/4/2016
-            //$from = $pdf->datos->email1;
-            $from = "soporte@aluminiosmarquez.esy.es";
+            $from = $pdf->datos->email1;
+            //$from = "soporte@aluminiosmarquez.esy.es";
             $subject = $pdf->datos->identificacion.'. Presupuesto: '.$numero;
 
             require '../resources/views/emails/phpmailer/PHPMailerAutoload.php';
@@ -651,6 +648,10 @@ class presupuestosController extends Controller {
             $mail->setFrom($from, '');
             //Correo de envío (to)
             $mail->addAddress($to, '');
+            //cc
+            if($Cc<>''){
+                $mail->addAddress($Cc, '');
+            }
             //copia oculta al correo del usuario
             $mail->addBCC($from);
 

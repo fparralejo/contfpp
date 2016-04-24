@@ -166,24 +166,22 @@ class configController extends Controller {
             return redirect('/')->with('login_errors', 'La sesión a expirado. Vuelva a logearse.');
         }
         
-        //subimos la imgan del logo
+        $datos = Empresa::on('contfpp')->find((int)Session::get('IdEmpresa'));
+        
+        
+        //subimos la imagen del logo
         //obtenemos el campo file definido en el formulario
         $file = $request->file('doc');
         
         if($file !== null){
             //obtenemos el nombre del archivo
             $nombre = $file->getClientOriginalName();
+            $datos->Logo = (isset($nombre)) ? $nombre : '';
 
             //indicamos que queremos guardar un nuevo archivo en el disco local
             \Storage::disk('local')->put($nombre,  \File::get($file));
         }
         
-        
-        
-        //dd($request);die;
-
-        $datos = Empresa::on('contfpp')->find((int)Session::get('IdEmpresa'));
-
         $ok = 'Se ha editado correctamente los datos nuestros.';
         $error = 'ERROR al editar los datos nuestros.';
 
@@ -199,9 +197,8 @@ class configController extends Controller {
         $datos->email1 = (isset($request->email1)) ? $request->email1 : '';
         $datos->email2 = (isset($request->email2)) ? $request->email2 : '';
         $datos->TipoContador = (isset($request->TipoContador)) ? $request->TipoContador : '';
-        $datos->Logo = (isset($nombre)) ? $nombre : '';
         $datos->TextoPie = (isset($request->TextoPie)) ? $request->TextoPie : '';
-        $datos->productos = (isset($request->productos)) ? $request->productos : '';
+        $datos->articulos = (isset($request->articulos)) ? $request->articulos : '';
         
         $txt = '';
         if($datos->save()){
@@ -218,61 +215,4 @@ class configController extends Controller {
         return view('datos.main')->with('datos', json_encode($datos))->with('TipoContador', json_encode($TipoContador))
                                  ->with('errors', json_encode($txt));
     }
-    
-    
-    
-    
-    
-
-//    public function login(Request $request) {
-//        echo "se usa login";die;
-//        //ahora busco en la tabla usuarios
-//        $empresa = Empresa::on('contfpp')
-//                          ->where('Nombre', '=', $request->empresa)
-//                          ->where('Password', '=', $request->passEmpresa)
-//                          ->get();
-//
-//        //sino encuentra empresa salimos con el error
-//        if (count($empresa) === 0) {
-//            return redirect('/')->with('login_errors', 'Datos incorrectos.');
-//        }        
-//        
-//        //ahora busco en la tabla usuarios
-//        $usuario = Usuario::on($empresa[0]->conexionBBDD)
-//                          ->where('usuario', '=', $request->usuario)
-//                          ->where('password', '=', $request->passUsuario)
-//                          ->get();
-//        
-//        //var_dump($usuario[0]->usuario);die;
-//
-//        if (count($usuario) > 0) {
-//            //extraigo nombre y apellidos del usuario
-//            $empleado = Empleado::on($empresa[0]->conexionBBDD)
-//                                ->where('IdEmpleado', '=',$usuario[0]->IdEmpleado)
-//                                ->get();
-//            
-//            //guardo las vbles de sesion para navegar por la app
-//            Session::put('usuario', $usuario[0]->usuario);
-//            Session::put('nombre_apellidos', $empleado[0]->nombre . ' ' . $empleado[0]->apellidos);
-//            Session::put('IdEmpresa', $empresa[0]->IdEmpresa);
-//            Session::put('conexionBBDD', $empresa[0]->conexionBBDD);
-//            
-//            //dd($empresa[0]->IdEmpresa);die;
-//            
-//            return redirect('main');
-//        } else {
-//            return redirect('/')->with('login_errors', 'Datos incorrectos2.');
-//        }
-//    }
-
-    
-    
-    
-    
-//    public function logout() {
-//        Session::flush();
-//        return redirect('/');
-//    }
-
-    
 }
