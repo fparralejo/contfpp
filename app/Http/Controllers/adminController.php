@@ -98,7 +98,9 @@ class adminController extends Controller {
             return redirect('/')->with('login_errors', 'La sesión a expirado. Vuelva a logearse.');
         }
 
-        return view('main');
+        $empresa = Empresa::on('contfpp')->find((int)Session::get('IdEmpresa'));
+        
+        return view('main')->with('empresa', $empresa);
     }
 
     public function login(Request $request) {

@@ -2,7 +2,7 @@
 
 
 @section('principal')
-<img src="{{URL::asset('images/logo1.gif')}}" style="max-width:100px;" class="img-responsive">
+<img src="{{URL::asset('images/') . '/' . $empresa->Logo }}" style="max-width:100px;" class="img-responsive">
 <br/>
 <br/>
 <br/>
