@@ -422,7 +422,7 @@ if($presupuesto === ''){//nuevo
         function SiEsArticuloRellenar(concepto,IdArticulo,linea){
             //si IdArticulo.value=null, e que es la primera vez que se mete datos en este campo, asi está activado el autocomplete
             //una vez rellenado, si se vuelve a este campo ya no te sale el autocomplete, tenga el IdArticulo datos o no (este vacio)
-            if(IdArticulo.value === 'null'){
+            //if(IdArticulo.value === 'null'){
             <?php
                 if($datos->articulos === 'SI'){
                     ?>
@@ -466,7 +466,7 @@ if($presupuesto === ''){//nuevo
                 <?php
                 }
             ?>
-            }
+            //}
         }
         
         
