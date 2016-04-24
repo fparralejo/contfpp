@@ -15,6 +15,7 @@ use App\Empleado;
 use App\Cliente;
 use App\Presupuesto;
 use App\PresupuestoDetalle;
+use App\Articulo;
 
 use App\Http\Controllers\adminController;
 //cargo la libreria FPDF
@@ -351,13 +352,6 @@ class presupuestosController extends Controller {
                 $nuevoDetalle->save();
 
             }
-
-
-            //***********************************************************
-
-
-
-        
         }
         catch(\Exception $e)
         {
@@ -692,56 +686,6 @@ class presupuestosController extends Controller {
         }
     }
 
-    //NO VALE 22/4/2016
-//    public function enviar($idPresupuesto){
-//        dd($idPresupuesto);die;
-//        //control de sesion
-//        $admin = new adminController();
-//        if (!$admin->getControl()) {
-//            return redirect('/')->with('login_errors', 'La sesión a expirado. Vuelva a logearse.');
-//        }
-//    
-//        
-//
-//
-//
-//
-//
-//
-//        
-//        //busco los datos
-//        $datos = Empresa::on('contfpp')->find((int)Session::get('IdEmpresa'));
-//
-//        $presupuesto = Presupuesto::on(Session::get('conexionBBDD'))
-//                        ->find($request->idPresupuesto);
-//        
-//        $cliente = Cliente::on(Session::get('conexionBBDD'))
-//                          ->where('borrado', '=', '1')
-//                          ->where('tipo', '=', 'C')
-//                          ->where('idCliente', '=', $presupuesto->IdCliente)
-//                          ->get();
-//
-//        $presupuestoDetalle = PresupuestoDetalle::on(Session::get('conexionBBDD'))
-//                          ->where('IdPresupuesto', '=', $request->idPresupuesto)
-//                          ->where('Borrado', '=', '1')
-//                          ->get();
-//
-//        //numero
-//        $numero = $admin->formatearNumero($presupuesto->NumPresupuesto,$datos->TipoContador);
-//        
-//        
-//        return view('presupuestos.presupuesto_pdf')->with('datos', json_encode($datos))
-//                              ->with('cliente', json_encode($cliente))
-//                              ->with('presupuesto', json_encode($presupuesto))
-//                              ->with('presupuestoDetalle', json_encode($presupuestoDetalle))
-//                              ->with('accion', json_encode('file'))
-//                              ->with('numero', json_encode($numero));
-//
-//        dd($url);die;
-//
-//
-//        
-//    }
     
     public function duplicar($idPresupuesto){
         //control de sesion
@@ -867,6 +811,41 @@ class presupuestosController extends Controller {
     }
     
     
+    public function buscar_articulos(){
+        $term = Input::get('term');
+
+        $listarArticulos = Articulo::on(Session::get('conexionBBDD'))->where('Descripcion','LIKE','%'.$term.'%')->get();
+
+        //pasarlo a JSON
+        //primero lo paso a array
+        $listar = "";
+        foreach ($listarArticulos as $articulo) {
+            $listar[] = array("value"=>$articulo->Descripcion);
+        }
+
+        //devuelvo el array en JSON
+        echo json_encode($listar);
+    }
+    
+    
+    public function datos_articulo(){
+        $concepto = Input::get('concepto');
+
+        $articulo = Articulo::on(Session::get('conexionBBDD'))
+                              ->where('Descripcion','=',$concepto)
+                              ->where('Borrado','=','1')
+                              ->get();
+
+        //pasarlo a JSON
+//        //primero lo paso a array
+//        $listar = "";
+//        foreach ($listarArticulos as $articulo) {
+//            $listar[] = array("value"=>$articulo->Descripcion);
+//        }
+
+        //devuelvo el array en JSON
+        echo json_encode($articulo);
+    }
 }
 
 //defino el objeto PDF

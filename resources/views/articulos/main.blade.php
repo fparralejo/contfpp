@@ -187,7 +187,7 @@
         <div class="col-md-5">
             <div class="form-group">
                 <label for="Precio">Precio:</label>
-                <input type="text" class="form-control" id="Precio" name="Precio"  maxlength="30" required="true">
+                <input type="number" step="any" class="form-control" id="Precio" name="Precio"  maxlength="30" required="true">
             </div>
         </div>
         <div class="col-md-1">
@@ -195,7 +195,7 @@
         <div class="col-md-5">
             <div class="form-group">
                 <label for="tipoIVA">IVA:</label>
-                <input type="text" class="form-control" id="tipoIVA" name="tipoIVA"  maxlength="30" required="true">
+                <input type="number" step="any" class="form-control" id="tipoIVA" name="tipoIVA"  maxlength="30" required="true">
             </div>
         </div>
     </div>

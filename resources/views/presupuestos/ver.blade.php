@@ -296,11 +296,11 @@ if($presupuesto === ''){//nuevo
                                             '<div class="form-group" id="groupConcepto'+linea+'">'+
                                                 '<label for="Concepto'+linea+'">Concepto</label>'+
                                                 '<textarea class="form-control" id="Concepto'+linea+'" name="Concepto'+linea+'" rows="0"'+
-                                                'onfocus="limpiarConcepto('+linea+');" onkeypress="DesactivaImprimir();" onblur="comprobar('+linea+');"></textarea>'+
+                                                'onfocus="limpiarConcepto('+linea+');" onkeypress="DesactivaImprimir();" onblur="comprobar('+linea+');SiEsArticuloRellenar(this,IdArticulo'+linea+','+linea+');"></textarea>'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtConcepto'+linea+'">'+
                                                     '<small class="help-block text-danger">Debe rellenar el concepto</small>'+
                                                 '</div>'+
-                                                '<input type="hidden" id="IdArticulo'+linea+'" name="IdArticulo'+linea+'" value=""/>'+
+                                                '<input type="hidden" id="IdArticulo'+linea+'" name="IdArticulo'+linea+'" value="null"/>'+
                                             '</div>'+
                                         '</div>'+
                                         '<div class="col-md-1">'+
@@ -361,6 +361,27 @@ if($presupuesto === ''){//nuevo
             var div = $(txtLinea);
             $("#conceptos").append(div);
             $("#Concepto"+linea).autoResize();
+            
+            <?php
+            //esta opcion de autocomplete de articulos del concepto, esta habilitada si esta en
+            //parametros generales la variable 'articulos' en 'on'
+            if($datos->articulos === 'SI'){
+            ?>
+
+                $("#Concepto"+linea).autocomplete({
+                    source: "{{ URL::asset('presupuestos/buscar_articulos') }}"
+                }).data( "ui-autocomplete" )._renderItem = function( ul, item ) {
+                    var txt=item.value;
+                    var inner_html = "<a><font color='Teal'>"+txt+"</font></a>";
+                    return $( "<li></li>" )
+                        .data( "item.autocomplete", item )
+                        .append(inner_html)
+                        .appendTo( ul );
+                };
+            <?php
+            }
+            ?>
+            
         }
         
         function borrarLinea(linea){
@@ -396,6 +417,60 @@ if($presupuesto === ''){//nuevo
             $('#txtIVA'+linea).css({"display": "none"});
             $('#groupIVA'+linea).removeClass("has-feedback has-error");
         }
+        
+        
+        function SiEsArticuloRellenar(concepto,IdArticulo,linea){
+            //si IdArticulo.value=null, e que es la primera vez que se mete datos en este campo, asi está activado el autocomplete
+            //una vez rellenado, si se vuelve a este campo ya no te sale el autocomplete, tenga el IdArticulo datos o no (este vacio)
+            if(IdArticulo.value === 'null'){
+            <?php
+                if($datos->articulos === 'SI'){
+                    ?>
+
+                    //busco si existe este articulo y me traigo sus datos
+                    $.ajax({
+                        data:{"concepto":concepto.value},  
+                        url: "{{ URL::asset('presupuestos/datos_articulo') }}",
+                        type:"get",
+                        success: function(data) {
+                            var datos = JSON.parse(data);
+                            //si hay datos actualizamos en todos los campos de esta linea con los datos que viene de AJAX
+                            if(!$.isEmptyObject(datos)){
+                                //compruebo qsi existe esta propiedad del objeto, si es asi actualizo ese campo
+                                if(datos[0].IdArticulo){
+                                    $('#IdArticulo'+linea).val(datos[0].IdArticulo);
+                                }
+                                if(datos[0].Precio){
+                                    $('#Precio'+linea).val(datos[0].Precio);
+                                }
+                                if(datos[0].tipoIVA){
+                                    $('#IVA'+linea).val(datos[0].tipoIVA);
+                                }
+
+                                calculoPrecio(linea);
+                                sumas();
+                            //sino 
+                            }else{
+                                //$(precioHidden).val(desFormateaNumeroContabilidad(precio.value));
+                            }
+
+                            //ir a precio (focus)
+                            //$(precio).focus();
+                        }
+                    });
+                    <?php
+                }else{
+                ?>
+                //solo indicamos que el IdArticulo es 0
+                $(IdArticulo).val('0');
+                <?php
+                }
+            ?>
+            }
+        }
+        
+        
+        
 
         //veo si vienen datos de editar ($presupuesto y $presupuestoDetalle
         $(document).ready(function() {

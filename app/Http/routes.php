@@ -50,13 +50,10 @@ Route::get('presupuestos/editar/{idPresupuesto}', 'presupuestosController@editar
 Route::get('presupuestos/mdb', 'presupuestosController@listar');
 Route::post('presupuestos/createEdit', 'presupuestosController@createEdit');
 Route::get('presupuestos/verPDF/{idPresupuesto}/{accion}', 'presupuestosController@verPDF');
-//Route::post('presupuestos/verPDF/{idPresupuesto}/{accion}', 'presupuestosController@verPDF');
 Route::get('presupuestos/duplicar/{idPresupuesto}', 'presupuestosController@duplicar');
 Route::get('presupuestos/borrar/{idPresupuesto}', 'presupuestosController@borrar');
-//Route::get('presupuestos/enviar/{idPresupuesto}', function ($idPresupuesto) {
-//    return view('emails.presupuesto_enviar');
-//    //echo '<META HTTP-EQUIV=Refresh CONTENT="0; URL=../public/pdf_files/presupuesto_enviar/'.$idPresupuesto.'">';die;
-//});
+Route::get('presupuestos/buscar_articulos', 'presupuestosController@buscar_articulos');
+Route::get('presupuestos/datos_articulo', 'presupuestosController@datos_articulo');
 
 
 Route::get('fact_prep', function () {
