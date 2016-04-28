@@ -59,6 +59,10 @@ Route::get('presupuestos/actualizarEstado', 'presupuestosController@actualizarEs
 
 //pedidos
 Route::get('pedidos/mdb', 'pedidosController@listar');
+Route::get('pedidos/editar/{idPedido}', 'pedidosController@editar');
+Route::post('pedidos/createEdit', 'pedidosController@createEdit');
+
+
 
 //pedidos
 Route::get('pedidos/alta', function () {

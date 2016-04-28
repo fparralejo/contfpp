@@ -14,6 +14,7 @@ use App\Usuario;
 use App\Empleado;
 use App\Cliente;
 use App\Pedido;
+use App\PedidoDetalle;
 use App\Presupuesto;
 use App\PresupuestoDetalle;
 use App\Articulo;
@@ -130,7 +131,7 @@ class pedidosController extends Controller {
     }
 
     //NO
-    public function editar($idPresupuesto){
+    public function editar($idPedido){
         //control de sesion
         $admin = new adminController();
         if (!$admin->getControl()) {
@@ -144,22 +145,22 @@ class pedidosController extends Controller {
                           ->where('tipo', '=', 'C')
                           ->get();
         
-        $presupuesto = Presupuesto::on(Session::get('conexionBBDD'))
-                        ->find($idPresupuesto);
+        $pedido = Pedido::on(Session::get('conexionBBDD'))
+                        ->find($idPedido);
 
-        $presupuestoDetalle = PresupuestoDetalle::on(Session::get('conexionBBDD'))
-                          ->where('IdPresupuesto', '=', $idPresupuesto)
+        $pedidoDetalle = PedidoDetalle::on(Session::get('conexionBBDD'))
+                          ->where('IdPedido', '=', $idPedido)
                           ->where('Borrado', '=', '1')
                           ->get();
         
         //numero
-        $numero = $admin->formatearNumero($presupuesto->NumPresupuesto,$datos->TipoContador);
+        $numero = $admin->formatearNumero($pedido->NumPedido,$datos->TipoContador);
         $editarCampoNumero = $admin->editarCampoNumero($datos->TipoContador);
                 
         //var_dump($numero);die;
 
-        return view('presupuestos.ver')->with('presupuesto', json_encode($presupuesto))->with('clientes', json_encode($clientes))
-                                       ->with('datos', json_encode($datos))->with('presupuestoDetalle', json_encode($presupuestoDetalle))
+        return view('pedidos.ver')->with('pedido', json_encode($pedido))->with('clientes', json_encode($clientes))
+                                       ->with('datos', json_encode($datos))->with('pedidoDetalle', json_encode($pedidoDetalle))
                                        ->with('numero', json_encode($numero))->with('editarCampoNumero', json_encode($editarCampoNumero));
     }
         
