@@ -57,6 +57,22 @@ Route::get('presupuestos/datos_articulo', 'presupuestosController@datos_articulo
 Route::get('presupuestos/actualizarEstado', 'presupuestosController@actualizarEstado');
 
 
+//pedidos
+Route::get('pedidos/mdb', 'pedidosController@listar');
+
+//pedidos
+Route::get('pedidos/alta', function () {
+    return view('construccion');
+});
+//Route::get('pedidos/mdb', function () {
+//    return view('construccion');
+//});
+Route::get('fact_ped', function () {
+    return view('construccion');
+});
+
+
+
 
 
 Route::get('fact_prep', function () {
@@ -69,16 +85,6 @@ Route::get('ped_prep', function () {
 
 
 
-//pedidos
-Route::get('pedidos/alta', function () {
-    return view('construccion');
-});
-Route::get('pedidos/mdb', function () {
-    return view('construccion');
-});
-Route::get('fact_ped', function () {
-    return view('construccion');
-});
 
 
 

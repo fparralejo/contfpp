@@ -1,13 +1,14 @@
 @extends('layout')
 
 <?php
+$pedidos = json_decode($pedidos);
 $presupuestos = json_decode($presupuestos);
 $clientes = json_decode($clientes);
-
+//dd($presupuestos);
 ?>
 
 @section('principal')
-<h4><span>Listado Presupuestos</span></h4>
+<h4><span>Listado Pedidos</span></h4>
 <br/>
 
 <!--<script>
@@ -55,6 +56,7 @@ $clientes = json_decode($clientes);
             "bSort":true,
             "aaSorting": [[ 0, "asc" ]],
             "aoColumns": [
+                { "sType": 'string' },
                 { "sType": 'string' },
                 { "sType": 'string' },
                 { "sType": 'string' },
@@ -150,10 +152,10 @@ $clientes = json_decode($clientes);
 
 
 <script>
-function actualizarEstadoPresupuesto(IdPresupuesto,opcion){
+function actualizarEstadoPedido(IdPedido,opcion){
     $.ajax({
-        data:{"IdPresupuesto":IdPresupuesto,"opcion":opcion},  
-        url: "{{ URL::asset('presupuestos/actualizarEstado') }}",
+        data:{"IdPedido":IdPedido,"opcion":opcion},  
+        url: "{{ URL::asset('pedidos/actualizarEstado') }}",
         type:"get"
     });
 }
@@ -162,8 +164,9 @@ function actualizarEstadoPresupuesto(IdPresupuesto,opcion){
 <table id="presupuestos" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%">
     <thead>
         <tr>
+            <th style="width: 7%;">Nº Pedido</th>
             <th style="width: 7%;">Nº Presupuesto</th>
-            <th style="width: 37%;">Cliente</th>
+            <th style="width: 30%;">Cliente</th>
             <th style="width: 10%;">Fecha</th>
             <th style="width: 10%;">Importe</th>
             <th style="width: 15%;">Estado&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
@@ -173,37 +176,31 @@ function actualizarEstadoPresupuesto(IdPresupuesto,opcion){
         </tr>
     </thead>
     <tbody>
-    @foreach ($presupuestos as $presupuesto)
+    @foreach ($pedidos as $pedido)
     <?php
     //cliente
     $txtCliente = '';
     foreach ($clientes as $cliente) {
-        if((int)$cliente->idCliente === (int)$presupuesto->IdCliente){
+        if((int)$cliente->idCliente === (int)$pedido->IdCliente){
             $txtCliente = $cliente->nombre . ' ' . $cliente->apellidos;
             break;
         }
     }
+    //cliente
+    $numPresupuesto = '';
+    foreach ($presupuestos as $presupuesto) {
+        if((int)$presupuesto->IdPresupuesto === (int)$pedido->IdPresupuesto){
+            $numPresupuesto = $presupuesto->NumPresupuesto;
+            break;
+        }
+    }
     //estado, si está Emitida o Anulada se presenta en un select, si está Contabilizada se escribe directamente
-    $htmlEstado = '<select class="form-control" name="Estado" id="Estado" onchange="actualizarEstadoPresupuesto(' . $presupuesto->IdPresupuesto . ',this.value);">';
-    if($presupuesto->Estado === 'Pendiente'){
-        $htmlEstado = $htmlEstado . '<option value="Pendiente" selected>Pendiente</option>';
-        $htmlEstado = $htmlEstado . '<option value="Aceptado">Aceptado</option>';
-        $htmlEstado = $htmlEstado . '<option value="Rechazado">Rechazado</option>';
-        $htmlEstado = $htmlEstado . '<option value="Cancelado">Cancelado</option>';
-    }else if($presupuesto->Estado === 'Aceptado'){
-        $htmlEstado = $htmlEstado . '<option value="Pendiente">Pendiente</option>';
+    $htmlEstado = '<select class="form-control" name="Estado" id="Estado" onchange="actualizarEstadoPedido(' . $pedido->IdPedido . ',this.value);">';
+    if($pedido->Estado === 'Aceptado'){
         $htmlEstado = $htmlEstado . '<option value="Aceptado" selected>Aceptado</option>';
-        $htmlEstado = $htmlEstado . '<option value="Rechazado">Rechazado</option>';
         $htmlEstado = $htmlEstado . '<option value="Cancelado">Cancelado</option>';
-    }else if($presupuesto->Estado === 'Rechazado'){
-        $htmlEstado = $htmlEstado . '<option value="Pendiente">Pendiente</option>';
+    }else if($pedido->Estado === 'Cancelado'){
         $htmlEstado = $htmlEstado . '<option value="Aceptado">Aceptado</option>';
-        $htmlEstado = $htmlEstado . '<option value="Rechazado" selected>Rechazado</option>';
-        $htmlEstado = $htmlEstado . '<option value="Cancelado">Cancelado</option>';
-    }else if($presupuesto->Estado === 'Cancelado'){
-        $htmlEstado = $htmlEstado . '<option value="Pendiente">Pendiente</option>';
-        $htmlEstado = $htmlEstado . '<option value="Aceptado">Aceptado</option>';
-        $htmlEstado = $htmlEstado . '<option value="Rechazado">Rechazado</option>';
         $htmlEstado = $htmlEstado . '<option value="Cancelado" selected>Cancelado</option>';
     }
     $htmlEstado = $htmlEstado . '</select>';
@@ -213,20 +210,21 @@ function actualizarEstadoPresupuesto(IdPresupuesto,opcion){
     $url="";
     ?>
         <tr>
-            <td class="sgsiRow" onClick="{{ $url }}" style="text-align: right;">{{ $presupuesto->NumPresupuesto }}</td>
+            <td class="sgsiRow" onClick="{{ $url }}" style="text-align: right;">{{ $pedido->NumPedido }}</td>
+            <td class="sgsiRow" onClick="{{ $url }}" style="text-align: right;">{{ $numPresupuesto }}</td>
             <td class="sgsiRow" onClick="{{ $url }}">{{ $txtCliente }}</td>
-            <td class="sgsiRow" onClick="{{ $url }}">{{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$presupuesto->FechaPresupuesto)->format('d/m/Y') }}</td>
-            <td class="sgsiRow" style="text-align: right;" onClick="{{ $url }}">{{ number_format($presupuesto->total, 2, ',', '.') }}</td>
+            <td class="sgsiRow" onClick="{{ $url }}">{{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$pedido->FechaPedido)->format('d/m/Y') }}</td>
+            <td class="sgsiRow" style="text-align: right;" onClick="{{ $url }}">{{ number_format($pedido->total, 2, ',', '.') }}</td>
             <td class="sgsiRow" onClick="{{ $url }}"><?php echo $htmlEstado; ?></td>
             <td>
-                <button type="button" onclick="verPresupuesto({{ $presupuesto->IdPresupuesto }})" class="btn btn-xs btn-primary">Ver/Editar</button>
+                <button type="button" onclick="verPedido({{ $pedido->IdPedido }})" class="btn btn-xs btn-primary">Ver/Editar</button>
             </td>
             <td>
-                <button type="button" onclick="duplicarPresupuesto({{ $presupuesto->IdPresupuesto }})" class="btn btn-xs btn-success">Duplicar</button>
+                <button type="button" onclick="duplicarPedido({{ $pedido->IdPedido }})" class="btn btn-xs btn-success">Duplicar</button>
             </td>
             <td>
-                @if($presupuesto->Facturada === 'NF' && $presupuesto->Pedido === 'NP')
-                <button type="button" onclick="borrarPresupuesto({{ $presupuesto->IdPresupuesto }})" class="btn btn-xs btn-danger">Borrar</button>
+                @if($pedido->Facturada === 'NF')
+                <button type="button" onclick="borrarPedido({{ $pedido->IdPedido }})" class="btn btn-xs btn-danger">Borrar</button>
                 @endif
             </td>
         </tr>
@@ -235,19 +233,16 @@ function actualizarEstadoPresupuesto(IdPresupuesto,opcion){
 </table>
 
 <script>
-    function verPresupuesto(idPresupuesto){
-        location.href = "{{ URL::asset('presupuestos/editar/') }}/"+idPresupuesto;
+    function verPedido(idPedido){
+        location.href = "{{ URL::asset('pedidos/editar/') }}/"+idPedido;
     }
-    function duplicarPresupuesto(idPresupuesto){
-        if (confirm("¿Desea duplicar este presupuesto?"))
-        {
-            location.href = "{{ URL::asset('presupuestos/duplicar/') }}/"+idPresupuesto;
-        }
+    function duplicarPedido(idPedido){
+        location.href = "{{ URL::asset('pedidos/duplicar/') }}/"+idPedido;
     }
-    function borrarPresupuesto(idPresupuesto){
-        if (confirm("¿Desea borrar este presupuesto?"))
+    function borrarPedido(idPedido){
+        if (confirm("¿Desea borrar este pedido?"))
         {
-            location.href = "{{ URL::asset('presupuestos/borrar/') }}/"+idPresupuesto;
+            location.href = "{{ URL::asset('pedidos/borrar/') }}/"+idPedido;
         }
     }
 </script>

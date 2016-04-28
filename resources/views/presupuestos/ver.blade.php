@@ -668,7 +668,7 @@ if($presupuesto === ''){//nuevo
                     <span class="sr-only">Cerrar</span>
                 </button>
                 <h4 class="modal-title" id="myModalLabel">
-                    Enviar PDF
+                    Enviar Presupuesto
                 </h4>
             </div>
 
