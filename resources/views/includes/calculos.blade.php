@@ -238,8 +238,17 @@ function sumas(){
     $('#totalCuota').val(cuotaTotal.toString());
     $('#Total').val(total.toString());
 
-//    //irpf
-//    facturaCalculoIRPF(document.form1.totalImporte,document.form1.total,document.form1.irpf,document.form1.IRPFcuota,document.form1.totalFinal);
+}
+
+function calculoIRPF(){
+    var retencionCuota = parseFloat($('#Retencion').val()) / 100 * parseFloat($('#totalImporte').val()); 
+    retencionCuota = parseFloat(retencionCuota).toFixed(2);
+    $('#RetencionCuota').val(retencionCuota);
+
+    var totalNeto = parseFloat($('#Total').val()) - retencionCuota;
+    totalNeto = parseFloat(totalNeto).toFixed(2);
+    $('#TotalNeto').val(totalNeto);
+        
 }
 
 </script>

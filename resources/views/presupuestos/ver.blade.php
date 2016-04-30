@@ -286,7 +286,7 @@ if($presupuesto === ''){//nuevo
                                                 '<label for="Cantidad'+linea+'">Cantidad</label>'+
                                                 '<input type="number" step="any" min="0" class="form-control" id="Cantidad'+linea+'" name="Cantidad'+linea+'" maxlength="20" '+
                                                         'onkeypress="limpiarCantidad('+linea+');DesactivaImprimir();" style="text-align:right;" value=""'+
-                                                        'onblur="calculoCantidad('+linea+');sumas();formatear(this);" pattern="">'+
+                                                        'onblur="calculoCantidad('+linea+');sumas();calculoIRPF();formatear(this);" pattern="">'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtCantidad'+linea+'">'+
                                                     '<small class="help-block text-danger">Es numérico</small>'+
                                                 '</div>'+
@@ -308,7 +308,7 @@ if($presupuesto === ''){//nuevo
                                                 '<label for="Precio'+linea+'">Precio</label>'+
                                                 '<input type="number" step="any" class="form-control" id="Precio'+linea+'" name="Precio'+linea+'" maxlength="20" value=""'+
                                                         'onkeypress="limpiarPrecio('+linea+');DesactivaImprimir();" style="text-align:right;" value=""'+
-                                                        'onblur="calculoPrecio('+linea+');sumas();formatear(this);">'+
+                                                        'onblur="calculoPrecio('+linea+');sumas();calculoIRPF();formatear(this);">'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtPrecio'+linea+'">'+
                                                     '<small class="help-block text-danger">Es numérico</small>'+
                                                 '</div>'+
@@ -319,7 +319,7 @@ if($presupuesto === ''){//nuevo
                                                 '<label for="Importe'+linea+'">Importe</label>'+
                                                 '<input type="number" step="any" class="form-control" id="Importe'+linea+'" name="Importe'+linea+'" maxlength="20" value=""'+
                                                         'onkeypress="limpiarImporte('+linea+');DesactivaImprimir();" style="text-align:right;" value=""'+
-                                                        'onblur="calculoImporte('+linea+');sumas();formatear(this);">'+
+                                                        'onblur="calculoImporte('+linea+');sumas();calculoIRPF();formatear(this);">'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtImporte'+linea+'">'+
                                                     '<small class="help-block text-danger">No puede ser cero</small>'+
                                                 '</div>'+
@@ -330,7 +330,7 @@ if($presupuesto === ''){//nuevo
                                                 '<label for="IVA'+linea+'">IVA</label>'+
                                                 '<input type="number" step="any" class="form-control" id="IVA'+linea+'" name="IVA'+linea+'" maxlength="20" value="21"'+
                                                         'onkeypress="limpiarIVA('+linea+');DesactivaImprimir();" style="text-align:right;" value=""'+
-                                                        'onblur="calculoIVA('+linea+');sumas();formatear(this);">'+
+                                                        'onblur="calculoIVA('+linea+');sumas();calculoIRPF();formatear(this);">'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtIVA'+linea+'">'+
                                                     '<small class="help-block text-danger">Es numérico</small>'+
                                                 '</div>'+
@@ -387,6 +387,7 @@ if($presupuesto === ''){//nuevo
         function borrarLinea(linea){
             $("#linea"+linea).remove();
             sumas();
+            calculoIRPF();
         }
         
         function formatear(objeto){
@@ -449,6 +450,7 @@ if($presupuesto === ''){//nuevo
 
                                 calculoPrecio(linea);
                                 sumas();
+                                calculoIRPF();
                             //sino 
                             }else{
                                 //$(precioHidden).val(desFormateaNumeroContabilidad(precio.value));
@@ -504,6 +506,7 @@ if($presupuesto === ''){//nuevo
                 $('#Total'+lineaAux).val(parseFloat(<?php echo ((float)$presupuestoDetalle[$i]->Importe + (float)$presupuestoDetalle[$i]->CuotaIva); ?>).toFixed(2));
                 //actualizo las sumas
                 sumas();
+                calculoIRPF();
                 //aumento el contador
                 //$('#numLinea').val(parseInt($('#numLinea').val())+1);
 
@@ -560,13 +563,77 @@ if($presupuesto === ''){//nuevo
                 </div>
                 <div class="col-md-1">
                     <div class="form-group">
-                        <label for="Total">Total</label>
+                        <label for="Total">Suma</label>
                         <input type="text" class="form-control" style="text-align:right;" id="Total" name="Total" readonly value="">
                     </div>
                 </div>
                 <div class="col-md-1">
                 </div>
             </div>
+            
+            <?php
+            $display = 'none;';
+            $IRPF = 0;
+            if($datos->TipoIRPF !== 'NO'){
+                $display = 'block;';
+                $IRPF = $datos->TipoIRPF;
+            } 
+            if($presupuesto !== ''){
+                if($presupuesto->Retencion !== 0){
+                    $display = 'block;';
+                    $IRPF = $presupuesto->Retencion;
+                } 
+            }
+            ?>
+            <div class="caption" style="display:<?php echo $display; ?>">
+                <div class="col-md-7">
+                    <label for=""></label>
+                </div>
+                <div class="col-md-1">
+                    <div class="form-group">
+                    </div>
+                </div>
+                <div class="col-md-1">
+                </div>
+                <div class="col-md-1">
+                    <div class="form-group">
+                        <label for="Retencion">Retención</label>
+                        <input type="number" step="any" class="form-control" style="text-align:right;" id="Retencion" name="Retencion" 
+                               onblur="calculoIRPF();" value="{{ $IRPF }}">
+                    </div>
+                </div>
+                <div class="col-md-1">
+                    <div class="form-group">
+                        <label for="RetencionCuota">Cuota</label>
+                        <input type="text" class="form-control" style="text-align:right;" id="RetencionCuota" name="RetencionCuota" readonly value="">
+                    </div>
+                </div>
+                <div class="col-md-1">
+                </div>
+            </div>
+            
+            <div class="caption">
+                <div class="col-md-7">
+                    <label for=""></label>
+                </div>
+                <div class="col-md-1">
+                    <div class="form-group">
+                    </div>
+                </div>
+                <div class="col-md-1">
+                </div>
+                <div class="col-md-1">
+                </div>
+                <div class="col-md-1">
+                    <div class="form-group">
+                        <label for="TotalNeto">Total</label>
+                        <input type="text" class="form-control" style="text-align:right;" id="TotalNeto" name="TotalNeto" readonly value="">
+                    </div>
+                </div>
+                <div class="col-md-1">
+                </div>
+            </div>
+            
         </div>
     
         <hr style="border: 1px solid #0044cc;"/>
