@@ -4,6 +4,7 @@
 //decodifico los datos JSON
 $datos = json_decode($datos); 
 $TipoContador = json_decode($TipoContador); 
+$errors = json_decode($errors); 
 
 //dd($datos);
 ?>
@@ -21,9 +22,9 @@ $(document).ready(function() {
 });
 </script>
 
-@if (Session::has('errors'))
+@if (isset($errors) && $errors !== '')
 <div class="alert alert-success" id="accionTabla2" role="alert" style="display: block; ">
-<?php echo json_decode($errors); ?>
+<?php echo ($errors); ?>
 </div>
 @endif
 
@@ -152,7 +153,7 @@ $(document).ready(function() {
                 <label for="TipoContador">Tipo Contador:</label>
                 <select class="form-control" id="TipoContador" name="TipoContador">
                     @foreach ($TipoContador as $tipo)
-                        <option value="{{ $tipo->idContador }}" @if($datos->TipoContador === $tipo->idContador) selected @endif>{{ $tipo->tipo }}</option>
+                        <option value="{{ $tipo->idContador }}" @if((int)$datos->TipoContador === $tipo->idContador) selected @endif>{{ $tipo->tipo }}</option>
                     @endforeach
                 </select>
             </div>
@@ -223,6 +224,23 @@ $(document).ready(function() {
         </div>
     </div>
     
+    <div class="row">
+        <div class="col-md-5">
+            <div class="form-group">
+                <label for="TipoIRPF">Retención IRPF (sino tiene escriba NO):</label>
+                <input type="text" class="form-control" id="TipoIRPF" name="TipoIRPF" maxlength="5" value="{{ $datos->TipoIRPF }}" required>
+            </div>
+        </div>
+        <div class="col-md-1">
+        </div>
+        <div class="col-md-5">
+            <div class="form-group">
+                <label for="PrefijoFactRectificativas">Prefijo Facturas Rectificativas:</label>
+                <input type="text" class="form-control" id="PrefijoFactRectificativas" name="PrefijoFactRectificativas" 
+                       maxlength="5" value="{{ $datos->PrefijoFactRectificativas }}" required>
+            </div>
+        </div>
+    </div>
     
     <br/>
 

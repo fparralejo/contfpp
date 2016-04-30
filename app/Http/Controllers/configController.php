@@ -106,7 +106,8 @@ class configController extends Controller {
         
         //dd($datos);
         
-        return view('datos.main')->with('datos', json_encode($datos))->with('TipoContador', json_encode($TipoContador));
+        return view('datos.main')->with('datos', json_encode($datos))->with('TipoContador', json_encode($TipoContador))
+                                 ->with('errors', json_encode(''));
     }
     
     
@@ -199,6 +200,8 @@ class configController extends Controller {
         $datos->TipoContador = (isset($request->TipoContador)) ? $request->TipoContador : '';
         $datos->TextoPie = (isset($request->TextoPie)) ? $request->TextoPie : '';
         $datos->articulos = (isset($request->articulos)) ? $request->articulos : '';
+        $datos->TipoIRPF = (isset($request->TipoIRPF)) ? $request->TipoIRPF : '';
+        $datos->PrefijoFactRectificativas = (isset($request->PrefijoFactRectificativas)) ? $request->PrefijoFactRectificativas : '';
         
         $txt = '';
         if($datos->save()){

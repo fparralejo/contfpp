@@ -202,13 +202,13 @@ function solonumerosNeg(e)
 }
 
 //sumas de los importes, cuotas y totales
-function sumas(form){
+function sumas(){
     
     var importeTotal = 0;
     var cuotaTotal = 0;
     var total = 0;
     
-    $('#'+form).find(":input").each(function(){
+    $('#presupuestoForm').find(":input").each(function(){
         var elemento = this;
         //comprobamos el nombre del elemento y lo guardamos en ua array segun sea cantidad, precio, importe y concepto
         var nombreElemento = elemento.name;
