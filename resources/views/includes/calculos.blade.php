@@ -202,15 +202,23 @@ function solonumerosNeg(e)
 }
 
 //sumas de los importes, cuotas y totales
-function sumas(){
+function sumasPresupuesto(){
+    sumas("presupuestoForm");
+}
+
+function sumasPedido(){
+    sumas("pedidoForm");
+}
+
+function sumas(form){
     
     var importeTotal = 0;
     var cuotaTotal = 0;
     var total = 0;
     
-    $('#presupuestoForm').find(":input").each(function(){
+    $('#'+form).find(":input").each(function(){
         var elemento = this;
-        //comprobamos el nombre del elemento y lo guardamos en ua array segun sea cantidad, precio, importe y concepto
+        //comprobamos el nombre del elemento y lo guardamos en un array segun sea cantidad, precio, importe y concepto
         var nombreElemento = elemento.name;
         if(isNaN(elemento.value) || elemento.value === ''){
         }else{

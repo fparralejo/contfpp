@@ -286,7 +286,7 @@ if($presupuesto === ''){//nuevo
                                                 '<label for="Cantidad'+linea+'">Cantidad</label>'+
                                                 '<input type="number" step="any" min="0" class="form-control" id="Cantidad'+linea+'" name="Cantidad'+linea+'" maxlength="20" '+
                                                         'onkeypress="limpiarCantidad('+linea+');DesactivaImprimir();" style="text-align:right;" value=""'+
-                                                        'onblur="calculoCantidad('+linea+');sumas();calculoIRPF();formatear(this);" pattern="">'+
+                                                        'onblur="calculoCantidad('+linea+');sumasPresupuesto();calculoIRPF();formatear(this);" pattern="">'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtCantidad'+linea+'">'+
                                                     '<small class="help-block text-danger">Es numérico</small>'+
                                                 '</div>'+
@@ -308,7 +308,7 @@ if($presupuesto === ''){//nuevo
                                                 '<label for="Precio'+linea+'">Precio</label>'+
                                                 '<input type="number" step="any" class="form-control" id="Precio'+linea+'" name="Precio'+linea+'" maxlength="20" value=""'+
                                                         'onkeypress="limpiarPrecio('+linea+');DesactivaImprimir();" style="text-align:right;" value=""'+
-                                                        'onblur="calculoPrecio('+linea+');sumas();calculoIRPF();formatear(this);">'+
+                                                        'onblur="calculoPrecio('+linea+');sumasPresupuesto();calculoIRPF();formatear(this);">'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtPrecio'+linea+'">'+
                                                     '<small class="help-block text-danger">Es numérico</small>'+
                                                 '</div>'+
@@ -319,7 +319,7 @@ if($presupuesto === ''){//nuevo
                                                 '<label for="Importe'+linea+'">Importe</label>'+
                                                 '<input type="number" step="any" class="form-control" id="Importe'+linea+'" name="Importe'+linea+'" maxlength="20" value=""'+
                                                         'onkeypress="limpiarImporte('+linea+');DesactivaImprimir();" style="text-align:right;" value=""'+
-                                                        'onblur="calculoImporte('+linea+');sumas();calculoIRPF();formatear(this);">'+
+                                                        'onblur="calculoImporte('+linea+');sumasPresupuesto();calculoIRPF();formatear(this);">'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtImporte'+linea+'">'+
                                                     '<small class="help-block text-danger">No puede ser cero</small>'+
                                                 '</div>'+
@@ -330,7 +330,7 @@ if($presupuesto === ''){//nuevo
                                                 '<label for="IVA'+linea+'">IVA</label>'+
                                                 '<input type="number" step="any" class="form-control" id="IVA'+linea+'" name="IVA'+linea+'" maxlength="20" value="21"'+
                                                         'onkeypress="limpiarIVA('+linea+');DesactivaImprimir();" style="text-align:right;" value=""'+
-                                                        'onblur="calculoIVA('+linea+');sumas();calculoIRPF();formatear(this);">'+
+                                                        'onblur="calculoIVA('+linea+');sumasPresupuesto();calculoIRPF();formatear(this);">'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtIVA'+linea+'">'+
                                                     '<small class="help-block text-danger">Es numérico</small>'+
                                                 '</div>'+
@@ -386,7 +386,7 @@ if($presupuesto === ''){//nuevo
         
         function borrarLinea(linea){
             $("#linea"+linea).remove();
-            sumas();
+            sumasPresupuesto();
             calculoIRPF();
         }
         
@@ -449,7 +449,7 @@ if($presupuesto === ''){//nuevo
                                 }
 
                                 calculoPrecio(linea);
-                                sumas();
+                                sumasPresupuesto();
                                 calculoIRPF();
                             //sino 
                             }else{
@@ -505,7 +505,7 @@ if($presupuesto === ''){//nuevo
                 $('#Cuota'+lineaAux).val(parseFloat(<?php echo $presupuestoDetalle[$i]->CuotaIva; ?>).toFixed(2));
                 $('#Total'+lineaAux).val(parseFloat(<?php echo ((float)$presupuestoDetalle[$i]->Importe + (float)$presupuestoDetalle[$i]->CuotaIva); ?>).toFixed(2));
                 //actualizo las sumas
-                sumas();
+                sumasPresupuesto();
                 calculoIRPF();
                 //aumento el contador
                 //$('#numLinea').val(parseInt($('#numLinea').val())+1);

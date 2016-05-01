@@ -120,17 +120,17 @@ class pedidosController extends Controller {
         //numero nuevo
         //buscamos el numero mas alto
         
-        $numeroNuevo = $admin->numeroNuevo('Presupuesto',$datos->TipoContador);
+        $numeroNuevo = $admin->numeroNuevo('Pedido',$datos->TipoContador);
         
         $numero = $admin->formatearNumero($numeroNuevo,$datos->TipoContador);
         $editarCampoNumero = $admin->editarCampoNumero($datos->TipoContador);
 
-        return view('presupuestos.ver')->with('presupuesto', json_encode(''))->with('clientes', json_encode($clientes))
-                                       ->with('datos', json_encode($datos))->with('presupuestoDetalle', json_encode(''))
+        return view('pedidos.ver')->with('pedido', json_encode(''))->with('clientes', json_encode($clientes))
+                                       ->with('datos', json_encode($datos))->with('pedidoDetalle', json_encode(''))
                                        ->with('numero', json_encode($numero))->with('editarCampoNumero', json_encode($editarCampoNumero));
     }
 
-    //NO
+    
     public function editar($idPedido){
         //control de sesion
         $admin = new adminController();
@@ -198,74 +198,77 @@ class pedidosController extends Controller {
     }
        
     
-    //NO
     public function createEdit(Request $request){
         $admin = new adminController();
         $datos = Empresa::on('contfpp')->find((int)Session::get('IdEmpresa'));
         //dd($request);die;
         
-        //hago las operaciones en transaccion, trabajo con las tablas presupuestos y presupuestosdetalle
-        //1º inserto o actualizo los datos de la tabla presupuesots por el IdPresupuesto
-        //2º si edito, borro los datos de la tabla presupuestosdetalle por el IdPresupuesto (campo Borrado=0)
-        //3º inserto los nuevos detalles con el IdPresupuesto
+        //hago las operaciones en transaccion, trabajo con las tablas pedidos y pedidosdetalle
+        //1º inserto o actualizo los datos de la tabla pedidos por el IdPedido
+        //2º si edito, borro los datos de la tabla pedidosdetalle por el IdPedido (campo Borrado=0)
+        //3º inserto los nuevos detalles con el IdPedido
         
         \DB::connection(Session::get('conexionBBDD'))->beginTransaction(); //Comienza transaccion
         
         try{
             //1º
             //editar
-            if(isset($request->IdPresupuesto) && $request->IdPresupuesto !== ""){
-                //sino se edita este IdPresupuesto
-                $presupuesto = Presupuesto::on(Session::get('conexionBBDD'))->find($request->IdPresupuesto);
+            if(isset($request->IdPedido) && $request->IdPedido !== ""){
+                //sino se edita este IdPedido
+                $pedido = Pedido::on(Session::get('conexionBBDD'))->find($request->IdPedido);
                 
                 
                 //2º
-                $presupuestoDetalle = PresupuestoDetalle::on(Session::get('conexionBBDD'))
-                                     ->where('IdPresupuesto', '=', $request->IdPresupuesto)
+                $pedidoDetalle = PedidoDetalle::on(Session::get('conexionBBDD'))
+                                     ->where('IdPedido', '=', $request->IdPedido)
                                      ->where('Borrado', '=', '1')
                                      ->get();
                 
-                foreach ($presupuestoDetalle as $detalle) {
+                foreach ($pedidoDetalle as $detalle) {
                     $detalle->Borrado = 0;
                     $detalle->save();
                 }
 
-                $ok = 'Se ha editado correctamente el presupuesto.';
-                $error = 'ERROR al edtar el presupuesto.';
+                $ok = 'Se ha editado correctamente el pedido.';
+                $error = 'ERROR al edtar el pedido.';
             }
             //nuevo
             else{
                 //si es nuevo este valor viene vacio
-                $presupuesto = new Presupuesto();
-                $presupuesto->setConnection(Session::get('conexionBBDD'));
+                $pedido = new Pedido();
+                $pedido->setConnection(Session::get('conexionBBDD'));
 
-                //indicamos el nuevo IdPresupuesto
-                $idPresupNuevo = Presupuesto::on(Session::get('conexionBBDD'))
-                                  ->max('IdPresupuesto') + 1;
-                $presupuesto->IdPresupuesto = $idPresupNuevo;
-                $presupuesto->Estado = 'Pendiente';
+                //indicamos el nuevo IdPedido
+                $idPedidoNuevo = Pedido::on(Session::get('conexionBBDD'))
+                                  ->max('IdPedido') + 1;
+                $pedido->IdPedido = $idPedidoNuevo;
+                $pedido->Estado = 'Pendiente';
                 
 
-                $ok = 'Se ha dado de alta correctamente el presupuesto.';
-                $error = 'ERROR al dar de alta el presupuesto.';
+                $ok = 'Se ha dado de alta correctamente el pedido.';
+                $error = 'ERROR al dar de alta el pedido.';
             }
             
             //Continuo 1º (editar o nuevo), recojo los datos del formulario
-            //NumPresupuesto: formateo el numero que viene 
-            $numPresupuesto = $admin->desFormatearNumero($request->numPresupuesto,$datos->TipoContador);
-            $presupuesto->NumPresupuesto = $numPresupuesto;
-            $presupuesto->IdCliente = (isset($request->idCliente)) ? $request->idCliente : '';
-            $presupuesto->FechaPresupuesto = (isset($request->fechaPresup)) ? \Carbon\Carbon::createFromFormat('d/m/Y',$request->fechaPresup)->format('Y-m-d H:i:s') : '';
-            $presupuesto->FechaVtoPresupuesto = (isset($request->FechaVtoPresupuesto)) ? \Carbon\Carbon::createFromFormat('d/m/Y',$request->FechaVtoPresupuesto)->format('Y-m-d H:i:s') : '';
-            $presupuesto->FormaPago = (isset($request->FormaPago)) ? $request->FormaPago : '';
-            $presupuesto->Retencion = (isset($request->Retencion)) ? $request->Retencion : '';
-            $presupuesto->Proforma = (isset($request->Proforma)) ? $request->Proforma : '';
-            $presupuesto->Borrado = '1';
-            $presupuesto->BaseImponible = (isset($request->totalImporte)) ? $request->totalImporte : '';
-            $presupuesto->Cuota = (isset($request->totalCuota)) ? $request->totalCuota : '';
-            $presupuesto->total = (isset($request->Total)) ? $request->Total : '';
+            //NumPedido: formateo el numero que viene 
+            $numPedido = $admin->desFormatearNumero($request->numPedido,$datos->TipoContador);
+            $pedido->NumPedido = $numPedido;
+            $pedido->IdCliente = (isset($request->idCliente)) ? $request->idCliente : '';
+            $pedido->IdPresupuesto = (isset($request->IdPresupuesto)) ? $request->IdPresupuesto : '';
+            $pedido->FechaPedido = (isset($request->fechaPedido)) ? \Carbon\Carbon::createFromFormat('d/m/Y',$request->fechaPedido)->format('Y-m-d H:i:s') : '';
+            $pedido->FechaVtoPedido = (isset($request->FechaVtoPedido)) ? \Carbon\Carbon::createFromFormat('d/m/Y',$request->FechaVtoPedido)->format('Y-m-d H:i:s') : '';
+            $pedido->FormaPago = (isset($request->FormaPago)) ? $request->FormaPago : '';
+            $pedido->Retencion = (isset($request->Retencion)) ? $request->Retencion : '';
+            $pedido->Borrado = '1';
+            $pedido->TipoFactura = (isset($request->TipoFactura)) ? $request->TipoFactura : '';
+            $pedido->FrecuenciaPeriodica = (isset($request->FrecuenciaPeriodica)) ? $request->FrecuenciaPeriodica : '';
+            $pedido->FechaProximaFacturaPeriodica = (isset($request->FechaProximaFacturaPeriodica)) ? \Carbon\Carbon::createFromFormat('d/m/Y',$request->FechaProximaFacturaPeriodica)->format('Y-m-d H:i:s') : '';
+            $pedido->BaseImponible = (isset($request->totalImporte)) ? $request->totalImporte : '';
+            $pedido->Cuota = (isset($request->totalCuota)) ? $request->totalCuota : '';
+            $pedido->total = (isset($request->Total)) ? $request->TotalNeto : '';
+            $pedido->CuotaRetencion = (isset($request->RetencionCuota)) ? $request->RetencionCuota : '';
             //guardo los cambios
-            $presupuesto->save();
+            $pedido->save();
             
             
             //3º
@@ -295,6 +298,20 @@ class pedidosController extends Controller {
                             //IdArticulo
                             $propIdArticulo='IdArticulo' . $num;
                             $valorIdArticulo = $request->$propIdArticulo;
+
+                            //IdPresupuesto
+                            $propIdPresupuesto = 'IdPresupuesto' . $num;
+                            $valorIdPresupuesto = $request->$propIdPresupuesto;
+                            if($valorIdPresupuesto === ''){
+                                $valorIdPresupuesto = 0;
+                            }
+
+                            //NumLineaPresup
+                            $propNumLineaPresup = 'NumLineaPresup' . $num;
+                            $valorNumLineaPresup = $request->$propNumLineaPresup;
+                            if($valorNumLineaPresup === ''){
+                                $valorNumLineaPresup = 0;
+                            }
 
                             //Importe
                             $propImporte = 'Importe' . $num;
@@ -328,10 +345,12 @@ class pedidosController extends Controller {
 //                            }
 
                             //ahora guardo el valor en el array
-                            $presupuestoDetalleNuevo[]=array(
+                            $pedidoDetalleNuevo[]=array(
                                 "Cantidad"=>$valorCantidad, 
                                 "Concepto"=>$valorConcepto,
                                 "IdArticulo"=>$valorIdArticulo,
+                                "IdPresupuesto"=>$valorIdPresupuesto,
+                                "NumLineaPresup"=>$valorNumLineaPresup,
                                 "Precio"=>$valorPrecio,
                                 "Importe"=>$valorImporte,
                                 "IVA"=>$valorIVA,
@@ -341,24 +360,27 @@ class pedidosController extends Controller {
                     }
                 }
             }
+            //dd($pedidoDetalleNuevo);
 
             //por ultimo inserto estas lineas en la tabla presupuesotsDetalle
-            for ($i = 0; $i < count($presupuestoDetalleNuevo); $i++) {
-                $nuevoDetalle = new PresupuestoDetalle();
+            for ($i = 0; $i < count($pedidoDetalleNuevo); $i++) {
+                $nuevoDetalle = new PedidoDetalle();
                 $nuevoDetalle->setConnection(Session::get('conexionBBDD'));
-                $idNuevo = PresupuestoDetalle::on(Session::get('conexionBBDD'))
-                                             ->max('IdPresupDetalle') + 1;
+                $idNuevo = PedidoDetalle::on(Session::get('conexionBBDD'))
+                                             ->max('IdPedidoDetalle') + 1;
                 
-                $nuevoDetalle->IdPresupDetalle = $idNuevo;
-                $nuevoDetalle->IdPresupuesto = $presupuesto->IdPresupuesto;
-                $nuevoDetalle->NumLineaPresup = (int)($i +1);
-                $nuevoDetalle->IdArticulo = (isset($presupuestoDetalleNuevo[$i]['IdArticulo'])) ? $presupuestoDetalleNuevo[$i]['IdArticulo'] : '';
-                $nuevoDetalle->DescripcionProducto = (isset($presupuestoDetalleNuevo[$i]['Concepto'])) ? $presupuestoDetalleNuevo[$i]['Concepto'] : '';
-                $nuevoDetalle->TipoIVA = (isset($presupuestoDetalleNuevo[$i]['IVA'])) ? $presupuestoDetalleNuevo[$i]['IVA'] : '';
-                $nuevoDetalle->Cantidad = (isset($presupuestoDetalleNuevo[$i]['Cantidad'])) ? $presupuestoDetalleNuevo[$i]['Cantidad'] : '';
-                $nuevoDetalle->ImporteUnidad = (isset($presupuestoDetalleNuevo[$i]['Precio'])) ? $presupuestoDetalleNuevo[$i]['Precio'] : '';
-                $nuevoDetalle->Importe = (isset($presupuestoDetalleNuevo[$i]['Importe'])) ? $presupuestoDetalleNuevo[$i]['Importe'] : '';
-                $nuevoDetalle->CuotaIva = (isset($presupuestoDetalleNuevo[$i]['Cuota'])) ? $presupuestoDetalleNuevo[$i]['Cuota'] : '';
+                $nuevoDetalle->IdPedidoDetalle = $idNuevo;
+                $nuevoDetalle->IdPedido = $pedido->IdPedido;
+                $nuevoDetalle->NumLineaPedido = (int)($i +1);
+                $nuevoDetalle->IdArticulo = (isset($pedidoDetalleNuevo[$i]['IdArticulo'])) ? $pedidoDetalleNuevo[$i]['IdArticulo'] : '';
+                $nuevoDetalle->IdPresupuesto = (isset($pedidoDetalleNuevo[$i]['IdPresupuesto'])) ? $pedidoDetalleNuevo[$i]['IdPresupuesto'] : '';
+                $nuevoDetalle->NumLineaPresup = (isset($pedidoDetalleNuevo[$i]['NumLineaPresup'])) ? $pedidoDetalleNuevo[$i]['NumLineaPresup'] : '';
+                $nuevoDetalle->DescripcionProducto = (isset($pedidoDetalleNuevo[$i]['Concepto'])) ? $pedidoDetalleNuevo[$i]['Concepto'] : '';
+                $nuevoDetalle->TipoIVA = (isset($pedidoDetalleNuevo[$i]['IVA'])) ? $pedidoDetalleNuevo[$i]['IVA'] : '';
+                $nuevoDetalle->Cantidad = (isset($pedidoDetalleNuevo[$i]['Cantidad'])) ? $pedidoDetalleNuevo[$i]['Cantidad'] : '';
+                $nuevoDetalle->ImporteUnidad = (isset($pedidoDetalleNuevo[$i]['Precio'])) ? $pedidoDetalleNuevo[$i]['Precio'] : '';
+                $nuevoDetalle->Importe = (isset($pedidoDetalleNuevo[$i]['Importe'])) ? $pedidoDetalleNuevo[$i]['Importe'] : '';
+                $nuevoDetalle->CuotaIva = (isset($pedidoDetalleNuevo[$i]['Cuota'])) ? $pedidoDetalleNuevo[$i]['Cuota'] : '';
 
                 
                 
@@ -378,7 +400,7 @@ class pedidosController extends Controller {
         
         
         //echo json_encode($txt);**PONER RESULTADO DE EDITAR BORRAR, ETC..
-        return redirect('presupuestos/editar/'.$presupuesto->IdPresupuesto);
+        return redirect('pedidos/editar/'.$pedido->IdPedido);
     }
     
 

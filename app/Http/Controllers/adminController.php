@@ -13,6 +13,7 @@ use App\Usuario;
 use App\Empleado;
 use App\TipoContador;
 use App\Presupuesto;
+use App\Pedido;
 
 
 class adminController extends Controller {
@@ -215,22 +216,45 @@ class adminController extends Controller {
     }
     
     public function numeroNuevo($tipoDoc,$TipoContador){
-        //SOLO ESTA IMPLEMENTADO PRESUPUESTOS
+        //SOLO ESTA IMPLEMENTADO PRESUPUESTOS y PEDIDOS
         
-        //extraigo el listado de los presupuestos
-        $listadoNumeros = Presupuesto::on(Session::get('conexionBBDD'))
-                        ->where('Borrado', '=', '1')
-                        ->select('NumPresupuesto')
-                        ->get();
-        
-        //ahora recorro este array y busco el mas alto
         $numMasAlto = 0;
-        for ($i = 0; $i < count($listadoNumeros); $i++) {
-            if((int)$listadoNumeros[$i]->NumPresupuesto > (int)$numMasAlto){
-                $numMasAlto = $listadoNumeros[$i]->NumPresupuesto;
-            }
-        }
+        if($tipoDoc === 'Presupuesto'){
+            //extraigo el listado de los presupuestos
+            $listadoNumeros = Presupuesto::on(Session::get('conexionBBDD'))
+                            ->where('Borrado', '=', '1')
+                            ->select('NumPresupuesto')
+                            ->get();
 
+            //ahora recorro este array y busco el mas alto
+            for ($i = 0; $i < count($listadoNumeros); $i++) {
+                if((int)$listadoNumeros[$i]->NumPresupuesto > (int)$numMasAlto){
+                    $numMasAlto = $listadoNumeros[$i]->NumPresupuesto;
+                }
+            }
+        }else
+        if($tipoDoc === 'Pedido'){
+            //extraigo el listado de los presupuestos
+            $listadoNumeros = Pedido::on(Session::get('conexionBBDD'))
+                            ->where('Borrado', '=', '1')
+                            ->select('NumPedido')
+                            ->get();
+
+            for ($i = 0; $i < count($listadoNumeros); $i++) {
+                if((int)$listadoNumeros[$i]->NumPedido > (int)$numMasAlto){
+                    $numMasAlto = $listadoNumeros[$i]->NumPedido;
+                }
+            }
+        }else
+        if($tipoDoc === 'Factura'){//SIN HACER
+//            for ($i = 0; $i < count($listadoNumeros); $i++) {
+//                if((int)$listadoNumeros[$i]->NumPedido > (int)$numMasAlto){
+//                    $numMasAlto = $listadoNumeros[$i]->NumPedido;
+//                }
+//            }
+        }
+        //dd($numMasAlto);
+        
         $ejercicio = substr($numMasAlto,0,4);
         $num = substr($numMasAlto,4);
         //ahora segun el $TipoContador, ejecuto la funcion para aumentar la numeracion un numero

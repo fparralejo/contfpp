@@ -58,6 +58,7 @@ Route::get('presupuestos/actualizarEstado', 'presupuestosController@actualizarEs
 
 
 //pedidos
+Route::get('pedidos/alta', 'pedidosController@alta');
 Route::get('pedidos/mdb', 'pedidosController@listar');
 Route::get('pedidos/editar/{idPedido}', 'pedidosController@editar');
 Route::post('pedidos/createEdit', 'pedidosController@createEdit');
@@ -65,9 +66,9 @@ Route::post('pedidos/createEdit', 'pedidosController@createEdit');
 
 
 //pedidos
-Route::get('pedidos/alta', function () {
-    return view('construccion');
-});
+//Route::get('pedidos/alta', function () {
+//    return view('construccion');
+//});
 //Route::get('pedidos/mdb', function () {
 //    return view('construccion');
 //});
