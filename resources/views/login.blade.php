@@ -49,7 +49,7 @@
                 <div class="col-xs-12">
                     <span><center><h3>Contabilidad FPP</h3></center></span>	
                     <span><center><h5>Módulo Facturación</h5></center></span>	
-                    <span><center><h6>Versión 0.20160423</h6></center></span>	
+                    <span><center><h6>Versión 0.20160502</h6></center></span>	
                     <br/>
                 </div>
             </div>
