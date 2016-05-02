@@ -658,7 +658,7 @@ class pedidosController extends Controller {
             exit;
         }else{
             //se renderiza el PDF y se guarda
-            $file = "../public/pdf_files/Pedido_".$pdf->datos->IdEmpresa.'-'.$pdf->pedidoDetalle->NumPedido.".pdf";
+            $file = "../public/pdf_files/Pedido_".$pdf->datos->IdEmpresa.'-'.$pdf->pedido->NumPedido.".pdf";
             $pdf->Output($file,"F");
             $pdf->Close();
             
@@ -721,7 +721,7 @@ class pedidosController extends Controller {
 
 
             //redirecciono al pedido
-            return redirect('pedidos/editar/'.$pdf->pedidoDetalle->IdPedido)->with('errors', json_encode($txtError));    
+            return redirect('pedidos/editar/'.$pdf->pedido->IdPedido)->with('errors', json_encode($txtError));    
         }
     }
 
