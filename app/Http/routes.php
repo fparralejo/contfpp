@@ -62,6 +62,12 @@ Route::get('pedidos/alta', 'pedidosController@alta');
 Route::get('pedidos/mdb', 'pedidosController@listar');
 Route::get('pedidos/editar/{idPedido}', 'pedidosController@editar');
 Route::post('pedidos/createEdit', 'pedidosController@createEdit');
+Route::get('pedidos/verPDF/{idPedido}/{accion}', 'pedidosController@verPDF');
+Route::get('pedidos/duplicar/{idPedido}', 'pedidosController@duplicar');
+Route::get('pedidos/borrar/{idPedido}', 'pedidosController@borrar');
+Route::get('pedidos/buscar_articulos', 'presupuestosController@buscar_articulos');//busco en presupuestosController
+Route::get('pedidos/datos_articulo', 'presupuestosController@datos_articulo');//busco en presupuestosController
+Route::get('pedidos/actualizarEstado', 'pedidosController@actualizarEstado');
 
 
 

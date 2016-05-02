@@ -102,7 +102,6 @@ class pedidosController extends Controller {
 
 
         
-    //NO
     public function alta(){
         //control de sesion
         $admin = new adminController();
@@ -126,8 +125,8 @@ class pedidosController extends Controller {
         $editarCampoNumero = $admin->editarCampoNumero($datos->TipoContador);
 
         return view('pedidos.ver')->with('pedido', json_encode(''))->with('clientes', json_encode($clientes))
-                                       ->with('datos', json_encode($datos))->with('pedidoDetalle', json_encode(''))
-                                       ->with('numero', json_encode($numero))->with('editarCampoNumero', json_encode($editarCampoNumero));
+                                  ->with('datos', json_encode($datos))->with('pedidoDetalle', json_encode(''))
+                                  ->with('numero', json_encode($numero))->with('editarCampoNumero', json_encode($editarCampoNumero));
     }
 
     
@@ -242,7 +241,7 @@ class pedidosController extends Controller {
                 $idPedidoNuevo = Pedido::on(Session::get('conexionBBDD'))
                                   ->max('IdPedido') + 1;
                 $pedido->IdPedido = $idPedidoNuevo;
-                $pedido->Estado = 'Pendiente';
+                $pedido->Estado = 'Aceptado';
                 
 
                 $ok = 'Se ha dado de alta correctamente el pedido.';
@@ -405,8 +404,7 @@ class pedidosController extends Controller {
     
 
     
-    //NO
-    public function verPDF($idPresupuesto,$accion, Request $request){
+    public function verPDF($idPedido,$accion, Request $request){
         //control de sesion
         $admin = new adminController();
         if (!$admin->getControl()) {
@@ -417,17 +415,17 @@ class pedidosController extends Controller {
         //busco los datos
         $datos = Empresa::on('contfpp')->find((int)Session::get('IdEmpresa'));
 
-        $presupuesto = Presupuesto::on(Session::get('conexionBBDD'))
-                        ->find($idPresupuesto);
+        $pedido = Pedido::on(Session::get('conexionBBDD'))
+                        ->find($idPedido);
         
         $cliente = Cliente::on(Session::get('conexionBBDD'))
                           ->where('borrado', '=', '1')
                           ->where('tipo', '=', 'C')
-                          ->where('idCliente', '=', $presupuesto->IdCliente)
+                          ->where('idCliente', '=', $pedido->IdCliente)
                           ->get();
 
-        $presupuestoDetalle = PresupuestoDetalle::on(Session::get('conexionBBDD'))
-                          ->where('IdPresupuesto', '=', $idPresupuesto)
+        $pedidoDetalle = PedidoDetalle::on(Session::get('conexionBBDD'))
+                          ->where('IdPedido', '=', $idPedido)
                           ->where('Borrado', '=', '1')
                           ->get();
 
@@ -444,10 +442,10 @@ class pedidosController extends Controller {
         //decodifico los datos JSON
         $pdf->cliente = json_decode($cliente);
         $pdf->datos = json_decode($datos);
-        $pdf->presupuesto = json_decode($presupuesto);
-        $pdf->presupuestoDetalle = json_decode($presupuestoDetalle);
+        $pdf->pedido = json_decode($pedido);
+        $pdf->pedidoDetalle = json_decode($pedidoDetalle);
         //numero
-        $numero = $admin->formatearNumero($pdf->presupuesto->NumPresupuesto,$pdf->datos->TipoContador);
+        $numero = $admin->formatearNumero($pdf->pedido->NumPedido,$pdf->datos->TipoContador);
         $pdf->numero = $numero;
         $pdf->accion = $accion;
         //var_dump($pdf->datos);die;
@@ -460,8 +458,13 @@ class pedidosController extends Controller {
         $pdf->SetDrawColor(0,0,0);
         $pdf->Ln();
         //$pdf->Cell(180, 4, 'Referencia: '.utf8_decode($pdf->datosPresupuesto['Referencia']));
+        
+        //aqui indico los datos de los cuadros superiores de fecha y si es periodica o no
+        $pdf->FechasYTipoFactura();
+        $pdf->Ln();
+        $pdf->Ln();
 
-        $fecha = explode('/',date('d/m/Y',strtotime($pdf->presupuesto->FechaPresupuesto)));
+        $fecha = explode('/',date('d/m/Y',strtotime($pdf->pedido->FechaPedido)));
 
         //escribir mes en texto
         switch ($fecha[1]) {
@@ -555,9 +558,9 @@ class pedidosController extends Controller {
         $altura=6;
         $pdf->totalImporte=0;
         $pdf->totalCuota=0;
-        for ($i = 0;$i < count($pdf->presupuestoDetalle);$i++){
+        for ($i = 0;$i < count($pdf->pedidoDetalle);$i++){
             //metemos las palabras que hay en el texto en un array
-            $palabras=  explode(' ',utf8_decode($pdf->presupuestoDetalle[$i]->DescripcionProducto));
+            $palabras=  explode(' ',utf8_decode($pdf->pedidoDetalle[$i]->DescripcionProducto));
             //prepararmos un array con las lineas de texto rellenas de palabras que no sobrepasen 40 caracteres
             $linea = '';
             $k = 0;//indice de $palabras
@@ -592,10 +595,10 @@ class pedidosController extends Controller {
                 $pdf->SetLineWidth(0.1);
                 $pdf->SetFont('Arial','',9);
                 if($j === 0){
-                    if($pdf->presupuestoDetalle[$i]->Cantidad === '0'){
-                        $pdf->presupuestoDetalle[$i]->Cantidad = '';
+                    if($pdf->pedidoDetalle[$i]->Cantidad === '0'){
+                        $pdf->pedidoDetalle[$i]->Cantidad = '';
                     }
-                    $pdf->Cell($pdf->columCantidad+0.1, $altura, $admin->formateaNumeroContabilidad($pdf->presupuestoDetalle[$i]->Cantidad),'L',0,'R',$pdf->fill);
+                    $pdf->Cell($pdf->columCantidad+0.1, $altura, $admin->formateaNumeroContabilidad($pdf->pedidoDetalle[$i]->Cantidad),'L',0,'R',$pdf->fill);
                 }else{
                     $pdf->Cell($pdf->columCantidad+0.1, $altura, '','L',0,'R',$pdf->fill);
                 }
@@ -606,30 +609,30 @@ class pedidosController extends Controller {
                     $pdf->Cell($pdf->columConcepto, $altura, trim($lineas[$j]) ,'L',0,'L',$pdf->fill);
                 }
                 if($j==0){
-                    if($pdf->presupuestoDetalle[$i]->ImporteUnidad === '0'){
-                        $pdf->presupuestoDetalle[$i]->ImporteUnidad = '';
+                    if($pdf->pedidoDetalle[$i]->ImporteUnidad === '0'){
+                        $pdf->pedidoDetalle[$i]->ImporteUnidad = '';
                     }
-                    $pdf->Cell($pdf->columPrecio, $altura, $admin->formateaNumeroContabilidad($pdf->presupuestoDetalle[$i]->ImporteUnidad),'L',0,'R',$pdf->fill);
+                    $pdf->Cell($pdf->columPrecio, $altura, $admin->formateaNumeroContabilidad($pdf->pedidoDetalle[$i]->ImporteUnidad),'L',0,'R',$pdf->fill);
                 }else{
                     $pdf->Cell($pdf->columPrecio, $altura,'' ,'L',0,'R',$pdf->fill);
                 }
                 if($j==0){
-                    $pdf->Cell($pdf->columImporte, $altura, $admin->formateaNumeroContabilidad($pdf->presupuestoDetalle[$i]->Importe),'L',0,'R',$pdf->fill);
+                    $pdf->Cell($pdf->columImporte, $altura, $admin->formateaNumeroContabilidad($pdf->pedidoDetalle[$i]->Importe),'L',0,'R',$pdf->fill);
                 }else{
                     $pdf->Cell($pdf->columImporte, $altura, '','L',0,'R',$pdf->fill);
                 }
                 if($j==0){
-                    $pdf->Cell($pdf->columIva, $altura, $pdf->presupuestoDetalle[$i]->TipoIVA." %",'L',0,'R',$pdf->fill);
+                    $pdf->Cell($pdf->columIva, $altura, $pdf->pedidoDetalle[$i]->TipoIVA." %",'L',0,'R',$pdf->fill);
                 }else{
                     $pdf->Cell($pdf->columIva, $altura,'' ,'L',0,'R',$pdf->fill);
                 }
                 if($j==0){
-                    $pdf->Cell($pdf->columCuota, $altura, $admin->formateaNumeroContabilidad($pdf->presupuestoDetalle[$i]->CuotaIva),'L',0,'R',$pdf->fill);
+                    $pdf->Cell($pdf->columCuota, $altura, $admin->formateaNumeroContabilidad($pdf->pedidoDetalle[$i]->CuotaIva),'L',0,'R',$pdf->fill);
                 }else{
                     $pdf->Cell($pdf->columCuota, $altura,'' ,'L',0,'R',$pdf->fill);
                 }
                 if($j==0){  
-                    $pdf->Cell($pdf->columTotal-0.2, $altura, $admin->formateaNumeroContabilidad((float)$pdf->presupuestoDetalle[$i]->Importe + (float)$pdf->presupuestoDetalle[$i]->CuotaIva),'L',0,'R',$pdf->fill);//VOY POR AQUI 18/4/2016
+                    $pdf->Cell($pdf->columTotal-0.2, $altura, $admin->formateaNumeroContabilidad((float)$pdf->pedidoDetalle[$i]->Importe + (float)$pdf->pedidoDetalle[$i]->CuotaIva),'L',0,'R',$pdf->fill);
                     $pdf->SetLineWidth(0.1);
                     $pdf->Cell(0.1, 6, '','R',0,'R');
                 }else{
@@ -640,8 +643,8 @@ class pedidosController extends Controller {
                 $pdf->Ln();
             }
             //sumas de importe y cuota
-            $pdf->totalImporte = (float)$pdf->totalImporte + (float)$pdf->presupuestoDetalle[$i]->Importe;
-            $pdf->totalCuota = (float)$pdf->totalCuota + (float)$pdf->presupuestoDetalle[$i]->CuotaIva;
+            $pdf->totalImporte = (float)$pdf->totalImporte + (float)$pdf->pedidoDetalle[$i]->Importe;
+            $pdf->totalCuota = (float)$pdf->totalCuota + (float)$pdf->pedidoDetalle[$i]->CuotaIva;
         }
 
         //linea inferior
@@ -655,7 +658,7 @@ class pedidosController extends Controller {
             exit;
         }else{
             //se renderiza el PDF y se guarda
-            $file = "../public/pdf_files/Presupuesto_".$pdf->datos->IdEmpresa.'-'.$pdf->presupuesto->NumPresupuesto.".pdf";
+            $file = "../public/pdf_files/Pedido_".$pdf->datos->IdEmpresa.'-'.$pdf->pedidoDetalle->NumPedido.".pdf";
             $pdf->Output($file,"F");
             $pdf->Close();
             
@@ -692,7 +695,7 @@ class pedidosController extends Controller {
             $html='<!DOCTYPE html>
                     <html>
                         <head>
-                            <title>'.$pdf->datos->identificacion.'. Presupuesto: '.$numero.'</title>
+                            <title>'.$pdf->datos->identificacion.'. Pedido: '.$numero.'</title>
                             <meta charset="UTF-8">
                             <meta name="viewport" content="width=device-width">
                         </head>
@@ -705,59 +708,58 @@ class pedidosController extends Controller {
             //convierte HTML un plain-text básico 
             $mail->msgHTML($html);
             //Reemplaza al texto plano del body
-            $mail->AltBody = 'Presupuesto';
+            $mail->AltBody = 'Pedido';
             //incluye el fichero adjunto
             $mail->addAttachment($file);
 
             $txtError = '';
             if($mail->send()){
-                $txtError = 'El presupuesto ha sido enviado correctamente.';
+                $txtError = 'El pedido ha sido enviado correctamente.';
             }else{
-                $txtError = 'El presupuesto NO ha sido enviado.';
+                $txtError = 'El pedido NO ha sido enviado.';
             }
 
 
-            //redirecciono al presupuesto
-            return redirect('presupuestos/editar/'.$pdf->presupuesto->IdPresupuesto)->with('errors', json_encode($txtError));    
+            //redirecciono al pedido
+            return redirect('pedidos/editar/'.$pdf->pedidoDetalle->IdPedido)->with('errors', json_encode($txtError));    
         }
     }
 
     
-    //NO
-    public function duplicar($idPresupuesto){
+    public function duplicar($idPedido){
         //control de sesion
         $admin = new adminController();
         if (!$admin->getControl()) {
             return redirect('/')->with('login_errors', 'La sesión a expirado. Vuelva a logearse.');
         }
         
-        //extraigo los datos de este presupuesto
-        $presupuesto = Presupuesto::on(Session::get('conexionBBDD'))
-                        ->find($idPresupuesto);
+        //extraigo los datos de este pedido
+        $pedido = Pedido::on(Session::get('conexionBBDD'))
+                        ->find($idPedido);
         //lo clono
-        $nuevo_presupuesto = $presupuesto->replicate();
-        $nuevo_presupuesto->setConnection(Session::get('conexionBBDD'));
+        $nuevo_pedido = $pedido->replicate();
+        $nuevo_pedido->setConnection(Session::get('conexionBBDD'));
 
-        //indicamos el nuevo IdPresupuesto
-        $idPresupNuevo = Presupuesto::on(Session::get('conexionBBDD'))
-                          ->max('IdPresupuesto') + 1;
-        $nuevo_presupuesto->IdPresupuesto = $idPresupNuevo;
-        $nuevo_presupuesto->Estado = 'Pendiente';
+        //indicamos el nuevo IdPedido
+        $idPedidoNuevo = Pedido::on(Session::get('conexionBBDD'))
+                          ->max('IdPedido') + 1;
+        $nuevo_pedido->IdPedido = $idPedidoNuevo;
+        $nuevo_pedido->Estado = 'Aceptado';
         
         //saco un numero nuevo
         $datos = Empresa::on('contfpp')->find((int)Session::get('IdEmpresa'));
-        $numeroNuevo = $admin->numeroNuevo('Presupuesto',$datos->TipoContador);
+        $numeroNuevo = $admin->numeroNuevo('Pedido',$datos->TipoContador);
         $numero = $admin->formatearNumero($numeroNuevo,$datos->TipoContador);
         
-        $nuevo_presupuesto->NumPresupuesto = $numeroNuevo;
+        $nuevo_pedido->NumPedido = $numeroNuevo;
         date_default_timezone_set('Europe/Madrid');
-        $nuevo_presupuesto->FechaPresupuesto = date('Y-m-d H:i:s');
-        $nuevo_presupuesto->FechaVtoPresupuesto = date('Y-m-d H:i:s');
+        $nuevo_pedido->FechaPedido = date('Y-m-d H:i:s');
+        $nuevo_pedido->FechaVtoPedido = date('Y-m-d H:i:s');
         
         
-        //ahora busco las lineas del presupuesto
-        $presupuestoDetalleNuevo = PresupuestoDetalle::on(Session::get('conexionBBDD'))
-                          ->where('IdPresupuesto', '=', $idPresupuesto)
+        //ahora busco las lineas del pedido
+        $pedidoDetalleNuevo = PedidoDetalle::on(Session::get('conexionBBDD'))
+                          ->where('IdPedido', '=', $idPedido)
                           ->where('Borrado', '=', '1')
                           ->get();
         
@@ -766,25 +768,27 @@ class pedidosController extends Controller {
         \DB::connection(Session::get('conexionBBDD'))->beginTransaction(); //Comienza transaccion
         try{
             //guardo el presupuesto
-            $nuevo_presupuesto->push();
+            $nuevo_pedido->push();
 
-            //ahora inserto estas lineas en la tabla presupuesotsDetalle
-            for ($i = 0; $i < count($presupuestoDetalleNuevo); $i++) {
-                $nuevoDetalle = new PresupuestoDetalle();
+            //ahora inserto estas lineas en la tabla pedidoDetalle
+            for ($i = 0; $i < count($pedidoDetalleNuevo); $i++) {
+                $nuevoDetalle = new PedidoDetalle();
                 $nuevoDetalle->setConnection(Session::get('conexionBBDD'));
-                $idNuevo = PresupuestoDetalle::on(Session::get('conexionBBDD'))
-                                             ->max('IdPresupDetalle') + 1;
+                $idNuevo = PedidoDetalle::on(Session::get('conexionBBDD'))
+                                             ->max('IdPedidoDetalle') + 1;
 
-                $nuevoDetalle->IdPresupDetalle = $idNuevo;
-                $nuevoDetalle->IdPresupuesto = $nuevo_presupuesto->IdPresupuesto;
-                $nuevoDetalle->NumLineaPresup = (int)($i +1);
-                $nuevoDetalle->IdArticulo = (isset($presupuestoDetalleNuevo[$i]->IdArticulo)) ? $presupuestoDetalleNuevo[$i]->IdArticulo : '';
-                $nuevoDetalle->DescripcionProducto = (isset($presupuestoDetalleNuevo[$i]->DescripcionProducto)) ? $presupuestoDetalleNuevo[$i]->DescripcionProducto : '';
-                $nuevoDetalle->TipoIVA = (isset($presupuestoDetalleNuevo[$i]->TipoIVA)) ? $presupuestoDetalleNuevo[$i]->TipoIVA : '';
-                $nuevoDetalle->Cantidad = (isset($presupuestoDetalleNuevo[$i]->Cantidad)) ? $presupuestoDetalleNuevo[$i]->Cantidad : '';
-                $nuevoDetalle->ImporteUnidad = (isset($presupuestoDetalleNuevo[$i]->ImporteUnidad)) ? $presupuestoDetalleNuevo[$i]->ImporteUnidad : '';
-                $nuevoDetalle->Importe = (isset($presupuestoDetalleNuevo[$i]->Importe)) ? $presupuestoDetalleNuevo[$i]->Importe : '';
-                $nuevoDetalle->CuotaIva = (isset($presupuestoDetalleNuevo[$i]->CuotaIva)) ? $presupuestoDetalleNuevo[$i]->CuotaIva : '';
+                $nuevoDetalle->IdPedidoDetalle = $idNuevo;
+                $nuevoDetalle->IdPedido = $nuevo_pedido->IdPedido;
+                $nuevoDetalle->NumLineaPedido = (int)($i +1);
+                $nuevoDetalle->IdArticulo = (isset($pedidoDetalleNuevo[$i]->IdArticulo)) ? $pedidoDetalleNuevo[$i]->IdArticulo : '';
+                $nuevoDetalle->IdPresupuesto = (isset($pedidoDetalleNuevo[$i]->IdPresupuesto)) ? $pedidoDetalleNuevo[$i]->IdPresupuesto : '';
+                $nuevoDetalle->NumLineaPresup = (isset($pedidoDetalleNuevo[$i]->NumLineaPresup)) ? $pedidoDetalleNuevo[$i]->NumLineaPresup : '';
+                $nuevoDetalle->DescripcionProducto = (isset($pedidoDetalleNuevo[$i]->DescripcionProducto)) ? $pedidoDetalleNuevo[$i]->DescripcionProducto : '';
+                $nuevoDetalle->TipoIVA = (isset($pedidoDetalleNuevo[$i]->TipoIVA)) ? $pedidoDetalleNuevo[$i]->TipoIVA : '';
+                $nuevoDetalle->Cantidad = (isset($pedidoDetalleNuevo[$i]->Cantidad)) ? $pedidoDetalleNuevo[$i]->Cantidad : '';
+                $nuevoDetalle->ImporteUnidad = (isset($pedidoDetalleNuevo[$i]->ImporteUnidad)) ? $pedidoDetalleNuevo[$i]->ImporteUnidad : '';
+                $nuevoDetalle->Importe = (isset($pedidoDetalleNuevo[$i]->Importe)) ? $pedidoDetalleNuevo[$i]->Importe : '';
+                $nuevoDetalle->CuotaIva = (isset($pedidoDetalleNuevo[$i]->CuotaIva)) ? $pedidoDetalleNuevo[$i]->CuotaIva : '';
 
                 $nuevoDetalle->save();
             }
@@ -800,12 +804,12 @@ class pedidosController extends Controller {
         \DB::connection(Session::get('conexionBBDD'))->commit();
         
 
-        //por ultimo voy al nuevo presupuesto clonado
-        return redirect('presupuestos/editar/'.$nuevo_presupuesto->IdPresupuesto);
+        //por ultimo voy al nuevo pedido clonado
+        return redirect('pedidos/editar/'.$nuevo_pedido->IdPedido);
     }
     
-    //NO
-    public function borrar($idPresupuesto){
+    
+    public function borrar($idPedido){
         //control de sesion
         $admin = new adminController();
         if (!$admin->getControl()) {
@@ -817,84 +821,83 @@ class pedidosController extends Controller {
         \DB::connection(Session::get('conexionBBDD'))->beginTransaction(); //Comienza transaccion
         try{
             //se busca este presupuesto
-            $presupuesto = Presupuesto::on(Session::get('conexionBBDD'))->find($idPresupuesto);
-            $presupuesto->Borrado = 0;
-            $presupuesto->save();
+            $pedido = Pedido::on(Session::get('conexionBBDD'))->find($idPedido);
+            $pedido->Borrado = 0;
+            $pedido->save();
 
-            //2º
-            $presupuestoDetalle = PresupuestoDetalle::on(Session::get('conexionBBDD'))
-                                 ->where('IdPresupuesto', '=', $idPresupuesto)
+            $pedidoDetalle = PedidoDetalle::on(Session::get('conexionBBDD'))
+                                 ->where('IdPedido', '=', $idPedido)
                                  ->where('Borrado', '=', '1')
                                  ->get();
 
-            foreach ($presupuestoDetalle as $detalle) {
+            foreach ($pedidoDetalle as $detalle) {
                 $detalle->Borrado = 0;
                 $detalle->save();
             }
 
-            $txt = 'Se ha borrado correctamente el presupuesto.';
+            $txt = 'Se ha borrado correctamente el pedido.';
         }
         catch(\Exception $e)
         {
           //failed logic here
            \DB::connection(Session::get('conexionBBDD'))->rollback();
            throw $e;
-           $txt = 'ERROR al borrar el presupuesto.';
+           $txt = 'ERROR al borrar el pedido.';
         }
 
         \DB::connection(Session::get('conexionBBDD'))->commit();
         
-        //por ultimo voy al nuevo presupuesto clonado
-        return redirect('presupuestos/mdb')->with('errors', json_encode($txt));
+        //por ultimo vuelvo al listado de pedidos
+        return redirect('pedidos/mdb')->with('errors', json_encode($txt));
     }
     
     
     //NO
-    public function buscar_articulos(){
-        $term = Input::get('term');
-
-        $listarArticulos = Articulo::on(Session::get('conexionBBDD'))->where('Descripcion','LIKE','%'.$term.'%')->get();
-
-        //pasarlo a JSON
-        //primero lo paso a array
-        $listar = "";
-        foreach ($listarArticulos as $articulo) {
-            $listar[] = array("value"=>$articulo->Descripcion);
-        }
-
-        //devuelvo el array en JSON
-        echo json_encode($listar);
-    }
-    
-    
-    //NO
-    public function datos_articulo(){
-        $concepto = Input::get('concepto');
-
-        $articulo = Articulo::on(Session::get('conexionBBDD'))
-                              ->where('Descripcion','=',$concepto)
-                              ->where('Borrado','=','1')
-                              ->get();
-
-        //pasarlo a JSON
+//    public function buscar_articulos(){
+//        $term = Input::get('term');
+//
+//        $listarArticulos = Articulo::on(Session::get('conexionBBDD'))->where('Descripcion','LIKE','%'.$term.'%')->get();
+//
+//        //pasarlo a JSON
 //        //primero lo paso a array
 //        $listar = "";
 //        foreach ($listarArticulos as $articulo) {
 //            $listar[] = array("value"=>$articulo->Descripcion);
 //        }
-
-        //devuelvo el array en JSON
-        echo json_encode($articulo);
-    }
-
+//
+//        //devuelvo el array en JSON
+//        echo json_encode($listar);
+//    }
+    
     
     //NO
+//    public function datos_articulo(){
+//        $concepto = Input::get('concepto');
+//
+//        $articulo = Articulo::on(Session::get('conexionBBDD'))
+//                              ->where('Descripcion','=',$concepto)
+//                              ->where('Borrado','=','1')
+//                              ->get();
+//
+//        //pasarlo a JSON
+////        //primero lo paso a array
+////        $listar = "";
+////        foreach ($listarArticulos as $articulo) {
+////            $listar[] = array("value"=>$articulo->Descripcion);
+////        }
+//
+//        //devuelvo el array en JSON
+//        echo json_encode($articulo);
+//    }
+
+
+    
     public function actualizarEstado(){
-        $IdPresupuesto = Input::get('IdPresupuesto');
+        $IdPedido = Input::get('IdPedido');
         $opcion = Input::get('opcion');
 
-        Presupuesto::on(Session::get('conexionBBDD'))
-                   ->where('IdPresupuesto','=',$IdPresupuesto)
+        Pedido::on(Session::get('conexionBBDD'))
+                   ->where('IdPedido','=',$IdPedido)
                    ->where('Borrado','=','1')
                    ->update(['Estado' => $opcion]);
         
@@ -908,8 +911,8 @@ class PDF extends baseFpdf{
 
     public $datos;
     public $cliente;
-    public $presupuesto;
-    public $presupuestoDetalle;
+    public $pedido;
+    public $pedidoDetalle;
     public $numero;
     public $accion;
 
@@ -941,7 +944,7 @@ class PDF extends baseFpdf{
         // Movernos a la derecha
         $this->Cell(150);
         // Título
-        $this->Cell(30,20,utf8_decode('PRESUPUESTO Nº ').utf8_decode($this->numero),0,0,'R');
+        $this->Cell(30,20,utf8_decode('PEDIDO Nº ').utf8_decode($this->numero),0,0,'R');
         // Salto de línea
         $this->Ln(25);
     }
@@ -955,7 +958,7 @@ class PDF extends baseFpdf{
 
         //por último los subtotales y totales
         // Posición: a 1,5 cm del final
-        $Y = -58;
+        $Y = -50;
         $this->SetY($Y);
         $altura = 6;
 
@@ -969,11 +972,11 @@ class PDF extends baseFpdf{
         $this->Ln();
         $Y = $Y + 6;
         $this->SetY($Y);
-        $this->IRPFCuota = $this->totalImporte * $this->presupuesto->Retencion / 100;
+        $this->IRPFCuota = $this->totalImporte * $this->pedido->Retencion / 100;
         $this->totalFinal = $this->totalImporte + $this->totalCuota - $this->IRPFCuota;
-        if($this->presupuesto->Retencion <> '0'){
+        if($this->pedido->Retencion <> '0'){
             $this->Cell(145-0.2, $altura, utf8_decode('Retención %'),'L','L', 'R',true);
-            $this->Cell(15, $altura, $this->presupuesto->Retencion,0,'L', 'R',true);
+            $this->Cell(15, $altura, $this->pedido->Retencion,0,'L', 'R',true);
             $this->Cell(25, $altura, $admin->formateaNumeroContabilidad($this->IRPFCuota),'R','L', 'R',true);
             $this->Ln();
             $Y = $Y + 6;
@@ -986,14 +989,14 @@ class PDF extends baseFpdf{
         $Y = $Y + 9;
         $this->SetY($Y);
     
-        //forma de pago y validez presupuesto
-        $this->SetFillColor(232,232,232);
-        $this->Cell(25, $altura, 'Forma de Pago:',0,'L', 'R');
-        $this->Cell(35, $altura, utf8_decode($this->presupuesto->FormaPago),0,'R', 'L',true);
-        $this->Cell(40, $altura, 'Vencimiento:',0,'L', 'R');
-        $this->Cell(25, $altura, \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$this->presupuesto->FechaVtoPresupuesto)->format('d/m/Y'),0,'R', 'C',true);
-        //$this->Cell(10, $altura, utf8_decode('días f.f.'),0,'L', 'L');
-        $this->Ln();
+        //forma de pago y validez pedido
+//        $this->SetFillColor(232,232,232);
+//        $this->Cell(25, $altura, 'Forma de Pago:',0,'L', 'R');
+//        $this->Cell(35, $altura, utf8_decode($this->pedido->FormaPago),0,'R', 'L',true);
+//        $this->Cell(40, $altura, 'Vencimiento:',0,'L', 'R');
+//        $this->Cell(25, $altura, \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$this->pedido->FechaVtoPedido)->format('d/m/Y'),0,'R', 'C',true);
+//        //$this->Cell(10, $altura, utf8_decode('días f.f.'),0,'L', 'L');
+//        $this->Ln();
 //        $this->Cell(25, $altura, '',0,'L', 'R');
 //        if($this->presupuesto['FormaPago'] === 'Transferencia'){
 //            $this->Cell(35, $altura, utf8_decode($this->datosPresupuesto['CC_Trans']),0,'R', 'L');
@@ -1095,5 +1098,47 @@ class PDF extends baseFpdf{
         $this->Ln();
     }
 
+    function FechasYTipoFactura()
+    {
+        $this->SetFillColor(244,244,244);
+        $this->SetDrawColor(200,200,200);
 
-}        
+        // Datos 1º Cuadro: 1 linea
+        $this->SetFont('Arial','',9);
+        $this->Cell(40, 4, utf8_decode("Fecha Pedido: "),'LT', 0, 'R',true);
+        $this->Cell(50, 4, \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$this->pedido->FechaPedido)->format('d/m/Y'),'TR', 0, 'L');
+        $this->Cell(10, 4, ' ',0,0, 0);
+        // Datos 2º Cuadro: 1 linea
+        $this->SetFont('Arial','',9);
+        $this->Cell(45, 4, utf8_decode("Tipo Factura: "),'LT', 0, 'R',true);
+        $this->Cell(40, 4, utf8_decode($this->pedido->TipoFactura),'TR', 0, 'L');
+        $this->Ln();
+        
+        // Datos 1º Cuadro: 2 linea
+        $this->SetFont('Arial','',9);
+        $this->Cell(40, 4, utf8_decode("Fecha Vencimiento: "),'L', 0, 'R',true);
+        $this->Cell(50, 4, \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$this->pedido->FechaVtoPedido)->format('d/m/Y'),'R', 0, 'L');
+        $this->Cell(10, 4, ' ',0,0, 0);
+        // Datos 2º Cuadro: 2 linea
+        $this->SetFont('Arial','',9);
+        $this->Cell(45, 4, utf8_decode("Frecuencia: "),'L', 0, 'R',true);
+        $this->Cell(40, 4, utf8_decode($this->pedido->FrecuenciaPeriodica) . '(Meses)','R', 0, 'L');
+        $this->Ln();
+        
+        // Datos 1º Cuadro: 3 linea
+        $this->SetFont('Arial','',9);
+        $this->Cell(40, 4, utf8_decode("Forma de Pago: "),'LB', 0, 'R',true);
+        $this->Cell(50, 4, utf8_decode($this->pedido->FormaPago),'BR', 0, 'L');
+        $this->Cell(10, 4, ' ',0,0, 0);
+        // Datos 2º Cuadro: 3 linea
+        $this->SetFont('Arial','',9);
+        $this->Cell(45, 4, utf8_decode("Fecha Próxima Factura: "),'LB', 0, 'R',true);
+        if($this->pedido->TipoFactura === 'Periodica'){
+            $this->Cell(40, 4, \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$this->pedido->FechaProximaFacturaPeriodica)->format('d/m/Y'),'BR', 0, 'L');
+        }else{
+            $this->Cell(40, 4, '','BR', 0, 'L');
+        }
+        $this->Ln();
+    }
+
+}

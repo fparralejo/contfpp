@@ -421,7 +421,7 @@ if($pedido === ''){//nuevo
             ?>
 
                 $("#Concepto"+linea).autocomplete({
-                    source: "{{ URL::asset('presupuestos/buscar_articulos') }}"
+                    source: "{{ URL::asset('pedidos/buscar_articulos') }}"
                 }).data( "ui-autocomplete" )._renderItem = function( ul, item ) {
                     var txt=item.value;
                     var inner_html = "<a><font color='Teal'>"+txt+"</font></a>";
@@ -483,7 +483,7 @@ if($pedido === ''){//nuevo
                     //busco si existe este articulo y me traigo sus datos
                     $.ajax({
                         data:{"concepto":concepto.value},  
-                        url: "{{ URL::asset('presupuestos/datos_articulo') }}",
+                        url: "{{ URL::asset('pedidos/datos_articulo') }}",
                         type:"get",
                         success: function(data) {
                             var datos = JSON.parse(data);
