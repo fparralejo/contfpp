@@ -672,7 +672,7 @@ class pedidosController extends Controller {
             //NO SE DEBE PONER EL CORREO AL QUE SE ENVIA, ES INCONGRUENTE 23/4/2016
             $from = $pdf->datos->email1;
             //$from = "soporte@aluminiosmarquez.esy.es";
-            $subject = $pdf->datos->identificacion.'. Presupuesto: '.$numero;
+            $subject = $pdf->datos->identificacion.'. Pedido: '.$numero;
 
             require '../resources/views/emails/phpmailer/PHPMailerAutoload.php';
             $mail = new \PHPMailer();
