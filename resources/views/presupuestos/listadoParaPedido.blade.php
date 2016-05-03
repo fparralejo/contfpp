@@ -2,8 +2,10 @@
 
 <?php
 $presupuestos = json_decode($presupuestos);
+$pedidos = json_decode($pedidos);
 $clientes = json_decode($clientes);
 
+//dd($pedidos);
 ?>
 
 @section('principal')
@@ -188,16 +190,34 @@ function actualizarEstadoPresupuesto(IdPresupuesto,opcion){
     //carga los datos en el formulario para editarlos
     //$url="javascript:leerCliente(".$presupuesto->IdPresupuesto.");";
     $url="";
+    if($presupuesto->Pedido === 'P'){
+        //busco los pedidos hechos de este presupuesto
+        $sumaTotal = 0;
+        for ($ii = 0; $ii < count($pedidos); $ii++) {
+            if((int)$pedidos[$ii]->IdPresupuesto === $presupuesto->IdPresupuesto){
+                $sumaTotal = $sumaTotal + $pedidos[$ii]->total;
+            }
+        }
+        $total = $presupuesto->total - $sumaTotal;
+    }else{
+        $total = $presupuesto->total;
+    }
     ?>
         <tr>
             <td class="sgsiRow" onClick="{{ $url }}" style="text-align: right;">{{ $presupuesto->NumPresupuesto }}</td>
             <td class="sgsiRow" onClick="{{ $url }}">{{ $txtCliente }}</td>
             <td class="sgsiRow" onClick="{{ $url }}">{{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$presupuesto->FechaPresupuesto)->format('d/m/Y') }}</td>
-            <td class="sgsiRow" style="text-align: right;" onClick="{{ $url }}">{{ number_format($presupuesto->total, 2, ',', '.') }}</td>
-            <td class="sgsiRow" onClick="{{ $url }}"><?php echo $htmlEstado; ?></td>
+            <td class="sgsiRow" style="text-align: right;" onClick="{{ $url }}">{{ number_format($total, 2, ',', '.') }}</td>
+            @if($presupuesto->Pedido !== 'T')
+                <td class="sgsiRow" onClick="{{ $url }}"><?php echo $htmlEstado; ?></td>
+            @else
+                <td class="sgsiRow" onClick="{{ $url }}">{{ $presupuesto->Estado }}</td>
+            @endif
             <td id="tdAccion{{ $presupuesto->IdPresupuesto }}">
                 @if($presupuesto->Estado === 'Aceptado')
-                <button type="button" onclick="prepararPedido({{ $presupuesto->IdPresupuesto }})" class="btn btn-xs btn-success">Preparar Pedido</button>
+                    @if($presupuesto->Pedido !== 'T')
+                    <button type="button" onclick="prepararPedido({{ $presupuesto->IdPresupuesto }})" class="btn btn-xs btn-success">Preparar Pedido</button>
+                    @endif
                 @endif
             </td>
         </tr>

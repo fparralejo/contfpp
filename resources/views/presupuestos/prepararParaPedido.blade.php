@@ -9,7 +9,7 @@ $presupuestoDetalle = json_decode($presupuestoDetalle);
 $numero = json_decode($numero);
 $editarCampoNumero = json_decode($editarCampoNumero);
 
-//var_dump($clientes);die;
+//dd($presupuestoDetalle);die;
 
 $fechaHoy = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$presupuesto->FechaPresupuesto)->format('d/m/Y');
 $fechaVtoPresupuesto = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$presupuesto->FechaVtoPresupuesto)->format('d/m/Y');
@@ -242,6 +242,8 @@ $FrecuenciaPeriodica = 1;
                                                     '<small class="help-block text-danger">Debe rellenar el concepto</small>'+
                                                 '</div>'+
                                                 '<input type="hidden" id="IdArticulo'+linea+'" name="IdArticulo'+linea+'" value="null"/>'+
+                                                '<input type="hidden" id="IdPresupuesto'+linea+'" name="IdPresupuesto'+linea+'" value="null"/>'+
+                                                '<input type="hidden" id="NumLineaPresup'+linea+'" name="NumLineaPresup'+linea+'" value="null"/>'+
                                             '</div>'+
                                         '</div>'+
                                         '<div class="col-md-1">'+
@@ -320,71 +322,48 @@ $FrecuenciaPeriodica = 1;
             
         }
         
-//REVISAAR 2/5/2016       
-//sumas de los importes, cuotas y totales
-function sumas(){
-    
-    var importeTotal=0;
-    var cuotaTotal=0;
-    var total=0;
-    //$(document).ready(function(){
-        $('#presupuestoForm').find("input[type=checkbox]").each(function(){
-            var elemento=this;
-            //comprobamos el nombre del elemento y lo guardamos en ua array segun sea cantidad, precio, importe y concepto
-            var nombreElemento=elemento.name;
-            
-            if(document.getElementById(nombreElemento).checked){//comprobación del check
-                //sumo el importe
-                var nombreImporte='Importe'+nombreElemento.substring(5);
-                importeTotal=parseFloat(importeTotal)+parseFloat(document.getElementById(nombreImporte).value);
-                //sumo la cuota
-                var nombreCuota='Cuota'+nombreElemento.substring(5);
-                cuotaTotal=parseFloat(cuotaTotal)+parseFloat(document.getElementById(nombreCuota).value);
-            }    
-            
-            
-            
-//            //comprobamos que el check este checked, sino no suma
-//            if(nombreElemento.substring(0,7)==='Importe'){//es un elemento importe
-//                var nombreCheck='check'+nombreElemento.substring(7);
-//            }            
-//            if(nombreElemento.substring(0,5)==='Cuota'){//es un elemento cuota
-//                var nombreCheck='check'+nombreElemento.substring(5);
-//                if(document.getElementById(nombreCheck).checked){//comprobación del check
-//                    cuotaTotal=parseFloat(cuotaTotal)+parseFloat((elemento.value));
-//                }
-//            }
-        });
-    //});
-    
-    importeTotal=parseFloat(importeTotal).toFixed(2);
-    cuotaTotal=parseFloat(cuotaTotal).toFixed(2);
-    
-    total=parseFloat(importeTotal)+parseFloat(cuotaTotal);
-    total=parseFloat(total).toFixed(2);
-        
-    importeTotal=(importeTotal.toString());
-    document.presupuestoForm.totalImporte.value=importeTotal;
-        
-    cuotaTotal=(cuotaTotal.toString());
-    document.presupuestoForm.totalCuota.value=cuotaTotal;
-        
-    total=(total.toString());
-    document.presupuestoForm.Total.value=total;
-    
-    //irpf
-    //facturaCalculoIRPF(document.form1.totalImporte,document.form1.total,document.form1.irpf,document.form1.IRPFcuota,document.form1.totalFinal);
-}
+       
+        //sumas de los importes, cuotas y totales
+        function sumas(){
+
+            var importeTotal=0;
+            var cuotaTotal=0;
+            var total=0;
+
+            $('#presupuestoForm').find("input[type=checkbox]").each(function(){
+                var elemento=this;
+                //comprobamos el nombre del elemento y lo guardamos en ua array segun sea cantidad, precio, importe y concepto
+                var nombreElemento=elemento.name;
+
+                if(document.getElementById(nombreElemento).checked){//comprobación del check
+                    //sumo el importe
+                    var nombreImporte='Importe'+nombreElemento.substring(5);
+                    importeTotal=parseFloat(importeTotal)+parseFloat(document.getElementById(nombreImporte).value);
+                    //sumo la cuota
+                    var nombreCuota='Cuota'+nombreElemento.substring(5);
+                    cuotaTotal=parseFloat(cuotaTotal)+parseFloat(document.getElementById(nombreCuota).value);
+                }    
+            });
+
+            importeTotal=parseFloat(importeTotal).toFixed(2);
+            cuotaTotal=parseFloat(cuotaTotal).toFixed(2);
+
+            total=parseFloat(importeTotal)+parseFloat(cuotaTotal);
+            total=parseFloat(total).toFixed(2);
+
+            importeTotal=(importeTotal.toString());
+            document.presupuestoForm.totalImporte.value=importeTotal;
+
+            cuotaTotal=(cuotaTotal.toString());
+            document.presupuestoForm.totalCuota.value=cuotaTotal;
+
+            total=(total.toString());
+            document.presupuestoForm.Total.value=total;
+        }
         
         
         
         
-//        function borrarLinea(linea){
-//            alert('eehhohh');
-////            $("#linea"+linea).remove();
-////            sumasPresupuesto();
-////            calculoIRPF();
-//        }
         
         function formatear(objeto){
             objeto.value = parseFloat(objeto.value).toFixed(2);
@@ -495,6 +474,8 @@ function sumas(){
                 $('#Cantidad'+lineaAux).val(parseFloat(<?php echo $presupuestoDetalle[$i]->Cantidad; ?>).toFixed(2));
                 $('#Concepto'+lineaAux).val('<?php echo $presupuestoDetalle[$i]->DescripcionProducto; ?>');
                 $('#IdArticulo'+lineaAux).val('<?php echo $presupuestoDetalle[$i]->IdArticulo; ?>');
+                $('#IdPresupuesto'+lineaAux).val('<?php echo $presupuestoDetalle[$i]->IdPresupuesto; ?>');
+                $('#NumLineaPresup'+lineaAux).val('<?php echo $presupuestoDetalle[$i]->NumLineaPresup; ?>');
                 $('#Precio'+lineaAux).val(parseFloat(<?php echo $presupuestoDetalle[$i]->ImporteUnidad; ?>).toFixed(2));
                 $('#Importe'+lineaAux).val(parseFloat(<?php echo $presupuestoDetalle[$i]->Importe; ?>).toFixed(2));
                 $('#IVA'+lineaAux).val(parseFloat(<?php echo $presupuestoDetalle[$i]->TipoIVA; ?>).toFixed(2));
