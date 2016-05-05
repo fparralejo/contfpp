@@ -208,7 +208,7 @@ function actualizarEstadoPresupuesto(IdPresupuesto,opcion){
             <td class="sgsiRow" onClick="{{ $url }}">{{ $txtCliente }}</td>
             <td class="sgsiRow" onClick="{{ $url }}">{{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$presupuesto->FechaPresupuesto)->format('d/m/Y') }}</td>
             <td class="sgsiRow" style="text-align: right;" onClick="{{ $url }}">{{ number_format($total, 2, ',', '.') }}</td>
-            @if($presupuesto->Pedido !== 'T')
+            @if($presupuesto->Pedido === 'NP')
                 <td class="sgsiRow" onClick="{{ $url }}"><?php echo $htmlEstado; ?></td>
             @else
                 <td class="sgsiRow" onClick="{{ $url }}">{{ $presupuesto->Estado }}</td>
