@@ -272,7 +272,8 @@ class adminController extends Controller {
     private function nuevoNumero2($ejercicio,$num){
         //sumo 1 al $num
         $num = (int)$num + 1;
-        return $ejercicio.$num;
+        $resultado = date('Y').$num;
+        return $resultado;
     }
     
     private function nuevoNumero3($ejercicio,$num){
