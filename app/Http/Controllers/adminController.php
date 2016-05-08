@@ -184,7 +184,7 @@ class adminController extends Controller {
     
     //Simple, numeracion seguida
     private function forNum2($numero){
-        //el numero viene 201600001, las 4 primeras cifras son el año, las quito y quito los 0 que haya delante
+        //el numero viene 20161, las 4 primeras cifras son el año, el resto es el numero
         $respuesta = substr($numero,4);
         $respuesta = $this->quitarCerosDelante($respuesta);
         return $respuesta;
@@ -192,7 +192,7 @@ class adminController extends Controller {
     
     //Compuesto Número/Año
     private function forNum3($numero){
-        //el numero viene 201600001, las 4 primeras cifras son el año, lo cojo como ejercicio y quito los 0 que haya delante
+        //el numero viene 20161, las 4 primeras cifras son el año, el resto es el numero
         $ejercicio = substr($numero,0,4);
         $num = substr($numero,4);
         $num = $this->quitarCerosDelante($num);
@@ -201,16 +201,65 @@ class adminController extends Controller {
     
     //Compuesto Año/Número
     private function forNum4($numero){
-        //el numero viene 201600001, las 4 primeras cifras son el año, lo cojo como ejercicio y quito los 0 que haya delante
+        //el numero viene 20161, las 4 primeras cifras son el año, el resto es el numero
         $ejercicio = substr($numero,0,4);
         $num = substr($numero,4);
         $num = $this->quitarCerosDelante($num);
         return $ejercicio.'/'.$num;
     }
     
+    public function formatearNumeroOrdenar($numero,$TipoContador){
+        //decido que tipo de contador es
+        //genero el nombre de la funcion poniendo "forNum".$TipoContador, que es un numero 
+        $txtFuncion = "forNum".$TipoContador."Ordenar";
+        //la llamada la hago asi
+        return $this->$txtFuncion($numero);
+    }
+
+    //Libre, solo debes comprobar que no se repita **SIN HACER
+    private function forNum1Ordenar($numero){
+        $respuesta = $numero;
+//        $respuesta = $this->quitarCerosDelante($respuesta);
+        return $respuesta;
+    }
+    
+    //Simple, numeracion seguida
+    private function forNum2Ordenar($numero){
+        //el numero viene 20161, las 4 primeras cifras son el año, pongo el resto de 0 delante hasta que la cifra tenga 10 digitos
+        $respuesta = substr($numero,4);
+        $respuesta = $this->ponerCerosDelante10digitos($respuesta);
+        return $respuesta;
+    }
+    
+    //Compuesto Número/Año
+    private function forNum3Ordenar($numero){
+        //el numero viene 20161, las 4 primeras cifras son el año, pongo el resto de 0 delante hasta que la cifra tenga 10 digitos
+        $ejercicio = substr($numero,0,4);
+        $respuesta = substr($numero,4);
+        $respuesta = $ejercicio.$this->ponerCerosDelante10digitos($respuesta);
+        return $respuesta;
+    }
+    
+    //Compuesto Año/Número
+    private function forNum4Ordenar($numero){
+        //el numero viene 20161, las 4 primeras cifras son el año, pongo el resto de 0 delante hasta que la cifra tenga 10 digitos
+        $ejercicio = substr($numero,0,4);
+        $respuesta = substr($numero,4);
+        $respuesta = $ejercicio.$this->ponerCerosDelante10digitos($respuesta);
+        return $respuesta;
+    }
+    
+    
     private function quitarCerosDelante($numero){
         while(substr($numero,0,1) === '0'){
             $numero = substr($numero,1);
+        }
+        return $numero;
+    }
+    
+    private function ponerCerosDelante10digitos($numero){
+        while(strlen($numero) < 10){
+            $numero = '0' . $numero;
         }
         return $numero;
     }

@@ -210,8 +210,8 @@ function actualizarEstadoPedido(IdPedido,opcion){
     $url="";
     ?>
         <tr>
-            <td class="sgsiRow" onClick="{{ $url }}" style="text-align: right;">{{ $pedido->NumPedido }}</td>
-            <td class="sgsiRow" onClick="{{ $url }}" style="text-align: right;">{{ $numPresupuesto }}</td>
+            <td class="sgsiRow" onClick="{{ $url }}" style="text-align: right;"><?php echo $pedido->NumPedido; ?></td>
+            <td class="sgsiRow" onClick="{{ $url }}" style="text-align: right;"><?php echo $numPresupuesto; ?></td>
             <td class="sgsiRow" onClick="{{ $url }}">{{ $txtCliente }}</td>
             <td class="sgsiRow" onClick="{{ $url }}">{{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$pedido->FechaPedido)->format('d/m/Y') }}</td>
             <td class="sgsiRow" style="text-align: right;" onClick="{{ $url }}">{{ number_format($pedido->total, 2, ',', '.') }}</td>

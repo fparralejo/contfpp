@@ -153,6 +153,7 @@ function actualizarEstadoPresupuesto(IdPresupuesto,opcion){
     </thead>
     <tbody>
     @foreach ($presupuestos as $presupuesto)
+    @if($presupuesto->Pedido !== 'T')
     <?php
     //cliente
     $txtCliente = '';
@@ -204,7 +205,7 @@ function actualizarEstadoPresupuesto(IdPresupuesto,opcion){
     }
     ?>
         <tr>
-            <td class="sgsiRow" onClick="{{ $url }}" style="text-align: right;">{{ $presupuesto->NumPresupuesto }}</td>
+            <td class="sgsiRow" onClick="{{ $url }}" style="text-align: right;"><?php echo $presupuesto->NumPresupuesto; ?></td>
             <td class="sgsiRow" onClick="{{ $url }}">{{ $txtCliente }}</td>
             <td class="sgsiRow" onClick="{{ $url }}">{{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$presupuesto->FechaPresupuesto)->format('d/m/Y') }}</td>
             <td class="sgsiRow" style="text-align: right;" onClick="{{ $url }}">{{ number_format($total, 2, ',', '.') }}</td>
@@ -221,6 +222,7 @@ function actualizarEstadoPresupuesto(IdPresupuesto,opcion){
                 @endif
             </td>
         </tr>
+    @endif
     @endforeach
     </tbody>
 </table>

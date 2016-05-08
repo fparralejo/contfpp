@@ -195,12 +195,12 @@ $FrecuenciaPeriodica = 1;
 
 
     <div class="col-md-12 col-lg-12 col-sm-12" id="groupAddConcepto">
-        <div class="form-group">
+<!--        <div class="form-group">
             <input type="button" id="" class="btn btn-xs btn-default" value="Añadir Concepto" onclick="addConcepto($('#numLinea').val());">
         </div>
         <div class="alert alert-dander" role="alert" style="display: none;" id="txtAddConcepto">
             <small class="help-block text-danger">Debe introducidir alguna línea en el presupuesto</small>
-        </div>
+        </div>-->
     </div>
     
     <br/>

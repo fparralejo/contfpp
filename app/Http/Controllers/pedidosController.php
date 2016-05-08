@@ -186,11 +186,15 @@ class pedidosController extends Controller {
                           ->get();
         
         for ($i = 0; $i < count($pedidos); $i++) {
-            $pedidos[$i]->NumPedido = $admin->formatearNumero($pedidos[$i]->NumPedido,$datos->TipoContador);
+            $numero = $admin->formatearNumero($pedidos[$i]->NumPedido,$datos->TipoContador);
+            $numeroOrdenar = $admin->formatearNumeroOrdenar($pedidos[$i]->NumPedido,$datos->TipoContador);
+            $pedidos[$i]->NumPedido = "<!--" . $numeroOrdenar . "-->" . $numero;
         }
 
         for ($i = 0; $i < count($presupuestos); $i++) {
-            $presupuestos[$i]->NumPresupuesto = $admin->formatearNumero($presupuestos[$i]->NumPresupuesto,$datos->TipoContador);
+            $numero = $admin->formatearNumero($presupuestos[$i]->NumPresupuesto,$datos->TipoContador);
+            $numeroOrdenar = $admin->formatearNumeroOrdenar($presupuestos[$i]->NumPresupuesto,$datos->TipoContador);
+            $presupuestos[$i]->NumPresupuesto = "<!--" . $numeroOrdenar . "-->" . $numero;
         }
 
         return view('pedidos.listado')->with('pedidos', json_encode($pedidos))->with('presupuestos', json_encode($presupuestos))->with('clientes', json_encode($clientes));
@@ -206,6 +210,10 @@ class pedidosController extends Controller {
         //1º inserto o actualizo los datos de la tabla pedidos por el IdPedido
         //2º si edito, borro los datos de la tabla pedidosdetalle por el IdPedido (campo Borrado=0)
         //3º inserto los nuevos detalles con el IdPedido
+        //4º compruebo si este pedido se genero de un presupuesto
+        //5º si es asi, extraigo los datos del presupuesto y extraigo los datos de los pedidos que tengan este presupuesto 
+        //   (ademas de este pedido, puede haber otros pedidos con este presupuesto) y los comparo
+        //6º e indico en el campo de la tabla presupuesto.Pedido=P o T
         
         \DB::connection(Session::get('conexionBBDD'))->beginTransaction(); //Comienza transaccion
         
@@ -381,10 +389,51 @@ class pedidosController extends Controller {
                 $nuevoDetalle->Importe = (isset($pedidoDetalleNuevo[$i]['Importe'])) ? $pedidoDetalleNuevo[$i]['Importe'] : '';
                 $nuevoDetalle->CuotaIva = (isset($pedidoDetalleNuevo[$i]['Cuota'])) ? $pedidoDetalleNuevo[$i]['Cuota'] : '';
 
-                
-                
                 $nuevoDetalle->save();
-
+            }
+            
+            //4º
+            //veo si exiten presupuesto a este pedido
+            if($pedido->IdPresupuesto !== ''){
+                //5º
+                //extraigo el presupuesto
+                $presupuestoDetalle = PresupuestoDetalle::on(Session::get('conexionBBDD'))
+                                     ->where('IdPresupuesto', '=', $pedido->IdPresupuesto)
+                                     ->where('Borrado', '=', '1')
+                                     ->get();
+                
+                //ahora extraigo todos los pedidos
+                $pedidosDetalle = PedidoDetalle::on(Session::get('conexionBBDD'))
+                                     ->where('IdPresupuesto', '=', $pedido->IdPresupuesto)
+                                     ->where('Borrado', '=', '1')
+                                     ->get();
+                
+                
+                //hago la comparacion, mientras el resultado de la resta <=0 dicha comparacion este valor sera T (Total)
+                //en cuento un valor salga > 0, la suma de los pedidos no son toda la factura, por lo que es P, y ya corto el resto de la comparacion
+                $comparacion = '';
+                foreach ($pedidosDetalle as $linea) {
+                    for ($i = 0; $i < count($presupuestoDetalle); $i++) {
+                        if($presupuestoDetalle[$i]->NumLineaPresup === (int)$linea['NumLineaPresup']){
+                            //resto
+                            $presupuestoDetalle[$i]->Cantidad = $presupuestoDetalle[$i]->Cantidad - (float)$linea['Cantidad'];
+                            $presupuestoDetalle[$i]->Importe = $presupuestoDetalle[$i]->Importe - (float)$linea['Importe'];
+                            $comparacion = ($presupuestoDetalle[$i]->Importe === 0) ? 'T' : 'P';
+                            $presupuestoDetalle[$i]->CuotaIva = round($presupuestoDetalle[$i]->Importe * (float)$linea['IVA'] / 100, 2);
+                            break;
+                        }
+                        if($comparacion === 'P'){
+                            break;
+                        }
+                    }
+                }
+                
+                //6º
+                //indico en el campo de la tabla presupuesto.Pedido=el valor de $comparacion
+                Presupuesto::on(Session::get('conexionBBDD'))
+                            ->where('IdPresupuesto', '=', $pedido->IdPresupuesto)
+                            ->update(['Pedido' => $comparacion]);
+                
             }
         }
         catch(\Exception $e)
