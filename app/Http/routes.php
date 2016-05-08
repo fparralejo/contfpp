@@ -43,6 +43,18 @@ Route::get('articulo/show', 'articulosController@articuloShow');
 Route::get('articulo/delete', 'articulosController@articuloDelete');
 
 
+//bbdd
+Route::get('bbdd/exportar', function () {
+    return view('construccion');
+});
+Route::get('bbdd/importar', function () {
+    return view('construccion');
+});
+Route::get('bbdd/corregir', function () {
+    return view('construccion');
+});
+
+
 
 //presupuestos
 Route::get('presupuestos/alta', 'presupuestosController@alta');
@@ -112,6 +124,23 @@ Route::get('facturas/mdb', function () {
 Route::get('facturas/cobrar_facturas', function () {
     return view('construccion');
 });
+
+
+
+
+
+//albaranes
+Route::get('albaranes/alta', function () {
+    return view('construccion');
+});
+Route::get('albaranes/mdb', function () {
+    return view('construccion');
+});
+Route::get('fact_alb', function () {
+    return view('construccion');
+});
+
+
 
 
 /*

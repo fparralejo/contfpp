@@ -116,32 +116,40 @@ class adminController extends Controller {
             return redirect('/')->with('login_errors', 'Datos incorrectos.');
         }        
         
-        //ahora busco en la tabla usuarios
-        $usuario = Usuario::on($empresa[0]->conexionBBDD)
-                          ->where('usuario', '=', $request->usuario)
-                          ->where('password', '=', $request->passUsuario)
-                          ->get();
+        //por si no existe la BBDD creada
+        try{
+            
+            //ahora busco en la tabla usuarios
+            $usuario = Usuario::on($empresa[0]->conexionBBDD)
+                              ->where('usuario', '=', $request->usuario)
+                              ->where('password', '=', $request->passUsuario)
+                              ->get();
+
+            //var_dump($usuario[0]->usuario);die;
+
+            if (count($usuario) > 0) {
+                //extraigo nombre y apellidos del usuario
+                $empleado = Empleado::on($empresa[0]->conexionBBDD)
+                                    ->where('IdEmpleado', '=',$usuario[0]->IdEmpleado)
+                                    ->get();
+
+                //guardo las vbles de sesion para navegar por la app
+                Session::put('usuario', $usuario[0]->usuario);
+                Session::put('nombre_apellidos', $empleado[0]->nombre . ' ' . $empleado[0]->apellidos);
+                Session::put('empresa', $empresa[0]->identificacion);//BORRAR
+                Session::put('IdEmpresa', $empresa[0]->IdEmpresa);
+                Session::put('conexionBBDD', $empresa[0]->conexionBBDD);
+
+
+                return redirect('main');
+            } else {
+                return redirect('/')->with('login_errors', 'Datos incorrectos.');
+            }
         
-        //var_dump($usuario[0]->usuario);die;
-
-        if (count($usuario) > 0) {
-            //extraigo nombre y apellidos del usuario
-            $empleado = Empleado::on($empresa[0]->conexionBBDD)
-                                ->where('IdEmpleado', '=',$usuario[0]->IdEmpleado)
-                                ->get();
-            
-            //guardo las vbles de sesion para navegar por la app
-            Session::put('usuario', $usuario[0]->usuario);
-            Session::put('nombre_apellidos', $empleado[0]->nombre . ' ' . $empleado[0]->apellidos);
-            Session::put('empresa', $empresa[0]->identificacion);//BORRAR
-            Session::put('IdEmpresa', $empresa[0]->IdEmpresa);
-            Session::put('conexionBBDD', $empresa[0]->conexionBBDD);
-            
-
-            return redirect('main');
-        } else {
+        } catch (PDOException $ex) {//NO CAPTURA NADA PERO BUENO, ES ERROR DE QUE NO EXISTA LA BBDD 8/5/2016
             return redirect('/')->with('login_errors', 'Datos incorrectos.');
         }
+        
     }
 
     public function logout() {

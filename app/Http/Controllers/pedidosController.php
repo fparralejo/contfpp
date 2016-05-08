@@ -418,7 +418,7 @@ class pedidosController extends Controller {
                             //resto
                             $presupuestoDetalle[$i]->Cantidad = $presupuestoDetalle[$i]->Cantidad - (float)$linea['Cantidad'];
                             $presupuestoDetalle[$i]->Importe = $presupuestoDetalle[$i]->Importe - (float)$linea['Importe'];
-                            $comparacion = ($presupuestoDetalle[$i]->Importe === 0) ? 'T' : 'P';
+                            $comparacion = ($presupuestoDetalle[$i]->Importe <= 0) ? 'T' : 'P';
                             $presupuestoDetalle[$i]->CuotaIva = round($presupuestoDetalle[$i]->Importe * (float)$linea['IVA'] / 100, 2);
                             break;
                         }

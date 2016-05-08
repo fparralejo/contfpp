@@ -106,6 +106,20 @@ return [
             'engine' => null,
         ],
         
+        'contfpp_empresa2' => [
+            'driver' => 'mysql',
+            'host' => env('CONTFPP_E2_HOST', 'localhost'),
+            'port' => env('CONTFPP_E2_PORT', '3306'),
+            'database' => env('CONTFPP_E2_DATABASE', 'forge'),
+            'username' => env('CONTFPP_E2_USERNAME', 'forge'),
+            'password' => env('CONTFPP_E2_PASSWORD', ''),
+            'charset' => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => null,
+        ],
+        
     ],
 
     /*
