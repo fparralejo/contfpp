@@ -599,7 +599,7 @@ if($presupuesto === ''){//nuevo
                     <div class="form-group">
                         <label for="Retencion">Retención</label>
                         <input type="number" step="any" class="form-control" style="text-align:right;" id="Retencion" name="Retencion" 
-                               onblur="calculoIRPF();" value="{{ $IRPF }}">
+                               onblur="calculoIRPF();" onchange="DesactivaImprimir();" value="{{ $IRPF }}">
                     </div>
                 </div>
                 <div class="col-md-1">

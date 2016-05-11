@@ -202,6 +202,10 @@ function solonumerosNeg(e)
 }
 
 //sumas de los importes, cuotas y totales
+function sumasFactura(){
+    sumas("facturaForm");
+}
+
 function sumasPresupuesto(){
     sumas("presupuestoForm");
 }

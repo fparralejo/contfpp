@@ -4,29 +4,29 @@
 //decodifico los datos JSON
 $clientes = json_decode($clientes);
 $datos = json_decode($datos);
-$pedido = json_decode($pedido);
-$pedidoDetalle = json_decode($pedidoDetalle);
+$factura = json_decode($factura);
+$facturaDetalle = json_decode($facturaDetalle);
 $numero = json_decode($numero);
 $editarCampoNumero = json_decode($editarCampoNumero);
 
 //var_dump($clientes);die;
 
 //averiguo si estamos editando o es nuevo
-if($pedido === ''){//nuevo
+if($factura === ''){//nuevo
     setlocale(LC_ALL, "es_ES");
     $fechaHoy = strftime("%d/%m/%Y");
-    $fechaVtoPedido = strftime("%d/%m/%Y");
-    $FechaProximaFacturaPeriodica = strftime("%d/%m/%Y");
-    $idPedido = '';
+    $fechaVtoFactura = strftime("%d/%m/%Y");
+//    $FechaProximaFacturaPeriodica = strftime("%d/%m/%Y");
+    $idFactura = '';
     $idPresupuesto = '';
-    $FrecuenciaPeriodica = '';
+    $idPedido = '';
 }else{//editar
-    $fechaHoy = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$pedido->FechaPedido)->format('d/m/Y');
-    $fechaVtoPedido = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$pedido->FechaVtoPedido)->format('d/m/Y');
-    $FechaProximaFacturaPeriodica = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$pedido->FechaProximaFacturaPeriodica)->format('d/m/Y');
-    $idPedido = $pedido->IdPedido;
-    $idPresupuesto = $pedido->IdPresupuesto;
-    $FrecuenciaPeriodica = $pedido->FrecuenciaPeriodica;
+    $fechaHoy = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$factura->FechaFactura)->format('d/m/Y');
+    $fechaVtoFactura = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$factura->FechaVtoFactura)->format('d/m/Y');
+//    $FechaProximaFacturaPeriodica = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$pedido->FechaProximaFacturaPeriodica)->format('d/m/Y');
+    $idFactura = $factura->IdFactura;
+    $idPresupuesto = $factura->IdPresupuesto;
+    $idPedido = $factura->IdPedido;
 }
 
 
@@ -35,7 +35,7 @@ if($pedido === ''){//nuevo
 ?>
 
 @section('principal')
-<h4><span>Pedido</span></h4>
+<h4><span>Factura</span></h4>
 <br/>
 
 <script>
@@ -64,8 +64,8 @@ if($pedido === ''){//nuevo
     }
 </style>
 
-<form role="form" class="form-horizontal" id="pedidoForm" name="pedidoForm" 
-      action="{{ URL::asset('pedidos/createEdit') }}" method="post">
+<form role="form" class="form-horizontal" id="facturaForm" name="facturaForm" 
+      action="{{ URL::asset('facturas/createEdit') }}" method="post">
     <!-- CSRF Token -->
     <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
@@ -79,15 +79,16 @@ if($pedido === ''){//nuevo
         </div>
         <div class="col-md-5 col-lg-5 col-sm-5">
             <div class="form-group" id="groupNumPedido">
-                <label class="col-md-6 control-label" for="identificacion">Pedido Nº:</label>
+                <label class="col-md-6 control-label" for="identificacion">Factura Nº:</label>
                 <div class="col-md-6">
-                    <input type="text" class="form-control" id="numPedido" name="numPedido" style="text-align:right;"
-                           maxlength="50" required="true" value="{{ $numero }}" onkeypress="limpiar('groupNumPedido','txtValidarNumPedido');" 
-                           onblur="validar(this,'groupNumPedido','txtValidarNumPedido');" <?php if($editarCampoNumero[0]->editar === 'NO'){echo 'readonly';} ?> >
-                    <input type="hidden" id="IdPedido" name="IdPedido" value="{{ $idPedido }}">
+                    <input type="text" class="form-control" id="numFactura" name="numFactura" style="text-align:right;"
+                           maxlength="50" required="true" value="{{ $numero }}" onkeypress="limpiar('groupNumFactura','txtValidarNumFactura');" 
+                           onblur="validar(this,'groupNumFactura','txtValidarNumFactura');" <?php if($editarCampoNumero[0]->editar === 'NO'){echo 'readonly';} ?> >
+                    <input type="hidden" id="IdFactura" name="IdFactura" value="{{ $idFactura }}">
                     <input type="hidden" id="IdPresupuesto" name="IdPresupuesto" value="{{ $idPresupuesto }}">
+                    <input type="hidden" id="IdPedido" name="IdPresupuesto" value="{{ $idPedido }}">
                 </div>
-                <div class="alert alert-dander" role="alert" style="display: none; text-align: right;" id="txtValidarNumPedido">
+                <div class="alert alert-dander" role="alert" style="display: none; text-align: right;" id="txtValidarNumFactura">
                     <small class="help-block text-danger">Debes introducir un número</small>
                 </div>
             </div>
@@ -113,7 +114,7 @@ if($pedido === ''){//nuevo
             </div>
             <div class="form-group">
                 <label class="col-md-12">{{ $datos->municipio }},&nbsp;&nbsp; 
-                    <input type="text" id="fechaPedido" name="fechaPedido" value="{{ $fechaHoy }}" onchange="DesactivaImprimir();" size="7" style="border-color: #FFF;border-width:0;" />
+                    <input type="text" id="fechaFactura" name="fechaFactura" value="{{ $fechaHoy }}" onchange="DesactivaImprimir();" size="7" style="border-color: #FFF;border-width:0;" />
                 </label>
                 <script language="JavaScript">
 //                    NO FUNCIONA
@@ -136,7 +137,7 @@ if($pedido === ''){//nuevo
 //                       $.datepicker.setDefaults($.datepicker.regional['es']);
 //                    });
 
-                    $("#fechaPedido").datepicker({
+                    $("#fechaFactura").datepicker({
                         format: 'dd/mm/yyyy',
                         changeMonth: true,
                         changeYear: true
@@ -194,104 +195,6 @@ if($pedido === ''){//nuevo
     </div>
     <hr style="border: 1px solid #0044cc;"/>
 
-    <div class="row">
-        <div class="col-md-4 col-lg-4 col-sm-4 thumbnail">
-            
-            <div class="form-group">
-                <label class="col-md-4 control-label" for="FechaPedido">Fecha:</label>
-                <div class="col-md-8">
-                    <input type="text" class="form-control" id="FechaPedido" name="FechaPedido" style="text-align:right;"
-                           required="true" value="{{ $fechaHoy }}" onchange="DesactivaImprimir();">
-                    <script language="JavaScript">
-                    $("#FechaPedido").datepicker({
-                        format: 'dd/mm/yyyy',
-                        changeMonth: true,
-                        changeYear: true
-                    });
-                    </script>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="col-md-4 control-label" for="FechaVtoPedido">Vencimiento:</label>
-                <div class="col-md-8">
-                    <input type="text" class="form-control" id="FechaVtoPedido" name="FechaVtoPedido" style="text-align:right;"
-                           required="true" value="{{ $fechaVtoPedido }}" onchange="DesactivaImprimir();">
-                    <script language="JavaScript">
-                    $("#FechaVtoPedido").datepicker({
-                        format: 'dd/mm/yyyy',
-                        changeMonth: true,
-                        changeYear: true
-                    });
-                    </script>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="col-md-4 control-label" for="FormaPago">Forma Pago:</label>
-                <div class="col-md-8">
-                    <select class="form-control" id="FormaPago" name="FormaPago" onchange="DesactivaImprimir();">
-                        <option value=""></option>
-                        <option value="Contado">Contado</option>
-                        <option value="Pagare">Pagaré</option>
-                        <option value="Recibo">Recibo</option>
-                        <option value="Talon">Talón</option>
-                        <option value="Transferencia">Transferencia</option>
-                    </select>
-                </div>
-            </div>
-            
-        </div>
-        <div class="col-md-3 col-lg-3 col-sm-3">
-        </div>
-        <div class="col-md-5 col-lg-5 col-sm-5 thumbnail">
-            
-            <label class="col-lg-12 col-sm-12 col-md-12" style="text-align: center;">Tipo Factura</label>
-            
-            <div class="radio-inline" style="alignment-adjust: central;">
-                <div class="col-lg-3 col-sm-1 col-md-4"></div>
-                <div class="col-lg-5 col-sm-5 col-md-5">
-                    <label class="control-label"><input type="radio" id="TipoFacturaPU" name="TipoFactura" value="Puntual" checked>Puntual</label>
-                </div>
-                <div class="col-lg-3 col-sm-3 col-md-3">
-                    <label class="control-label"><input type="radio" id="TipoFacturaPE" name="TipoFactura" value="Periodica">Periódica</label>
-                </div>
-            </div>
-            
-            <hr/>
-            
-            <div class="form-group" id="groupFrecuenciaPeriodica">
-                <label class="col-md-6 control-label" for="FrecuenciaPeriodica">Frecuencia (Meses):</label>
-                <div class="col-md-6">
-                    <input type="number" class="form-control" id="FrecuenciaPeriodica" name="FrecuenciaPeriodica" style="text-align:right;"
-                           onkeypress="limpiar('groupFrecuenciaPeriodica','txtFrecuenciaPeriodica');" onblur="validar(this,'groupFrecuenciaPeriodica','txtFrecuenciaPeriodica');"
-                           required="true" value="{{ $FrecuenciaPeriodica }}" onchange="DesactivaImprimir();">
-                </div>
-                <div class="alert alert-dander" role="alert" style="display: none; text-align: right;" id="txtFrecuenciaPeriodica">
-                    <small class="help-block text-danger">Debes la frecuencia en meses</small>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label class="col-md-6 control-label" for="FechaProximaFacturaPeriodica">Fecha Próxima Factura:</label>
-                <div class="col-md-6">
-                    <input type="text" class="form-control" id="FechaProximaFacturaPeriodica" name="FechaProximaFacturaPeriodica" style="text-align:right;"
-                           required="true" value="{{ $FechaProximaFacturaPeriodica }}" onchange="DesactivaImprimir();">
-                    <script language="JavaScript">
-                    $("#FechaProximaFacturaPeriodica").datepicker({
-                        format: 'dd/mm/yyyy',
-                        changeMonth: true,
-                        changeYear: true
-                    });
-                    </script>
-                </div>
-            </div>
-            
-            
-    
-        </div>
-    </div>
-    <br/><br/><br/>
     
     @include('includes.calculos')
 
@@ -314,7 +217,7 @@ if($pedido === ''){//nuevo
             <input type="button" id="" class="btn btn-xs btn-default" value="Añadir Concepto" onclick="addConcepto($('#numLinea').val());">
         </div>
         <div class="alert alert-dander" role="alert" style="display: none;" id="txtAddConcepto">
-            <small class="help-block text-danger">Debe introducidir alguna línea en el pedido</small>
+            <small class="help-block text-danger">Debe introducidir alguna línea en la factura</small>
         </div>
     </div>
     
@@ -336,7 +239,7 @@ if($pedido === ''){//nuevo
                                                 '<label for="Cantidad'+linea+'">Cantidad</label>'+
                                                 '<input type="number" step="any" min="0" class="form-control" id="Cantidad'+linea+'" name="Cantidad'+linea+'" maxlength="20" '+
                                                         'onkeypress="limpiarCantidad('+linea+');DesactivaImprimir();" style="text-align:right;" value=""'+
-                                                        'onblur="calculoCantidad('+linea+');sumasPedido();calculoIRPF();formatear(this);" pattern="">'+
+                                                        'onblur="calculoCantidad('+linea+');sumasFactura();calculoIRPF();formatear(this);" pattern="">'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtCantidad'+linea+'">'+
                                                     '<small class="help-block text-danger">Es numérico</small>'+
                                                 '</div>'+
@@ -353,6 +256,8 @@ if($pedido === ''){//nuevo
                                                 '<input type="hidden" id="IdArticulo'+linea+'" name="IdArticulo'+linea+'" value="null"/>'+
                                                 '<input type="hidden" id="IdPresupuesto'+linea+'" name="IdPresupuesto'+linea+'" value="null"/>'+
                                                 '<input type="hidden" id="NumLineaPresup'+linea+'" name="NumLineaPresup'+linea+'" value="null"/>'+
+                                                '<input type="hidden" id="IdPedido'+linea+'" name="IdPedido'+linea+'" value="null"/>'+
+                                                '<input type="hidden" id="NumLineaPedido'+linea+'" name="NumLineaPedido'+linea+'" value="null"/>'+
                                             '</div>'+
                                         '</div>'+
                                         '<div class="col-md-1">'+
@@ -360,7 +265,7 @@ if($pedido === ''){//nuevo
                                                 '<label for="Precio'+linea+'">Precio</label>'+
                                                 '<input type="number" step="any" class="form-control" id="Precio'+linea+'" name="Precio'+linea+'" maxlength="20" value=""'+
                                                         'onkeypress="limpiarPrecio('+linea+');DesactivaImprimir();" style="text-align:right;" value=""'+
-                                                        'onblur="calculoPrecio('+linea+');sumasPedido();calculoIRPF();formatear(this);">'+
+                                                        'onblur="calculoPrecio('+linea+');sumasFactura();calculoIRPF();formatear(this);">'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtPrecio'+linea+'">'+
                                                     '<small class="help-block text-danger">Es numérico</small>'+
                                                 '</div>'+
@@ -371,7 +276,7 @@ if($pedido === ''){//nuevo
                                                 '<label for="Importe'+linea+'">Importe</label>'+
                                                 '<input type="number" step="any" class="form-control" id="Importe'+linea+'" name="Importe'+linea+'" maxlength="20" value=""'+
                                                         'onkeypress="limpiarImporte('+linea+');DesactivaImprimir();" style="text-align:right;" value=""'+
-                                                        'onblur="calculoImporte('+linea+');sumasPedido();calculoIRPF();formatear(this);">'+
+                                                        'onblur="calculoImporte('+linea+');sumasFactura();calculoIRPF();formatear(this);">'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtImporte'+linea+'">'+
                                                     '<small class="help-block text-danger">No puede ser cero</small>'+
                                                 '</div>'+
@@ -382,7 +287,7 @@ if($pedido === ''){//nuevo
                                                 '<label for="IVA'+linea+'">IVA</label>'+
                                                 '<input type="number" step="any" class="form-control" id="IVA'+linea+'" name="IVA'+linea+'" maxlength="20" value="21"'+
                                                         'onkeypress="limpiarIVA('+linea+');DesactivaImprimir();" style="text-align:right;" value=""'+
-                                                        'onblur="calculoIVA('+linea+');sumasPedido();calculoIRPF();formatear(this);">'+
+                                                        'onblur="calculoIVA('+linea+');sumasFactura();calculoIRPF();formatear(this);">'+
                                                 '<div class="alert alert-dander" role="alert" style="display: none;" id="txtIVA'+linea+'">'+
                                                     '<small class="help-block text-danger">Es numérico</small>'+
                                                 '</div>'+
@@ -421,7 +326,7 @@ if($pedido === ''){//nuevo
             ?>
 
                 $("#Concepto"+linea).autocomplete({
-                    source: "{{ URL::asset('pedidos/buscar_articulos') }}"
+                    source: "{{ URL::asset('facturas/buscar_articulos') }}"
                 }).data( "ui-autocomplete" )._renderItem = function( ul, item ) {
                     var txt=item.value;
                     var inner_html = "<a><font color='Teal'>"+txt+"</font></a>";
@@ -438,7 +343,7 @@ if($pedido === ''){//nuevo
         
         function borrarLinea(linea){
             $("#linea"+linea).remove();
-            sumasPedido();
+            sumasFactura();
             calculoIRPF();
         }
         
@@ -483,7 +388,7 @@ if($pedido === ''){//nuevo
                     //busco si existe este articulo y me traigo sus datos
                     $.ajax({
                         data:{"concepto":concepto.value},  
-                        url: "{{ URL::asset('pedidos/datos_articulo') }}",
+                        url: "{{ URL::asset('facturas/datos_articulo') }}",
                         type:"get",
                         success: function(data) {
                             var datos = JSON.parse(data);
@@ -501,7 +406,7 @@ if($pedido === ''){//nuevo
                                 }
 
                                 calculoPrecio(linea);
-                                sumasPedido();
+                                sumasFactura();
                                 calculoIRPF();
                             //sino 
                             }else{
@@ -526,46 +431,40 @@ if($pedido === ''){//nuevo
         
         
 
-        //veo si vienen datos de editar ($pedido y $pedidoDetalle
+        //veo si vienen datos de editar ($factura y $facturaDetalle)
         $(document).ready(function() {
             <?php
-            if(isset($pedidoDetalle) && is_array($pedidoDetalle)){
+            if(isset($facturaDetalle) && is_array($facturaDetalle)){
                 ?>
                 //cargo el cliente
-                $('#idCliente').val(<?php echo $pedido->IdCliente; ?>);
-                cargaCliente(<?php echo $pedido->IdCliente; ?>);
+                $('#idCliente').val(<?php echo $factura->IdCliente; ?>);
+                cargaCliente(<?php echo $factura->IdCliente; ?>);
                 
                 //forma de pago
-                $('#FormaPago').val('<?php echo $pedido->FormaPago; ?>');
-                //Tipo de Factura
-                @if($pedido->TipoFactura === 'Puntual')
-                    $('#TipoFacturaPU').attr('checked',true);
-                    $('#TipoFacturaPE').attr('checked',false);
-                @else
-                    $('#TipoFacturaPU').attr('checked',false);
-                    $('#TipoFacturaPE').attr('checked',true);
-                @endif
+                $('#FormaPago').val('<?php echo $factura->FormaPago; ?>');
                 
                 <?php
                 //ahora cargo el pedidoDetalle
-                for ($i = 0; $i < count($pedidoDetalle); $i++) {
+                for ($i = 0; $i < count($facturaDetalle); $i++) {
                 ?>
                 var lineaAux = $('#numLinea').val();
                 //añado linea
                 addConcepto(lineaAux);//esta funcion ya aumenta el contador "numLinea"
                 //ahora relleno los datos de esta linea
-                $('#Cantidad'+lineaAux).val(parseFloat(<?php echo $pedidoDetalle[$i]->Cantidad; ?>).toFixed(2));
-                $('#Concepto'+lineaAux).val('<?php echo $pedidoDetalle[$i]->DescripcionProducto; ?>');
-                $('#IdArticulo'+lineaAux).val('<?php echo $pedidoDetalle[$i]->IdArticulo; ?>');
-                $('#IdPresupuesto'+lineaAux).val('<?php echo $pedidoDetalle[$i]->IdPresupuesto; ?>');
-                $('#NumLineaPresup'+lineaAux).val('<?php echo $pedidoDetalle[$i]->NumLineaPresup; ?>');
-                $('#Precio'+lineaAux).val(parseFloat(<?php echo $pedidoDetalle[$i]->ImporteUnidad; ?>).toFixed(2));
-                $('#Importe'+lineaAux).val(parseFloat(<?php echo $pedidoDetalle[$i]->Importe; ?>).toFixed(2));
-                $('#IVA'+lineaAux).val(parseFloat(<?php echo $pedidoDetalle[$i]->TipoIVA; ?>).toFixed(2));
-                $('#Cuota'+lineaAux).val(parseFloat(<?php echo $pedidoDetalle[$i]->CuotaIva; ?>).toFixed(2));
-                $('#Total'+lineaAux).val(parseFloat(<?php echo ((float)$pedidoDetalle[$i]->Importe + (float)$pedidoDetalle[$i]->CuotaIva); ?>).toFixed(2));
+                $('#Cantidad'+lineaAux).val(parseFloat(<?php echo $facturaDetalle[$i]->Cantidad; ?>).toFixed(2));
+                $('#Concepto'+lineaAux).val('<?php echo $facturaDetalle[$i]->DescripcionProducto; ?>');
+                $('#IdArticulo'+lineaAux).val('<?php echo $facturaDetalle[$i]->IdArticulo; ?>');
+                $('#IdPresupuesto'+lineaAux).val('<?php echo $facturaDetalle[$i]->IdPresupuesto; ?>');
+                $('#NumLineaPedido'+lineaAux).val('<?php echo $facturaDetalle[$i]->NumLineaPedido; ?>');
+                $('#IdPedido'+lineaAux).val('<?php echo $facturaDetalle[$i]->IdPedido; ?>');
+                $('#NumLineaPresup'+lineaAux).val('<?php echo $facturaDetalle[$i]->NumLineaPresup; ?>');
+                $('#Precio'+lineaAux).val(parseFloat(<?php echo $facturaDetalle[$i]->ImporteUnidad; ?>).toFixed(2));
+                $('#Importe'+lineaAux).val(parseFloat(<?php echo $facturaDetalle[$i]->Importe; ?>).toFixed(2));
+                $('#IVA'+lineaAux).val(parseFloat(<?php echo $facturaDetalle[$i]->TipoIVA; ?>).toFixed(2));
+                $('#Cuota'+lineaAux).val(parseFloat(<?php echo $facturaDetalle[$i]->CuotaIva; ?>).toFixed(2));
+                $('#Total'+lineaAux).val(parseFloat(<?php echo ((float)$facturaDetalle[$i]->Importe + (float)$facturaDetalle[$i]->CuotaIva); ?>).toFixed(2));
                 //actualizo las sumas
-                sumasPedido();
+                sumasFactura();
                 calculoIRPF();
                 //aumento el contador
                 //$('#numLinea').val(parseInt($('#numLinea').val())+1);
@@ -577,7 +476,7 @@ if($pedido === ''){//nuevo
         
         <?php
         //veo si es nuevo o es edicion
-        if($pedido === ''){
+        if($factura === ''){
             //si es nueva se desactiva la impresion y Enviar
             echo "DesactivaImprimir();";
         }else{
@@ -598,7 +497,7 @@ if($pedido === ''){//nuevo
     </script>
 
     
-    <!--totales del presupuesto-->
+    <!--totales de la factura-->
     <div class="col-md-12 col-lg-12 col-sm-12" id="">
         <hr style="border: 1px solid #0044cc;"/>
         
@@ -638,10 +537,10 @@ if($pedido === ''){//nuevo
                 $display = 'block;';
                 $IRPF = $datos->TipoIRPF;
             } 
-            if($pedido !== ''){
-                if($pedido->Retencion !== 0){
+            if($factura !== ''){
+                if($factura->Retencion !== 0){
                     $display = 'block;';
-                    $IRPF = $pedido->Retencion;
+                    $IRPF = $factura->Retencion;
                 } 
             }
             ?>
@@ -714,7 +613,7 @@ if($pedido === ''){//nuevo
                         <input type="button" id="btnVerPDF" class="btn btn-default" value="Ver PDF" onclick="verPDF();">
                         <script>
                         function verPDF(){
-                            window.open('{{ URL::asset("pedidos/verPDF") }}<?php echo "/" . $idPedido; ?>/ver', '', 'scrollbars=yes,menubar=no,height=600,width=800,resizable=yes,toolbar=no,status=no,location=no');
+                            window.open('{{ URL::asset("facturas/verPDF") }}<?php echo "/" . $idFactura; ?>/ver', '', 'scrollbars=yes,menubar=no,height=600,width=800,resizable=yes,toolbar=no,status=no,location=no');
                         }
                         </script>
                     </div>
@@ -755,7 +654,7 @@ if($pedido === ''){//nuevo
             <!-- Modal Body -->
             <div class="modal-body">
 
-                <form class="form-horizontal" id="enviarForm" name="enviarForm" role="form" action="{{ URL::asset('pedidos/verPDF') }}<?php echo "/" . $idPedido; ?>/enviar" method="get">
+                <form class="form-horizontal" id="enviarForm" name="enviarForm" role="form" action="{{ URL::asset('facturas/verPDF') }}<?php echo "/" . $idFactura; ?>/enviar" method="get">
                     <!-- CSRF Token -->
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
@@ -840,10 +739,10 @@ if($pedido === ''){//nuevo
 
 
         //reviso los campos de la cabecera 
-        //numPresupuesto 
-        if($('#numPedido').val() === ''){
-            $('#txtValidarNumPedido').css({"display": "block"});
-            $('#groupNumPedido').addClass("has-feedback has-error");
+        //numFactura 
+        if($('#numFactura').val() === ''){
+            $('#txtValidarNumFactura').css({"display": "block"});
+            $('#groupNumFactura').addClass("has-feedback has-error");
             esValido.value = "false";
         }
         
@@ -854,14 +753,14 @@ if($pedido === ''){//nuevo
             esValido.value = "false";
         }
         
-        //FrecuenciaPeriodica 
-        if($('input:radio[name=TipoFactura]:checked').val() === 'Periodica'){
-            if($('#FrecuenciaPeriodica').val() === ''){
-                $('#txtFrecuenciaPeriodica').css({"display": "block"});
-                $('#groupFrecuenciaPeriodica').addClass("has-feedback has-error");
-                esValido.value = "false";
-            }
-        }
+//        //FrecuenciaPeriodica 
+//        if($('input:radio[name=TipoFactura]:checked').val() === 'Periodica'){
+//            if($('#FrecuenciaPeriodica').val() === ''){
+//                $('#txtFrecuenciaPeriodica').css({"display": "block"});
+//                $('#groupFrecuenciaPeriodica').addClass("has-feedback has-error");
+//                esValido.value = "false";
+//            }
+//        }
 
         //revisamos toda la tabla de lineas de presupuesto, hay que revisar cantidad, precio, concepto
         // importe que se cumpla importe = cantidad x precio
@@ -870,7 +769,7 @@ if($pedido === ''){//nuevo
         var importes = new Array();
         var conceptos = new Array();
         
-        $('#pedidoForm').find(":input").each(function(){
+        $('#facturaForm').find(":input").each(function(){
             var elemento = this;
             //comprobamos el nombre del elemento y lo guardamos en un array segun sea cantidad, precio, importe y concepto
             var nombreElemento = elemento.name;
@@ -921,20 +820,6 @@ if($pedido === ''){//nuevo
                         $('#txtImporte'+i).css({"display": "block"});
                         $('#groupImporte'+i).addClass("has-feedback has-error");
                     }
-//                }else{
-//                    //compruebo que importe= cantidad x precio en esta linea
-//                    if(cantidades[i] === 0 || precios[i] === 0 || cantidades[i] === '0.00' || precios[i] === '0.00' ||
-//                       cantidades[i] === '' || precios[i] === ''){
-//                        //nada
-//                    }else{
-//                        var importeComp = parseFloat(cantidades[i]) * parseFloat(precios[i]);
-//                        importeComp = parseFloat(importeComp).toFixed(2);
-//                        if(importeComp !== parseFloat(importeNumero).toFixed(2)){
-//                            esValido.value = 'false';
-//                            $('#txtImporte'+i).css({"display": "block"});
-//                            $('#groupImporte'+i).addClass("has-feedback has-error");
-//                        }
-//                    }
                 }
                 //ahora compruebo que los cnceptos tengan datos
                 if(conceptos[i] === ''){
@@ -956,43 +841,8 @@ if($pedido === ''){//nuevo
             $('#Total').val('');
         }
             
-            
-
-        //compruebo si esValido.value viene en false, si es asi indico el error
-//        if(esValido.value === 'false'){
-//            if(falloComp === 'SI'){
-//                textoError = textoError + "Los datos introducidos no son correctos, hay una incongruencia en cantidad, precio e importe.\n";
-//            }
-//            if(falloImporte0 === 'SI'){
-//                textoError = textoError + "El importe debe ser un valor positivo.\n";
-//            }
-//            if(falloConceptoVacio === 'SI'){
-//                textoError = textoError + "Debe haber algún dato en el concepto.\n";
-//            }
-//        }
-
-
-
-        //indicar el mensaje de error si es 'esValido.value'='false'
-//        if (esValido.value === 'false'){
-//            //$('#submitir').prop( "disabled", true );
-////            if(textoError === ''){
-////                textoError = 'Revise los datos. NO estan correctos';
-////            }
-////            alert(textoError);
-//        }
 
         if(esValido.value === 'true'){
-//            if(guardarArticulosNuevos.value === 'SI'){
-//              if (confirm("Ha incluido usted articulos nuevos, ¿desea añadirlos a la base de datos? (Aceptar = SI, Cancelar = NO)"))
-//              {
-//                  document.form1.guardarArticulosNuevos.value='SI';
-//              }
-//              else
-//              {
-//                  document.form1.guardarArticulosNuevos.value='NO';
-//              }
-//            }
             $("#submitir").val("Enviando...");
             document.getElementById("submitir").disabled = true;
             //alert('submite');

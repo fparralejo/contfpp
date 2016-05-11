@@ -115,12 +115,25 @@ Route::get('fact_prep', function () {
 
 
 //facturas
+Route::get('facturas/mdb', 'facturasController@listar');
+Route::get('facturas/editar/{idFactura}', 'facturasController@editar');
+
+
+Route::get('facturas/buscar_articulos', 'presupuestosController@buscar_articulos');//busco en presupuestosController
+Route::get('facturas/datos_articulo', 'presupuestosController@datos_articulo');//busco en presupuestosController
+
+
+
+
+
+
+
 Route::get('facturas/alta', function () {
     return view('construccion');
 });
-Route::get('facturas/mdb', function () {
-    return view('construccion');
-});
+//Route::get('facturas/mdb', function () {
+//    return view('construccion');
+//});
 Route::get('facturas/cobrar_facturas', function () {
     return view('construccion');
 });
