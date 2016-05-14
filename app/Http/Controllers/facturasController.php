@@ -133,7 +133,6 @@ class facturasController extends Controller {
     }
 
     
-    //NO    
     public function editar($idFactura){
         //control de sesion
         $admin = new adminController();
@@ -221,64 +220,66 @@ class facturasController extends Controller {
     public function createEdit(Request $request){
         $admin = new adminController();
         $datos = Empresa::on('contfpp')->find((int)Session::get('IdEmpresa'));
-        //dd($request);die;
+        dd($request);die;
         
-        //hago las operaciones en transaccion, trabajo con las tablas pedidos y pedidosdetalle
-        //1º inserto o actualizo los datos de la tabla pedidos por el IdPedido
-        //2º si edito, borro los datos de la tabla pedidosdetalle por el IdPedido (campo Borrado=0)
-        //3º inserto los nuevos detalles con el IdPedido
+        //hago las operaciones en transaccion, trabajo con las tablas facturas y facturasdetalle
+        //1º inserto o actualizo los datos de la tabla facturas por el IdFactura
+        //2º si edito, borro los datos de la tabla facturasdetalle por el IdFactura (campo Borrado=0)
+        //3º inserto los nuevos detalles con el IdFactura
         //4º compruebo si este pedido se genero de un presupuesto
         //5º si es asi, extraigo los datos del presupuesto y extraigo los datos de los pedidos que tengan este presupuesto 
         //   (ademas de este pedido, puede haber otros pedidos con este presupuesto) y los comparo
         //6º e indico en el campo de la tabla presupuesto.Pedido=P o T
+        //7º repito los pasos 4, 5 y 6 con los pedidos
         
         \DB::connection(Session::get('conexionBBDD'))->beginTransaction(); //Comienza transaccion
         
         try{
             //1º
             //editar
-            if(isset($request->IdPedido) && $request->IdPedido !== ""){
-                //sino se edita este IdPedido
-                $pedido = Pedido::on(Session::get('conexionBBDD'))->find($request->IdPedido);
+            if(isset($request->IdFactura) && $request->IdFactura !== ""){
+                //sino se edita este IdFactura
+                $factura = Factura::on(Session::get('conexionBBDD'))->find($request->IdFactura);
                 
                 
                 //2º
-                $pedidoDetalle = PedidoDetalle::on(Session::get('conexionBBDD'))
-                                     ->where('IdPedido', '=', $request->IdPedido)
+                $facturaDetalle = FacturaDetalle::on(Session::get('conexionBBDD'))
+                                     ->where('IdFactura', '=', $request->IdFactura)
                                      ->where('Borrado', '=', '1')
                                      ->get();
                 
-                foreach ($pedidoDetalle as $detalle) {
+                foreach ($facturaDetalle as $detalle) {
                     $detalle->Borrado = 0;
                     $detalle->save();
                 }
 
-                $ok = 'Se ha editado correctamente el pedido.';
-                $error = 'ERROR al edtar el pedido.';
+                $ok = 'Se ha editado correctamente la factura.';
+                $error = 'ERROR al edtar la factura.';
             }
             //nuevo
             else{
                 //si es nuevo este valor viene vacio
-                $pedido = new Pedido();
-                $pedido->setConnection(Session::get('conexionBBDD'));
+                $factura = new Factura();
+                $factura->setConnection(Session::get('conexionBBDD'));
 
-                //indicamos el nuevo IdPedido
-                $idPedidoNuevo = Pedido::on(Session::get('conexionBBDD'))
-                                  ->max('IdPedido') + 1;
-                $pedido->IdPedido = $idPedidoNuevo;
-                $pedido->Estado = 'Aceptado';
+                //indicamos el nuevo IdFactura
+                $idFacturaNueva = Factura::on(Session::get('conexionBBDD'))
+                                  ->max('IdFactura') + 1;
+                $factura->IdFactura = $idFacturaNueva;
+                $factura->Estado = 'Emitida';
                 
 
-                $ok = 'Se ha dado de alta correctamente el pedido.';
-                $error = 'ERROR al dar de alta el pedido.';
+                $ok = 'Se ha dado de alta correctamente la factura.';
+                $error = 'ERROR al dar de alta la factura.';
             }
             
             //Continuo 1º (editar o nuevo), recojo los datos del formulario
-            //NumPedido: formateo el numero que viene 
-            $numPedido = $admin->desFormatearNumero($request->numPedido,$datos->TipoContador);
-            $pedido->NumPedido = $numPedido;
-            $pedido->IdCliente = (isset($request->idCliente)) ? $request->idCliente : '';
-            $pedido->IdPresupuesto = (isset($request->IdPresupuesto)) ? $request->IdPresupuesto : '';
+            //NumFacura: formateo el numero que viene 
+            $numFactura = $admin->desFormatearNumero($request->numFactura,$datos->TipoContador);
+            $factura->NumFactura = $numFactura;
+            $factura->IdCliente = (isset($request->idCliente)) ? $request->idCliente : '';
+            $factura->IdPresupuesto = (isset($request->IdPresupuesto)) ? $request->IdPresupuesto : '';
+            $factura->IdPedido = (isset($request->IdPedido)) ? $request->IdPedido : '';
             $pedido->FechaPedido = (isset($request->fechaPedido)) ? \Carbon\Carbon::createFromFormat('d/m/Y',$request->fechaPedido)->format('Y-m-d H:i:s') : '';
             $pedido->FechaVtoPedido = (isset($request->FechaVtoPedido)) ? \Carbon\Carbon::createFromFormat('d/m/Y',$request->FechaVtoPedido)->format('Y-m-d H:i:s') : '';
             $pedido->FormaPago = (isset($request->FormaPago)) ? $request->FormaPago : '';

@@ -117,6 +117,7 @@ Route::get('fact_prep', function () {
 //facturas
 Route::get('facturas/mdb', 'facturasController@listar');
 Route::get('facturas/editar/{idFactura}', 'facturasController@editar');
+Route::post('facturas/createEdit', 'facturasController@createEdit');
 
 
 Route::get('facturas/buscar_articulos', 'presupuestosController@buscar_articulos');//busco en presupuestosController

@@ -86,7 +86,7 @@ if($factura === ''){//nuevo
                            onblur="validar(this,'groupNumFactura','txtValidarNumFactura');" <?php if($editarCampoNumero[0]->editar === 'NO'){echo 'readonly';} ?> >
                     <input type="hidden" id="IdFactura" name="IdFactura" value="{{ $idFactura }}">
                     <input type="hidden" id="IdPresupuesto" name="IdPresupuesto" value="{{ $idPresupuesto }}">
-                    <input type="hidden" id="IdPedido" name="IdPresupuesto" value="{{ $idPedido }}">
+                    <input type="hidden" id="IdPedido" name="IdPedido" value="{{ $idPedido }}">
                 </div>
                 <div class="alert alert-dander" role="alert" style="display: none; text-align: right;" id="txtValidarNumFactura">
                     <small class="help-block text-danger">Debes introducir un número</small>
@@ -846,7 +846,7 @@ if($factura === ''){//nuevo
             $("#submitir").val("Enviando...");
             document.getElementById("submitir").disabled = true;
             //alert('submite');
-            document.pedidoForm.submit();
+            document.facturaForm.submit();
         }else{
             return false;
         }  
