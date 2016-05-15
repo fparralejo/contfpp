@@ -14,7 +14,6 @@ CREATE TABLE `facturas` (
 	`Cuota` DOUBLE NULL DEFAULT '0',
 	`CuotaRetencion` DOUBLE NULL DEFAULT '0' COMMENT 'Cuota IRPF',
 	`total` DOUBLE NULL DEFAULT '0',
-	`Situacion` VARCHAR(20) NULL DEFAULT 'En plazo' COMMENT 'En plazo, Vencida, Cobro parcial, Cobrada',
 	`asiento` INT(11) NULL DEFAULT '0',
 	`Referencia` VARCHAR(70) NULL DEFAULT NULL,
 	`CC_Trans` VARCHAR(30) NULL DEFAULT NULL,

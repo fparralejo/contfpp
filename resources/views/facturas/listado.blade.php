@@ -154,12 +154,12 @@ function actualizarEstadoFactura(IdFactura,opcion){
     //estado, si está Emitida,Contabilizada,Anulada se presenta en un select, si está Contabilizada se escribe directamente
     $htmlEstado = '';
     if($factura->Estado === 'Emitida'){
-        $htmlEstado = '<select class="form-control" name="Estado" id="Estado" onchange="actualizarEstadoPedido(' . $factura->IdFactura . ',this.value);">';
+        $htmlEstado = '<select class="form-control" name="Estado" id="Estado" onchange="actualizarEstadoFactura(' . $factura->IdFactura . ',this.value);">';
         $htmlEstado = $htmlEstado . '<option value="Emitida" selected>Emitida</option>';
         $htmlEstado = $htmlEstado . '<option value="Anulada">Anulada</option>';
         $htmlEstado = $htmlEstado . '</select>';
     }else if($factura->Estado === 'Anulada'){
-        $htmlEstado = '<select class="form-control" name="Estado" id="Estado" onchange="actualizarEstadoPedido(' . $factura->IdFactura . ',this.value);">';
+        $htmlEstado = '<select class="form-control" name="Estado" id="Estado" onchange="actualizarEstadoFactura(' . $factura->IdFactura . ',this.value);">';
         $htmlEstado = $htmlEstado . '<option value="Emitida">Emitida</option>';
         $htmlEstado = $htmlEstado . '<option value="Anulada" selected>Anulada</option>';
         $htmlEstado = $htmlEstado . '</select>';

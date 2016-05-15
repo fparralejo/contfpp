@@ -14,6 +14,7 @@ use App\Empleado;
 use App\TipoContador;
 use App\Presupuesto;
 use App\Pedido;
+use App\Factura;
 
 
 class adminController extends Controller {
@@ -291,7 +292,7 @@ class adminController extends Controller {
             }
         }else
         if($tipoDoc === 'Pedido'){
-            //extraigo el listado de los presupuestos
+            //extraigo el listado de los pedidos
             $listadoNumeros = Pedido::on(Session::get('conexionBBDD'))
                             ->where('Borrado', '=', '1')
                             ->select('NumPedido')
@@ -303,12 +304,18 @@ class adminController extends Controller {
                 }
             }
         }else
-        if($tipoDoc === 'Factura'){//SIN HACER
-//            for ($i = 0; $i < count($listadoNumeros); $i++) {
-//                if((int)$listadoNumeros[$i]->NumPedido > (int)$numMasAlto){
-//                    $numMasAlto = $listadoNumeros[$i]->NumPedido;
-//                }
-//            }
+        if($tipoDoc === 'Factura'){
+            //extraigo el listado de las facturas
+            $listadoNumeros = Factura::on(Session::get('conexionBBDD'))
+                            ->where('Borrado', '=', '1')
+                            ->select('NumFactura')
+                            ->get();
+
+            for ($i = 0; $i < count($listadoNumeros); $i++) {
+                if((int)$listadoNumeros[$i]->NumFactura > (int)$numMasAlto){
+                    $numMasAlto = $listadoNumeros[$i]->NumFactura;
+                }
+            }
         }
         //dd($numMasAlto);
         

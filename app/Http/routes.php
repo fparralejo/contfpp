@@ -115,13 +115,16 @@ Route::get('fact_prep', function () {
 
 
 //facturas
+Route::get('facturas/alta', 'facturasController@alta');
 Route::get('facturas/mdb', 'facturasController@listar');
 Route::get('facturas/editar/{idFactura}', 'facturasController@editar');
 Route::post('facturas/createEdit', 'facturasController@createEdit');
 
-
+Route::get('facturas/duplicar/{idFactura}', 'facturasController@duplicar');
+Route::get('facturas/borrar/{idFactura}', 'facturasController@borrar');
 Route::get('facturas/buscar_articulos', 'presupuestosController@buscar_articulos');//busco en presupuestosController
 Route::get('facturas/datos_articulo', 'presupuestosController@datos_articulo');//busco en presupuestosController
+Route::get('facturas/actualizarEstado', 'facturasController@actualizarEstado');
 
 
 
@@ -129,13 +132,16 @@ Route::get('facturas/datos_articulo', 'presupuestosController@datos_articulo');/
 
 
 
-Route::get('facturas/alta', function () {
-    return view('construccion');
-});
+//Route::get('facturas/alta', function () {
+//    return view('construccion');
+//});
 //Route::get('facturas/mdb', function () {
 //    return view('construccion');
 //});
 Route::get('facturas/cobrar_facturas', function () {
+    return view('construccion');
+});
+Route::get('facturas/factura_abono', function () {
     return view('construccion');
 });
 

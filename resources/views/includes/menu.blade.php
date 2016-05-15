@@ -35,6 +35,7 @@
                   <li><a href="{{ URL::asset('facturas/mdb') }}">Modificación/Duplicar/Borrar</a></li>
                   <li><a href="{{ URL::asset('fact_prep') }}">Facturar Presupuesto</a></li>
                   <li><a href="{{ URL::asset('facturas/cobrar_facturas') }}">Cobrar Facturas</a></li>
+                  <li><a href="{{ URL::asset('facturas/factura_abono') }}">Factura Abono</a></li>
                 </ul>            
             </li>
             <li class="dropdown">

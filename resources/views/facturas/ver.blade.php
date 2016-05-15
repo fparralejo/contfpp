@@ -20,6 +20,9 @@ if($factura === ''){//nuevo
     $idFactura = '';
     $idPresupuesto = '';
     $idPedido = '';
+    $esAbono = '';
+    $Referencia = '';
+    $CC_Trans = '';
 }else{//editar
     $fechaHoy = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$factura->FechaFactura)->format('d/m/Y');
     $fechaVtoFactura = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$factura->FechaVtoFactura)->format('d/m/Y');
@@ -27,6 +30,9 @@ if($factura === ''){//nuevo
     $idFactura = $factura->IdFactura;
     $idPresupuesto = $factura->IdPresupuesto;
     $idPedido = $factura->IdPedido;
+    $esAbono = $factura->esAbono;
+    $Referencia = $factura->Referencia;
+    $CC_Trans = $factura->CC_Trans;
 }
 
 
@@ -87,6 +93,7 @@ if($factura === ''){//nuevo
                     <input type="hidden" id="IdFactura" name="IdFactura" value="{{ $idFactura }}">
                     <input type="hidden" id="IdPresupuesto" name="IdPresupuesto" value="{{ $idPresupuesto }}">
                     <input type="hidden" id="IdPedido" name="IdPedido" value="{{ $idPedido }}">
+                    <input type="hidden" id="esAbono" name="esAbono" value="{{ $esAbono }}">
                 </div>
                 <div class="alert alert-dander" role="alert" style="display: none; text-align: right;" id="txtValidarNumFactura">
                     <small class="help-block text-danger">Debes introducir un número</small>
@@ -104,10 +111,12 @@ if($factura === ''){//nuevo
                 <label class="col-md-3 control-label">&nbsp;</label>
             </div>
             <div class="form-group">
-                <label class="col-md-3 control-label">&nbsp;</label>
+                <label class="col-md-3 control-label">Referencia</label>
             </div>
             <div class="form-group">
-                <label class="col-md-3 control-label">&nbsp;</label>
+                <label class="col-md-12">
+                    <input type="text" class="form-control" id="Referencia" name="Referencia" value="{{ $Referencia }}" onchange="DesactivaImprimir();" size="70" />
+                </label>
             </div>
             <div class="form-group">
                 <label class="col-md-3 control-label">&nbsp;</label>
@@ -597,6 +606,51 @@ if($factura === ''){//nuevo
     
         <hr style="border: 1px solid #0044cc;"/>
     
+        <div class="thumbnail row">
+            <div class="caption">
+                <div class="col-md-1">
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="FormaPago">Forma de Pago:</label>
+                        <select class="form-control" id="FormaPago" name="FormaPago" onchange="DesactivaImprimir();">
+                            <option value=""></option>
+                            <option value="Contado">Contado</option>
+                            <option value="Pagare">Pagaré</option>
+                            <option value="Recibo">Recibo</option>
+                            <option value="Talon">Talón</option>
+                            <option value="Transferencia">Transferencia</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-1">
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="validez">Cuenta Corriente</label>
+                        <input type="text" class="form-control" id="CC_Trans" name="CC_Trans" style="text-align:right;" 
+                               value="{{ $CC_Trans }}" onchange="DesactivaImprimir();">
+                    </div>
+                </div>
+                <div class="col-md-1">
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label for="validez">Fecha Validez</label>
+                        <input type="text" class="form-control" id="FechaVtoFactura" name="FechaVtoFactura" style="text-align:right;" 
+                               value="{{ $fechaVtoFactura }}" onchange="DesactivaImprimir();">
+                        <script>
+                        $("#FechaVtoFactura").datepicker({
+                            format: 'dd/mm/yyyy',
+                            changeMonth: true,
+                            changeYear: true
+                        });
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
         <div class="row">
             <div class="caption">
                 <div class="col-md-2 col-lg-2 col-sm-2 col-xs-1">
@@ -733,6 +787,11 @@ if($factura === ''){//nuevo
     }
 
     function submitDatos(){
+        <?php
+        //asiento = 0, esta sin contabilizar, si es distinto, esta contabilizada, y no se edita esta factura
+        if($factura === '' || $factura->asiento === 0){//o no existe factura (es nueva) o no esta contabilizada
+        ?>
+            
         var esValido = $('#esValido');
         esValido.value = "true";
         textoError='';
@@ -850,6 +909,13 @@ if($factura === ''){//nuevo
         }else{
             return false;
         }  
+        <?php
+        }else{
+        ?>
+            alert("Esta factura está contabilizada, no se puede editar. Asiento Nº "+{{ $factura->asiento }});
+        <?php
+        }
+        ?>
     }
 
     
