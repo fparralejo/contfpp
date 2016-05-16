@@ -71,6 +71,7 @@ Route::get('presupuestos/buscar_articulos', 'presupuestosController@buscar_artic
 Route::get('presupuestos/datos_articulo', 'presupuestosController@datos_articulo');
 Route::get('presupuestos/actualizarEstado', 'presupuestosController@actualizarEstado');
 Route::get('ped_prep', 'presupuestosController@listarParaPedido');
+Route::get('fact_prep', 'presupuestosController@listarParaFactura');
 Route::get('presupuestos/prepararPedido/{idPresupuesto}', 'presupuestosController@prepararPedido');
 Route::post('presupuestos/prepararPedido', 'presupuestosController@generarPedido');
 
@@ -104,9 +105,9 @@ Route::get('fact_ped', function () {
 
 
 
-Route::get('fact_prep', function () {
-    return view('construccion');
-});
+//Route::get('fact_prep', function () {
+//    return view('construccion');
+//});
 //Route::get('ped_prep', function () {
 //    return view('construccion');
 //});
