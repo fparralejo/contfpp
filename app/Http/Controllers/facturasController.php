@@ -510,8 +510,7 @@ class facturasController extends Controller {
     
 
     
-    //NO    
-    public function verPDF($idPedido,$accion, Request $request){
+    public function verPDF($idFactura,$accion, Request $request){
         //control de sesion
         $admin = new adminController();
         if (!$admin->getControl()) {
@@ -522,17 +521,17 @@ class facturasController extends Controller {
         //busco los datos
         $datos = Empresa::on('contfpp')->find((int)Session::get('IdEmpresa'));
 
-        $pedido = Pedido::on(Session::get('conexionBBDD'))
-                        ->find($idPedido);
+        $factura = Factura::on(Session::get('conexionBBDD'))
+                        ->find($idFactura);
         
         $cliente = Cliente::on(Session::get('conexionBBDD'))
                           ->where('borrado', '=', '1')
                           ->where('tipo', '=', 'C')
-                          ->where('idCliente', '=', $pedido->IdCliente)
+                          ->where('idCliente', '=', $factura->IdCliente)
                           ->get();
 
-        $pedidoDetalle = PedidoDetalle::on(Session::get('conexionBBDD'))
-                          ->where('IdPedido', '=', $idPedido)
+        $facturaDetalle = FacturaDetalle::on(Session::get('conexionBBDD'))
+                          ->where('IdFactura', '=', $idFactura)
                           ->where('Borrado', '=', '1')
                           ->get();
 
@@ -549,10 +548,10 @@ class facturasController extends Controller {
         //decodifico los datos JSON
         $pdf->cliente = json_decode($cliente);
         $pdf->datos = json_decode($datos);
-        $pdf->pedido = json_decode($pedido);
-        $pdf->pedidoDetalle = json_decode($pedidoDetalle);
+        $pdf->factura = json_decode($factura);
+        $pdf->facturaDetalle = json_decode($facturaDetalle);
         //numero
-        $numero = $admin->formatearNumero($pdf->pedido->NumPedido,$pdf->datos->TipoContador);
+        $numero = $admin->formatearNumero($pdf->factura->NumFactura,$pdf->datos->TipoContador);
         $pdf->numero = $numero;
         $pdf->accion = $accion;
         //var_dump($pdf->datos);die;
@@ -567,11 +566,11 @@ class facturasController extends Controller {
         //$pdf->Cell(180, 4, 'Referencia: '.utf8_decode($pdf->datosPresupuesto['Referencia']));
         
         //aqui indico los datos de los cuadros superiores de fecha y si es periodica o no
-        $pdf->FechasYTipoFactura();
+        //$pdf->FechasYTipoFactura();
         $pdf->Ln();
         $pdf->Ln();
 
-        $fecha = explode('/',date('d/m/Y',strtotime($pdf->pedido->FechaPedido)));
+        $fecha = explode('/',date('d/m/Y',strtotime($pdf->factura->FechaFactura)));
 
         //escribir mes en texto
         switch ($fecha[1]) {
@@ -627,7 +626,7 @@ class facturasController extends Controller {
         $pdf->columCuota=20;
         $pdf->columTotal=25;
 
-        //Cuadro del presupuesto
+        //Cuadro de la factura
         //cabecera
         $pdf->SetFillColor(240,248,255);
         $pdf->SetDrawColor(200,200,200);
@@ -665,10 +664,10 @@ class facturasController extends Controller {
         $altura=6;
         $pdf->totalImporte=0;
         $pdf->totalCuota=0;
-        for ($i = 0;$i < count($pdf->pedidoDetalle);$i++){
+        for ($i = 0;$i < count($pdf->facturaDetalle);$i++){
             //metemos las palabras que hay en el texto en un array
-            $palabras=  explode(' ',utf8_decode($pdf->pedidoDetalle[$i]->DescripcionProducto));
-            //prepararmos un array con las lineas de texto rellenas de palabras que no sobrepasen 40 caracteres
+            $palabras=  explode(' ',utf8_decode($pdf->facturaDetalle[$i]->DescripcionProducto));
+            //prepararmos un array con las lineas de texto rellenas de palabras que no sobrepasen XX caracteres
             $linea = '';
             $k = 0;//indice de $palabras
             $lineas = array();
@@ -702,10 +701,10 @@ class facturasController extends Controller {
                 $pdf->SetLineWidth(0.1);
                 $pdf->SetFont('Arial','',9);
                 if($j === 0){
-                    if($pdf->pedidoDetalle[$i]->Cantidad === '0'){
-                        $pdf->pedidoDetalle[$i]->Cantidad = '';
+                    if($pdf->facturaDetalle[$i]->Cantidad === '0'){
+                        $pdf->facturaDetalle[$i]->Cantidad = '';
                     }
-                    $pdf->Cell($pdf->columCantidad+0.1, $altura, $admin->formateaNumeroContabilidad($pdf->pedidoDetalle[$i]->Cantidad),'L',0,'R',$pdf->fill);
+                    $pdf->Cell($pdf->columCantidad+0.1, $altura, $admin->formateaNumeroContabilidad($pdf->facturaDetalle[$i]->Cantidad),'L',0,'R',$pdf->fill);
                 }else{
                     $pdf->Cell($pdf->columCantidad+0.1, $altura, '','L',0,'R',$pdf->fill);
                 }
@@ -716,30 +715,30 @@ class facturasController extends Controller {
                     $pdf->Cell($pdf->columConcepto, $altura, trim($lineas[$j]) ,'L',0,'L',$pdf->fill);
                 }
                 if($j==0){
-                    if($pdf->pedidoDetalle[$i]->ImporteUnidad === '0'){
-                        $pdf->pedidoDetalle[$i]->ImporteUnidad = '';
+                    if($pdf->facturaDetalle[$i]->ImporteUnidad === '0'){
+                        $pdf->facturaDetalle[$i]->ImporteUnidad = '';
                     }
-                    $pdf->Cell($pdf->columPrecio, $altura, $admin->formateaNumeroContabilidad($pdf->pedidoDetalle[$i]->ImporteUnidad),'L',0,'R',$pdf->fill);
+                    $pdf->Cell($pdf->columPrecio, $altura, $admin->formateaNumeroContabilidad($pdf->facturaDetalle[$i]->ImporteUnidad),'L',0,'R',$pdf->fill);
                 }else{
                     $pdf->Cell($pdf->columPrecio, $altura,'' ,'L',0,'R',$pdf->fill);
                 }
                 if($j==0){
-                    $pdf->Cell($pdf->columImporte, $altura, $admin->formateaNumeroContabilidad($pdf->pedidoDetalle[$i]->Importe),'L',0,'R',$pdf->fill);
+                    $pdf->Cell($pdf->columImporte, $altura, $admin->formateaNumeroContabilidad($pdf->facturaDetalle[$i]->Importe),'L',0,'R',$pdf->fill);
                 }else{
                     $pdf->Cell($pdf->columImporte, $altura, '','L',0,'R',$pdf->fill);
                 }
                 if($j==0){
-                    $pdf->Cell($pdf->columIva, $altura, $pdf->pedidoDetalle[$i]->TipoIVA." %",'L',0,'R',$pdf->fill);
+                    $pdf->Cell($pdf->columIva, $altura, $pdf->facturaDetalle[$i]->TipoIVA." %",'L',0,'R',$pdf->fill);
                 }else{
                     $pdf->Cell($pdf->columIva, $altura,'' ,'L',0,'R',$pdf->fill);
                 }
                 if($j==0){
-                    $pdf->Cell($pdf->columCuota, $altura, $admin->formateaNumeroContabilidad($pdf->pedidoDetalle[$i]->CuotaIva),'L',0,'R',$pdf->fill);
+                    $pdf->Cell($pdf->columCuota, $altura, $admin->formateaNumeroContabilidad($pdf->facturaDetalle[$i]->CuotaIva),'L',0,'R',$pdf->fill);
                 }else{
                     $pdf->Cell($pdf->columCuota, $altura,'' ,'L',0,'R',$pdf->fill);
                 }
                 if($j==0){  
-                    $pdf->Cell($pdf->columTotal-0.2, $altura, $admin->formateaNumeroContabilidad((float)$pdf->pedidoDetalle[$i]->Importe + (float)$pdf->pedidoDetalle[$i]->CuotaIva),'L',0,'R',$pdf->fill);
+                    $pdf->Cell($pdf->columTotal-0.2, $altura, $admin->formateaNumeroContabilidad((float)$pdf->facturaDetalle[$i]->Importe + (float)$pdf->facturaDetalle[$i]->CuotaIva),'L',0,'R',$pdf->fill);
                     $pdf->SetLineWidth(0.1);
                     $pdf->Cell(0.1, 6, '','R',0,'R');
                 }else{
@@ -750,8 +749,8 @@ class facturasController extends Controller {
                 $pdf->Ln();
             }
             //sumas de importe y cuota
-            $pdf->totalImporte = (float)$pdf->totalImporte + (float)$pdf->pedidoDetalle[$i]->Importe;
-            $pdf->totalCuota = (float)$pdf->totalCuota + (float)$pdf->pedidoDetalle[$i]->CuotaIva;
+            $pdf->totalImporte = (float)$pdf->totalImporte + (float)$pdf->facturaDetalle[$i]->Importe;
+            $pdf->totalCuota = (float)$pdf->totalCuota + (float)$pdf->facturaDetalle[$i]->CuotaIva;
         }
 
         //linea inferior
@@ -765,7 +764,7 @@ class facturasController extends Controller {
             exit;
         }else{
             //se renderiza el PDF y se guarda
-            $file = "../public/pdf_files/Pedido_".$pdf->datos->IdEmpresa.'-'.$pdf->pedido->NumPedido.".pdf";
+            $file = "../public/pdf_files/Factura_".$pdf->datos->IdEmpresa.'-'.$pdf->factura->NumFactura.".pdf";
             $pdf->Output($file,"F");
             $pdf->Close();
             
@@ -779,7 +778,7 @@ class facturasController extends Controller {
             //NO SE DEBE PONER EL CORREO AL QUE SE ENVIA, ES INCONGRUENTE 23/4/2016
             $from = $pdf->datos->email1;
             //$from = "soporte@aluminiosmarquez.esy.es";
-            $subject = $pdf->datos->identificacion.'. Pedido: '.$numero;
+            $subject = $pdf->datos->identificacion.'. Factura: '.$numero;
 
             require '../resources/views/emails/phpmailer/PHPMailerAutoload.php';
             $mail = new \PHPMailer();
@@ -802,7 +801,7 @@ class facturasController extends Controller {
             $html='<!DOCTYPE html>
                     <html>
                         <head>
-                            <title>'.$pdf->datos->identificacion.'. Pedido: '.$numero.'</title>
+                            <title>'.$pdf->datos->identificacion.'. Factura: '.$numero.'</title>
                             <meta charset="UTF-8">
                             <meta name="viewport" content="width=device-width">
                         </head>
@@ -815,20 +814,20 @@ class facturasController extends Controller {
             //convierte HTML un plain-text básico 
             $mail->msgHTML($html);
             //Reemplaza al texto plano del body
-            $mail->AltBody = 'Pedido';
+            $mail->AltBody = 'Factura';
             //incluye el fichero adjunto
             $mail->addAttachment($file);
 
             $txtError = '';
             if($mail->send()){
-                $txtError = 'El pedido ha sido enviado correctamente.';
+                $txtError = 'La factura ha sido enviada correctamente.';
             }else{
-                $txtError = 'El pedido NO ha sido enviado.';
+                $txtError = 'La factura NO ha sido enviada.';
             }
 
 
-            //redirecciono al pedido
-            return redirect('pedidos/editar/'.$pdf->pedido->IdPedido)->with('errors', json_encode($txtError));    
+            //redirecciono al factura
+            return redirect('facturas/editar/'.$pdf->factura->IdFactura)->with('errors', json_encode($txtError));    
         }
     }
 
@@ -982,8 +981,8 @@ class PDF extends baseFpdf{
 
     public $datos;
     public $cliente;
-    public $pedido;
-    public $pedidoDetalle;
+    public $factura;
+    public $facturaDetalle;
     public $numero;
     public $accion;
 
@@ -1043,11 +1042,11 @@ class PDF extends baseFpdf{
         $this->Ln();
         $Y = $Y + 6;
         $this->SetY($Y);
-        $this->IRPFCuota = $this->totalImporte * $this->pedido->Retencion / 100;
+        $this->IRPFCuota = $this->totalImporte * $this->factura->Retencion / 100;
         $this->totalFinal = $this->totalImporte + $this->totalCuota - $this->IRPFCuota;
-        if($this->pedido->Retencion <> '0'){
+        if($this->factura->Retencion <> '0'){
             $this->Cell(145-0.2, $altura, utf8_decode('Retención %'),'L','L', 'R',true);
-            $this->Cell(15, $altura, $this->pedido->Retencion,0,'L', 'R',true);
+            $this->Cell(15, $altura, $this->factura->Retencion,0,'L', 'R',true);
             $this->Cell(25, $altura, $admin->formateaNumeroContabilidad($this->IRPFCuota),'R','L', 'R',true);
             $this->Ln();
             $Y = $Y + 6;
@@ -1169,6 +1168,7 @@ class PDF extends baseFpdf{
         $this->Ln();
     }
 
+    //NO SE USA 16/5/2016
     function FechasYTipoFactura()
     {
         $this->SetFillColor(244,244,244);

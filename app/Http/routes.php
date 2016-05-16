@@ -53,6 +53,9 @@ Route::get('bbdd/importar', function () {
 Route::get('bbdd/corregir', function () {
     return view('construccion');
 });
+Route::get('bbdd/backup', function () {
+    return view('construccion');
+});
 
 
 
@@ -119,7 +122,7 @@ Route::get('facturas/alta', 'facturasController@alta');
 Route::get('facturas/mdb', 'facturasController@listar');
 Route::get('facturas/editar/{idFactura}', 'facturasController@editar');
 Route::post('facturas/createEdit', 'facturasController@createEdit');
-
+Route::get('facturas/verPDF/{idFactura}/{accion}', 'facturasController@verPDF');
 Route::get('facturas/duplicar/{idFactura}', 'facturasController@duplicar');
 Route::get('facturas/borrar/{idFactura}', 'facturasController@borrar');
 Route::get('facturas/buscar_articulos', 'presupuestosController@buscar_articulos');//busco en presupuestosController
