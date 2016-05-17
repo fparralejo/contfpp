@@ -9,7 +9,7 @@ $clientes = json_decode($clientes);
 ?>
 
 @section('principal')
-<h4><span>Listado Presupuestos para Preparar Pedido</span></h4>
+<h4><span>Listado Presupuestos para Preparar Factura</span></h4>
 <br/>
 
 <!--<script>
@@ -70,34 +70,6 @@ $clientes = json_decode($clientes);
 	});
 
 
-//	function leerCliente(idCliente){
-//            $.ajax({
-//              data:{"idCliente":idCliente},  
-//              url: '{{ URL::asset("cliente/show") }}',
-//              type:"get",
-//              success: function(data) {
-//                var cliente = JSON.parse(data);
-//                $('#idCliente').val(cliente.idCliente);
-//                $('#nombre').val(cliente.nombre);
-//                $('#apellidos').val(cliente.apellidos);
-//                $('#telefono').val(cliente.telefono);
-//                $('#email').val(cliente.email);
-//                $('#notas').val(cliente.notas);
-//                $('#nombreEmpresa').val(cliente.nombreEmpresa);
-//                $('#cifnif').val(cliente.CIF);
-//                $('#direccion').val(cliente.direccion);
-//                $('#municipio').val(cliente.municipio);
-//                $('#CP').val(cliente.CP);
-//                $('#provincia').val(cliente.provincia);
-//                $('#forma_pago_habitual').val(cliente.forma_pago_habitual);
-//                //cambiar nombre del titulo del formulario
-//                $("#tituloForm").html('Editar Cliente');
-//                $("#submitir").val('OK');
-//              }
-//            });
-//	}
-//
-
 
 	//hacer desaparecer en cartel
 	$(document).ready(function() {
@@ -153,7 +125,7 @@ function actualizarEstadoPresupuesto(IdPresupuesto,opcion){
     </thead>
     <tbody>
     @foreach ($presupuestos as $presupuesto)
-    @if($presupuesto->Pedido !== 'T')
+    @if($presupuesto->Facturada !== 'T' && $presupuesto->Pedido === 'NP')
     <?php
     //cliente
     $txtCliente = '';

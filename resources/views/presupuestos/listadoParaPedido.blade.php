@@ -153,7 +153,7 @@ function actualizarEstadoPresupuesto(IdPresupuesto,opcion){
     </thead>
     <tbody>
     @foreach ($presupuestos as $presupuesto)
-    @if($presupuesto->Pedido !== 'T')
+    @if($presupuesto->Pedido !== 'T' && $presupuesto->Facturada === 'NF')
     <?php
     //cliente
     $txtCliente = '';

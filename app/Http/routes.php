@@ -74,6 +74,8 @@ Route::get('ped_prep', 'presupuestosController@listarParaPedido');
 Route::get('fact_prep', 'presupuestosController@listarParaFactura');
 Route::get('presupuestos/prepararPedido/{idPresupuesto}', 'presupuestosController@prepararPedido');
 Route::post('presupuestos/prepararPedido', 'presupuestosController@generarPedido');
+Route::get('presupuestos/prepararFactura/{idPresupuesto}', 'presupuestosController@prepararFactura');
+Route::post('presupuestos/prepararFactura', 'presupuestosController@generarFactura');
 
 
 //pedidos
