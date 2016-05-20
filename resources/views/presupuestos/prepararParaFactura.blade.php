@@ -9,7 +9,7 @@ $presupuestoDetalle = (array)json_decode($presupuestoDetalle);
 $numero = json_decode($numero);
 $editarCampoNumero = json_decode($editarCampoNumero);
 
-dd($presupuestoDetalle);die;
+//dd($presupuestoDetalle);
 
 $fechaHoy = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$presupuesto->FechaPresupuesto)->format('d/m/Y');
 $fechaVtoFactura = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$presupuesto->FechaVtoPresupuesto)->format('d/m/Y');

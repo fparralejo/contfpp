@@ -237,7 +237,10 @@ function actualizarEstadoPedido(IdPedido,opcion){
         location.href = "{{ URL::asset('pedidos/editar/') }}/"+idPedido;
     }
     function duplicarPedido(idPedido){
-        location.href = "{{ URL::asset('pedidos/duplicar/') }}/"+idPedido;
+        if (confirm("¿Desea duplicar este pedido?"))
+        {
+            location.href = "{{ URL::asset('pedidos/duplicar/') }}/"+idPedido;
+        }
     }
     function borrarPedido(idPedido){
         if (confirm("¿Desea borrar este pedido?"))

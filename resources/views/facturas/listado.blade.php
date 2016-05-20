@@ -200,7 +200,10 @@ function actualizarEstadoFactura(IdFactura,opcion){
         location.href = "{{ URL::asset('facturas/editar/') }}/"+IdFactura;
     }
     function duplicarFactura(IdFactura){
-        location.href = "{{ URL::asset('facturas/duplicar/') }}/"+IdFactura;
+        if (confirm("¿Desea duplicar esta factura?"))
+        {
+            location.href = "{{ URL::asset('facturas/duplicar/') }}/"+IdFactura;
+        }
     }
     function borrarFactura(IdFactura){
         if (confirm("¿Desea borrar esta factura?"))

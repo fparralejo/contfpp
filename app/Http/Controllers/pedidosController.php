@@ -395,45 +395,65 @@ class pedidosController extends Controller {
             //4º
             //veo si exiten presupuesto a este pedido
             if($pedido->IdPresupuesto !== ''){
-                //5º
-                //extraigo el presupuesto
-                $presupuestoDetalle = PresupuestoDetalle::on(Session::get('conexionBBDD'))
-                                     ->where('IdPresupuesto', '=', $pedido->IdPresupuesto)
-                                     ->where('Borrado', '=', '1')
-                                     ->get();
+                //busco las lineas del presupuesto (sumo los campos "Importe" y "CuotaIva")
+                $presupuestoSumaImporte = PresupuestoDetalle::on(Session::get('conexionBBDD'))
+                                            ->where("IdPresupuesto","=",(int)$pedido->IdPresupuesto)
+                                            ->where("Borrado","=",1)
+                                            ->sum("Importe");
+                $presupuestoSumaCuotaIva = PresupuestoDetalle::on(Session::get('conexionBBDD'))
+                                            ->where("IdPresupuesto","=",(int)$pedido->IdPresupuesto)
+                                            ->where("Borrado","=",1)
+                                            ->sum("CuotaIva");
+                //busco las lineas de las facturas que tenga este presupuesto (sumo los campos "Importe" y "CuotaIva")
+                $pedidosSumaImporte = PedidoDetalle::on(Session::get('conexionBBDD'))
+                                            ->where("IdPresupuesto","=",(int)$pedido->IdPresupuesto)
+                                            ->where("Borrado","=",1)
+                                            ->sum("Importe");
+                $pedidosSumaCuotaIva = PedidoDetalle::on(Session::get('conexionBBDD'))
+                                            ->where("IdPresupuesto","=",(int)$pedido->IdPresupuesto)
+                                            ->where("Borrado","=",1)
+                                            ->sum("CuotaIva");
                 
-                //ahora extraigo todos los pedidos
-                $pedidosDetalle = PedidoDetalle::on(Session::get('conexionBBDD'))
-                                     ->where('IdPresupuesto', '=', $pedido->IdPresupuesto)
-                                     ->where('Borrado', '=', '1')
-                                     ->get();
                 
-                
-                //hago la comparacion, mientras el resultado de la resta <=0 dicha comparacion este valor sera T (Total)
-                //en cuento un valor salga > 0, la suma de los pedidos no son toda la factura, por lo que es P, y ya corto el resto de la comparacion
-                $comparacion = '';
-                foreach ($pedidosDetalle as $linea) {
-                    for ($i = 0; $i < count($presupuestoDetalle); $i++) {
-                        if($presupuestoDetalle[$i]->NumLineaPresup === (int)$linea['NumLineaPresup']){
-                            //resto
-                            $presupuestoDetalle[$i]->Cantidad = $presupuestoDetalle[$i]->Cantidad - (float)$linea['Cantidad'];
-                            $presupuestoDetalle[$i]->Importe = $presupuestoDetalle[$i]->Importe - (float)$linea['Importe'];
-                            $comparacion = ($presupuestoDetalle[$i]->Importe <= 0) ? 'T' : 'P';
-                            $presupuestoDetalle[$i]->CuotaIva = round($presupuestoDetalle[$i]->Importe * (float)$linea['IVA'] / 100, 2);
-                            break;
-                        }
-                        if($comparacion === 'P'){
-                            break;
-                        }
-                    }
+                //comparamos (se comparan los campos Importe y CuotaIva)
+                //si sale igual o superior, es total (T) y si es entre 0 y el presupuesto es parcial (P)
+                //BaseImponible
+                $difBI = $presupuestoSumaImporte - $pedidosSumaImporte;
+                if($difBI <= 0){
+                    $comparacionBI = 'T';
+                }else
+                if($difBI < $presupuestoSumaImporte && $difBI > 0){
+                    $comparacionBI = 'P';
                 }
                 
-                //6º
-                //indico en el campo de la tabla presupuesto.Pedido=el valor de $comparacion
-                Presupuesto::on(Session::get('conexionBBDD'))
-                            ->where('IdPresupuesto', '=', $pedido->IdPresupuesto)
-                            ->update(['Pedido' => $comparacion]);
+                //CuotaIva
+                $difC = $presupuestoSumaCuotaIva - $pedidosSumaCuotaIva;
+                if($difC <= 0){
+                    $comparacionC = 'T';
+                }else
+                if($difC < $presupuestoSumaCuotaIva && $difC > 0){
+                    $comparacionC = 'P';
+                }
                 
+                //si todos los comparadores son NF, es NF, si son todos T, es T, para el resto es P 
+                $comparacion = 'NF';
+                if($comparacionBI === 'NF' && $comparacionC === 'NF'){
+                    $comparacion = 'NF';
+                }else
+                if($comparacionBI === 'T' && $comparacionC === 'T'){
+                    $comparacion = 'T';
+                }else{
+                    $comparacion = 'P';
+                }
+            
+                //4º
+                //buscamos el presupuesto (si hay IdPresupuesto != 0)
+                if($pedido->IdPresupuesto !== 0){
+                    Presupuesto::on(Session::get('conexionBBDD'))
+                                        ->where('IdPresupuesto', '=', $pedido->IdPresupuesto)
+                                        ->where('Borrado', '=', '1')
+                                        ->update(['Pedido' => $comparacion]);
+                }
             }
         }
         catch(\Exception $e)
@@ -804,6 +824,7 @@ class pedidosController extends Controller {
         date_default_timezone_set('Europe/Madrid');
         $nuevo_pedido->FechaPedido = date('Y-m-d H:i:s');
         $nuevo_pedido->FechaVtoPedido = date('Y-m-d H:i:s');
+        $nuevo_pedido->IdPresupuesto = '';
         
         
         //ahora busco las lineas del pedido

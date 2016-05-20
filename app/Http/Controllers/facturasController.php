@@ -429,68 +429,136 @@ class facturasController extends Controller {
             //4º
             //veo si exiten presupuesto a esta factura
             if($factura->IdPresupuesto !== ''){
-                //5º
-                //extraigo el presupuesto
-                $presupuestoDetalle = PresupuestoDetalle::on(Session::get('conexionBBDD'))
-                                     ->where('IdPresupuesto', '=', $factura->IdPresupuesto)
-                                     ->where('Borrado', '=', '1')
-                                     ->get();
+                //busco las lineas del presupuesto (sumo los campos "Importe" y "CuotaIva")
+                $presupuestoSumaImporte = PresupuestoDetalle::on(Session::get('conexionBBDD'))
+                                            ->where("IdPresupuesto","=",(int)$factura->IdPresupuesto)
+                                            ->where("Borrado","=",1)
+                                            ->sum("Importe");
+                $presupuestoSumaCuotaIva = PresupuestoDetalle::on(Session::get('conexionBBDD'))
+                                            ->where("IdPresupuesto","=",(int)$factura->IdPresupuesto)
+                                            ->where("Borrado","=",1)
+                                            ->sum("CuotaIva");
+                //busco las lineas de las facturas que tenga este presupuesto (sumo los campos "Importe" y "CuotaIva")
+                $facturasSumaImporte = FacturaDetalle::on(Session::get('conexionBBDD'))
+                                            ->where("IdPresupuesto","=",(int)$factura->IdPresupuesto)
+                                            ->where("Borrado","=",1)
+                                            ->sum("Importe");
+                $facturasSumaCuotaIva = FacturaDetalle::on(Session::get('conexionBBDD'))
+                                            ->where("IdPresupuesto","=",(int)$factura->IdPresupuesto)
+                                            ->where("Borrado","=",1)
+                                            ->sum("CuotaIva");
                 
-                //ahora extraigo todos los pedidos que esten relaccionadas con este presupuesto
-                $pedidosDetalle = PedidoDetalle::on(Session::get('conexionBBDD'))
-                                     ->where('IdPresupuesto', '=', $factura->IdPresupuesto)
-                                     ->where('Borrado', '=', '1')
-                                     ->get();
                 
-                //ahora extraigo todas las facturas que esten relaccionadas con este presupuesto
-                $facturasDetalle = FacturaDetalle::on(Session::get('conexionBBDD'))
-                                     ->where('IdPresupuesto', '=', $factura->IdPresupuesto)
-                                     ->where('Borrado', '=', '1')
-                                     ->get();
-                
-                
-                //hago la comparacion, mientras el resultado de la resta <=0 dicha comparacion este valor sera T (Total)
-                //en cuento un valor salga > 0, la suma de las facturas no son toda la factura, por lo que es P, y ya corto el resto de la comparacion
-                $comparacion = '';
-                foreach ($facturasDetalle as $linea) {
-                    for ($i = 0; $i < count($presupuestoDetalle); $i++) {
-                        if($presupuestoDetalle[$i]->NumLineaPresup === (int)$linea['NumLineaPresup']){
-                            //resto
-                            $presupuestoDetalle[$i]->Cantidad = $presupuestoDetalle[$i]->Cantidad - (float)$linea['Cantidad'];
-                            $presupuestoDetalle[$i]->Importe = $presupuestoDetalle[$i]->Importe - (float)$linea['Importe'];
-                            $comparacion = ($presupuestoDetalle[$i]->Importe <= 0) ? 'T' : 'P';
-                            $presupuestoDetalle[$i]->CuotaIva = round($presupuestoDetalle[$i]->Importe * (float)$linea['IVA'] / 100, 2);
-                            break;
-                        }
-                        if($comparacion === 'P'){
-                            break;
-                        }
-                    }
-                }
-                //hago lo mismo con los pedidos
-                foreach ($pedidosDetalle as $linea) {
-                    for ($i = 0; $i < count($presupuestoDetalle); $i++) {
-                        if($presupuestoDetalle[$i]->NumLineaPresup === (int)$linea['NumLineaPresup']){
-                            //resto
-                            $presupuestoDetalle[$i]->Cantidad = $presupuestoDetalle[$i]->Cantidad - (float)$linea['Cantidad'];
-                            $presupuestoDetalle[$i]->Importe = $presupuestoDetalle[$i]->Importe - (float)$linea['Importe'];
-                            $comparacion = ($presupuestoDetalle[$i]->Importe <= 0) ? 'T' : 'P';
-                            $presupuestoDetalle[$i]->CuotaIva = round($presupuestoDetalle[$i]->Importe * (float)$linea['IVA'] / 100, 2);
-                            break;
-                        }
-                        if($comparacion === 'P'){
-                            break;
-                        }
-                    }
+                //comparamos (se comparan los campos Importe y CuotaIva)
+                //si sale igual o superior, es total (T) y si es entre 0 y el presupuesto es parcial (P)
+                //BaseImponible
+                $difBI = $presupuestoSumaImporte - $facturasSumaImporte;
+                if($difBI <= 0){
+                    $comparacionBI = 'T';
+                }else
+                if($difBI < $presupuestoSumaImporte && $difBI > 0){
+                    $comparacionBI = 'P';
                 }
                 
+                //CuotaIva
+                $difC = $presupuestoSumaCuotaIva - $facturasSumaCuotaIva;
+                if($difC <= 0){
+                    $comparacionC = 'T';
+                }else
+                if($difC < $presupuestoSumaCuotaIva && $difC > 0){
+                    $comparacionC = 'P';
+                }
                 
-                //6º
-                //indico en el campo de la tabla presupuesto.Pedido=el valor de $comparacion
-                Presupuesto::on(Session::get('conexionBBDD'))
-                            ->where('IdPresupuesto', '=', $factura->IdPresupuesto)
-                            ->update(['Pedido' => $comparacion]);
+                //si todos los comparadores son NF, es NF, si son todos T, es T, para el resto es P 
+                $comparacion = 'NF';
+                if($comparacionBI === 'NF' && $comparacionC === 'NF'){
+                    $comparacion = 'NF';
+                }else
+                if($comparacionBI === 'T' && $comparacionC === 'T'){
+                    $comparacion = 'T';
+                }else{
+                    $comparacion = 'P';
+                }
+
+                //4º
+                //buscamos el presupuesto (si hay IdPresupuesto != 0)
+                if($factura->IdPresupuesto !== 0){
+                    Presupuesto::on(Session::get('conexionBBDD'))
+                                        ->where('IdPresupuesto', '=', $factura->IdPresupuesto)
+                                        ->where('Borrado', '=', '1')
+                                        ->update(['Facturada' => $comparacion]);
+                }
                 
+                
+//                
+//                
+//                
+//                
+//                
+//                
+//                //***************************
+//                //5º
+//                //extraigo el presupuesto
+//                $presupuestoDetalle = PresupuestoDetalle::on(Session::get('conexionBBDD'))
+//                                     ->where('IdPresupuesto', '=', $factura->IdPresupuesto)
+//                                     ->where('Borrado', '=', '1')
+//                                     ->get();
+//                
+//                //ahora extraigo todos los pedidos que esten relaccionadas con este presupuesto
+//                $pedidosDetalle = PedidoDetalle::on(Session::get('conexionBBDD'))
+//                                     ->where('IdPresupuesto', '=', $factura->IdPresupuesto)
+//                                     ->where('Borrado', '=', '1')
+//                                     ->get();
+//                
+//                //ahora extraigo todas las facturas que esten relaccionadas con este presupuesto
+//                $facturasDetalle = FacturaDetalle::on(Session::get('conexionBBDD'))
+//                                     ->where('IdPresupuesto', '=', $factura->IdPresupuesto)
+//                                     ->where('Borrado', '=', '1')
+//                                     ->get();
+//                
+//                
+//                //hago la comparacion, mientras el resultado de la resta <=0 dicha comparacion este valor sera T (Total)
+//                //en cuento un valor salga > 0, la suma de las facturas no son toda la factura, por lo que es P, y ya corto el resto de la comparacion
+//                $comparacion = '';
+//                foreach ($facturasDetalle as $linea) {
+//                    for ($i = 0; $i < count($presupuestoDetalle); $i++) {
+//                        if($presupuestoDetalle[$i]->NumLineaPresup === (int)$linea['NumLineaPresup']){
+//                            //resto
+//                            $presupuestoDetalle[$i]->Cantidad = $presupuestoDetalle[$i]->Cantidad - (float)$linea['Cantidad'];
+//                            $presupuestoDetalle[$i]->Importe = $presupuestoDetalle[$i]->Importe - (float)$linea['Importe'];
+//                            $comparacion = ($presupuestoDetalle[$i]->Importe <= 0) ? 'T' : 'P';
+//                            $presupuestoDetalle[$i]->CuotaIva = round($presupuestoDetalle[$i]->Importe * (float)$linea['IVA'] / 100, 2);
+//                            break;
+//                        }
+//                        if($comparacion === 'P'){
+//                            break;
+//                        }
+//                    }
+//                }
+//                //hago lo mismo con los pedidos
+//                foreach ($pedidosDetalle as $linea) {
+//                    for ($i = 0; $i < count($presupuestoDetalle); $i++) {
+//                        if($presupuestoDetalle[$i]->NumLineaPresup === (int)$linea['NumLineaPresup']){
+//                            //resto
+//                            $presupuestoDetalle[$i]->Cantidad = $presupuestoDetalle[$i]->Cantidad - (float)$linea['Cantidad'];
+//                            $presupuestoDetalle[$i]->Importe = $presupuestoDetalle[$i]->Importe - (float)$linea['Importe'];
+//                            $comparacion = ($presupuestoDetalle[$i]->Importe <= 0) ? 'T' : 'P';
+//                            $presupuestoDetalle[$i]->CuotaIva = round($presupuestoDetalle[$i]->Importe * (float)$linea['IVA'] / 100, 2);
+//                            break;
+//                        }
+//                        if($comparacion === 'P'){
+//                            break;
+//                        }
+//                    }
+//                }
+//                
+//                
+//                //6º
+//                //indico en el campo de la tabla presupuesto.Pedido=el valor de $comparacion
+//                Presupuesto::on(Session::get('conexionBBDD'))
+//                            ->where('IdPresupuesto', '=', $factura->IdPresupuesto)
+//                            ->update(['Pedido' => $comparacion]);
+//                
             }
         }
         catch(\Exception $e)
@@ -861,6 +929,8 @@ class facturasController extends Controller {
         date_default_timezone_set('Europe/Madrid');
         $nueva_factura->FechaFactura = date('Y-m-d H:i:s');
         $nueva_factura->FechaVtoFactura = date('Y-m-d H:i:s');
+        $nueva_factura->IdPresupuesto = '';
+        $nueva_factura->IdPedido = '';
         
         
         //ahora busco las lineas de la factura
