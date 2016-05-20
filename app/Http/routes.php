@@ -131,6 +131,7 @@ Route::get('facturas/borrar/{idFactura}', 'facturasController@borrar');
 Route::get('facturas/buscar_articulos', 'presupuestosController@buscar_articulos');//busco en presupuestosController
 Route::get('facturas/datos_articulo', 'presupuestosController@datos_articulo');//busco en presupuestosController
 Route::get('facturas/actualizarEstado', 'facturasController@actualizarEstado');
+Route::get('facturas/factura_abono', 'facturasController@listarAbono');
 
 
 
@@ -147,9 +148,9 @@ Route::get('facturas/actualizarEstado', 'facturasController@actualizarEstado');
 Route::get('facturas/cobrar_facturas', function () {
     return view('construccion');
 });
-Route::get('facturas/factura_abono', function () {
-    return view('construccion');
-});
+//Route::get('facturas/factura_abono', function () {
+//    return view('construccion');
+//});
 
 
 

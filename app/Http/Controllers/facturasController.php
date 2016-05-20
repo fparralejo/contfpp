@@ -213,7 +213,46 @@ class facturasController extends Controller {
                 ->with('presupuestos', json_encode($presupuestos))->with('clientes', json_encode($clientes))
                 ->with('facturas', json_encode($facturas));
     }
-       
+    
+    
+    public function listarAbono(){
+        //control de sesion
+        $admin = new adminController();
+        if (!$admin->getControl()) {
+            return redirect('/')->with('login_errors', 'La sesión a expirado. Vuelva a logearse.');
+        }
+        
+        $datos = Empresa::on('contfpp')->find((int)Session::get('IdEmpresa'));
+        
+        $facturas = Factura::on(Session::get('conexionBBDD'))
+                        ->where('Borrado', '=', '1')
+                        ->Where('esAbono', '=', '')
+                        ->get();
+        
+        $pedidos = Pedido::on(Session::get('conexionBBDD'))
+                        ->where('Borrado', '=', '1')
+                        ->get();
+        
+        $presupuestos = Presupuesto::on(Session::get('conexionBBDD'))
+                        ->where('Borrado', '=', '1')
+                        ->get();
+        
+        $clientes = Cliente::on(Session::get('conexionBBDD'))
+                          ->where('borrado', '=', '1')
+                          ->where('tipo', '=', 'C')
+                          ->get();
+        
+        for ($i = 0; $i < count($facturas); $i++) {
+            $numero = $admin->formatearNumero($facturas[$i]->NumFactura,$datos->TipoContador);
+            $numeroOrdenar = $admin->formatearNumeroOrdenar($facturas[$i]->NumFactura,$datos->TipoContador);
+            $facturas[$i]->NumFactura = "<!--" . $numeroOrdenar . "-->" . $numero;
+        }
+
+
+        return view('facturas.listadoAbono')->with('clientes', json_encode($clientes))
+                ->with('facturas', json_encode($facturas));
+    }
+    
     
     public function createEdit(Request $request){
         $admin = new adminController();
