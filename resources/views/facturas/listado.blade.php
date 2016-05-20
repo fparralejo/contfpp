@@ -113,8 +113,8 @@ function actualizarEstadoFactura(IdFactura,opcion){
     <thead>
         <tr>
             <th style="width: 7%;">Nº Factura</th>
-            <th style="width: 7%;">Nº Pedido</th>
             <th style="width: 7%;">Nº Presupuesto</th>
+            <th style="width: 7%;">Nº Pedido</th>
             <th style="width: 30%;">Cliente</th>
             <th style="width: 10%;">Fecha</th>
             <th style="width: 10%;">Importe</th>

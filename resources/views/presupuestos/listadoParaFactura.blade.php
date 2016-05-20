@@ -163,8 +163,8 @@ function actualizarEstadoPresupuesto(IdPresupuesto,opcion){
     //carga los datos en el formulario para editarlos
     //$url="javascript:leerCliente(".$presupuesto->IdPresupuesto.");";
     $url="";
-    if($presupuesto->Pedido === 'P'){
-        //busco los pedidos hechos de este presupuesto
+    if($presupuesto->Facturada === 'P'){
+        //busco las facturas hechas de este presupuesto
         $sumaTotal = 0;
         for ($ii = 0; $ii < count($facturas); $ii++) {
             if((int)$facturas[$ii]->IdPresupuesto === $presupuesto->IdPresupuesto){

@@ -5,7 +5,7 @@
 $clientes = json_decode($clientes);
 $datos = json_decode($datos);
 $presupuesto = json_decode($presupuesto);
-$presupuestoDetalle = json_decode($presupuestoDetalle);
+$presupuestoDetalle = (array)json_decode($presupuestoDetalle);
 $numero = json_decode($numero);
 $editarCampoNumero = json_decode($editarCampoNumero);
 
