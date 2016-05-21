@@ -1258,7 +1258,7 @@ class PDF extends baseFpdf{
         // Movernos a la derecha
         $this->Cell(150);
         // Título
-        $this->Cell(30,20,utf8_decode('PEDIDO Nº ').utf8_decode($this->numero),0,0,'R');
+        $this->Cell(30,20,utf8_decode('FACTURA Nº ').utf8_decode($this->numero),0,0,'R');
         // Salto de línea
         $this->Ln(25);
     }
@@ -1272,7 +1272,7 @@ class PDF extends baseFpdf{
 
         //por último los subtotales y totales
         // Posición: a 1,5 cm del final
-        $Y = -50;
+        $Y = -70;
         $this->SetY($Y);
         $altura = 6;
 
@@ -1303,19 +1303,19 @@ class PDF extends baseFpdf{
         $Y = $Y + 9;
         $this->SetY($Y);
     
-        //forma de pago y validez pedido
-//        $this->SetFillColor(232,232,232);
-//        $this->Cell(25, $altura, 'Forma de Pago:',0,'L', 'R');
-//        $this->Cell(35, $altura, utf8_decode($this->pedido->FormaPago),0,'R', 'L',true);
-//        $this->Cell(40, $altura, 'Vencimiento:',0,'L', 'R');
-//        $this->Cell(25, $altura, \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$this->pedido->FechaVtoPedido)->format('d/m/Y'),0,'R', 'C',true);
-//        //$this->Cell(10, $altura, utf8_decode('días f.f.'),0,'L', 'L');
-//        $this->Ln();
-//        $this->Cell(25, $altura, '',0,'L', 'R');
-//        if($this->presupuesto['FormaPago'] === 'Transferencia'){
-//            $this->Cell(35, $altura, utf8_decode($this->datosPresupuesto['CC_Trans']),0,'R', 'L');
-//        }
-//        $this->Ln();
+        //forma de pago y validez factura
+        $this->SetFillColor(232,232,232);
+        $this->Cell(25, $altura, 'Forma de Pago:',0,'L', 'R');
+        $this->Cell(35, $altura, utf8_decode($this->factura->FormaPago),0,'R', 'L',true);
+        $this->Cell(40, $altura, utf8_decode('Vence el día:'),0,'L', 'R');
+        $this->Cell(25, $altura, \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$this->factura->FechaVtoFactura)->format('d/m/Y'),0,'R', 'C',true);
+        //$this->Cell(10, $altura, utf8_decode('días f.f.'),0,'L', 'L');
+        $this->Ln();
+        $this->Cell(25, $altura, '',0,'L', 'R');
+        if($this->factura->FormaPago === 'Transferencia'){
+            $this->Cell(35, $altura, utf8_decode($this->factura->CC_Trans),0,'R', 'L');
+        }
+        $this->Ln();
         
         
         

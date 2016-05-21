@@ -377,11 +377,10 @@ class adminController extends Controller {
             //extraigo el listado de las facturas de abono actuales
             $listadoNumeros = Factura::on(Session::get('conexionBBDD'))
                             ->where('Borrado', '=', '1')
-                            ->where('esAbono', '<>', '')
                             ->select('NumFactura')
                             ->get();
 
-            if(is_array($listadoNumeros)){
+            if(count($listadoNumeros) > 0){
                 for ($i = 0; $i < count($listadoNumeros); $i++) {
                     //quito el ejercico (4 primeras cifras)
                     $ejercicio = substr($listadoNumeros[$i]->NumFactura,0,4);

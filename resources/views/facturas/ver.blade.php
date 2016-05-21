@@ -13,7 +13,6 @@ $numero = json_decode($numero);
 $editarCampoNumero = json_decode($editarCampoNumero);
 
 $admin = new adminController();
-$numeroEsAbono = $admin->formatearNumero($factura->esAbono,$datos->TipoContador);
 
 //var_dump($clientes);die;
 
@@ -29,6 +28,7 @@ if($factura === ''){//nuevo
     $esAbono = '';
     $Referencia = '';
     $CC_Trans = '';
+    $numeroEsAbono = '';
 }else{//editar
     $fechaHoy = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$factura->FechaFactura)->format('d/m/Y');
     $fechaVtoFactura = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$factura->FechaVtoFactura)->format('d/m/Y');
@@ -39,6 +39,7 @@ if($factura === ''){//nuevo
     $esAbono = $factura->esAbono;
     $Referencia = $factura->Referencia;
     $CC_Trans = $factura->CC_Trans;
+    $numeroEsAbono = $admin->formatearNumero($factura->esAbono,$datos->TipoContador);
 }
 
 
