@@ -235,7 +235,7 @@ $(document).ready(function() {
         </div>
         <div class="col-md-5">
             <div class="form-group">
-                <label for="PrefijoFactRectificativas">Prefijo Facturas Rectificativas:</label>
+                <label for="PrefijoFactRectificativas">Prefijo Facturas Abono:</label>
                 <input type="text" class="form-control" id="PrefijoFactRectificativas" name="PrefijoFactRectificativas" 
                        maxlength="5" value="{{ $datos->PrefijoFactRectificativas }}" required>
             </div>

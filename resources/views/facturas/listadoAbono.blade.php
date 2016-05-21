@@ -125,21 +125,6 @@ function actualizarEstadoFactura(IdFactura,opcion){
             break;
         }
     }
-    //estado, si está Emitida,Contabilizada,Anulada se presenta en un select, si está Contabilizada se escribe directamente
-    $htmlEstado = '';
-    if($factura->Estado === 'Emitida'){
-        $htmlEstado = '<select class="form-control" name="Estado" id="Estado" onchange="actualizarEstadoFactura(' . $factura->IdFactura . ',this.value);">';
-        $htmlEstado = $htmlEstado . '<option value="Emitida" selected>Emitida</option>';
-        $htmlEstado = $htmlEstado . '<option value="Anulada">Anulada</option>';
-        $htmlEstado = $htmlEstado . '</select>';
-    }else if($factura->Estado === 'Anulada'){
-        $htmlEstado = '<select class="form-control" name="Estado" id="Estado" onchange="actualizarEstadoFactura(' . $factura->IdFactura . ',this.value);">';
-        $htmlEstado = $htmlEstado . '<option value="Emitida">Emitida</option>';
-        $htmlEstado = $htmlEstado . '<option value="Anulada" selected>Anulada</option>';
-        $htmlEstado = $htmlEstado . '</select>';
-    }else if($factura->Estado === 'Contabilizada'){
-        $htmlEstado = 'Contabilizada';
-    }
     
     //carga los datos en el formulario para editarlos
     //$url="javascript:leerCliente(".$presupuesto->IdPresupuesto.");";
@@ -150,7 +135,7 @@ function actualizarEstadoFactura(IdFactura,opcion){
             <td class="sgsiRow" onClick="{{ $url }}">{{ $txtCliente }}</td>
             <td class="sgsiRow" onClick="{{ $url }}">{{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$factura->FechaFactura)->format('d/m/Y') }}</td>
             <td class="sgsiRow" style="text-align: right;" onClick="{{ $url }}">{{ number_format($factura->total, 2, ',', '.') }}</td>
-            <td class="sgsiRow" onClick="{{ $url }}"><?php echo $htmlEstado; ?></td>
+            <td class="sgsiRow" onClick="{{ $url }}"><?php echo $factura->Estado; ?></td>
             <td>
                 <button type="button" onclick="prepararFacturaAbono({{ $factura->IdFactura }})" class="btn btn-xs btn-primary">Preparar Abono</button>
             </td>
@@ -160,19 +145,10 @@ function actualizarEstadoFactura(IdFactura,opcion){
 </table>
 
 <script>
-    function verFactura(IdFactura){
-        location.href = "{{ URL::asset('facturas/editar/') }}/"+IdFactura;
-    }
-    function duplicarFactura(IdFactura){
-        if (confirm("¿Desea duplicar esta factura?"))
+    function prepararFacturaAbono(IdFactura){
+        if (confirm("¿Desea preparar el abono de esta factura?"))
         {
-            location.href = "{{ URL::asset('facturas/duplicar/') }}/"+IdFactura;
-        }
-    }
-    function borrarFactura(IdFactura){
-        if (confirm("¿Desea borrar esta factura?"))
-        {
-            location.href = "{{ URL::asset('facturas/borrar/') }}/"+IdFactura;
+            location.href = "{{ URL::asset('facturas/preparar_factura_abono/') }}/"+IdFactura;
         }
     }
 </script>

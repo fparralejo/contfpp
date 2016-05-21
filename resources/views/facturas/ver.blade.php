@@ -1,6 +1,9 @@
 @extends('layout')
 
 <?php
+use App\Http\Controllers\adminController;
+
+
 //decodifico los datos JSON
 $clientes = json_decode($clientes);
 $datos = json_decode($datos);
@@ -8,6 +11,9 @@ $factura = json_decode($factura);
 $facturaDetalle = json_decode($facturaDetalle);
 $numero = json_decode($numero);
 $editarCampoNumero = json_decode($editarCampoNumero);
+
+$admin = new adminController();
+$numeroEsAbono = $admin->formatearNumero($factura->esAbono,$datos->TipoContador);
 
 //var_dump($clientes);die;
 
@@ -41,7 +47,7 @@ if($factura === ''){//nuevo
 ?>
 
 @section('principal')
-<h4><span>Factura</span></h4>
+<h4><span>Factura @if($esAbono !== '' && isset($esAbono)) de Abono @endif</span></h4>
 <br/>
 
 <script>
@@ -108,7 +114,11 @@ if($factura === ''){//nuevo
                 <label class="col-md-3 control-label">&nbsp;</label>
             </div>
             <div class="form-group">
-                <label class="col-md-3 control-label">&nbsp;</label>
+                <label class="col-md-12">
+                    @if($esAbono !== '' && isset($esAbono))
+                    Abono de Factura Nº&nbsp;&nbsp;&nbsp; <font style='color: #0000ff;'>{{ $numeroEsAbono }}</font>
+                    @endif
+                </label>
             </div>
             <div class="form-group">
                 <label class="col-md-3 control-label">Referencia</label>

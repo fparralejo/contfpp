@@ -226,31 +226,48 @@ class facturasController extends Controller {
         
         $facturas = Factura::on(Session::get('conexionBBDD'))
                         ->where('Borrado', '=', '1')
-                        ->Where('esAbono', '=', '')
+                        ->Where('esAbono', '=', null)
+                        ->orWhere('esAbono', '=', '')
                         ->get();
-        
-        $pedidos = Pedido::on(Session::get('conexionBBDD'))
-                        ->where('Borrado', '=', '1')
-                        ->get();
-        
-        $presupuestos = Presupuesto::on(Session::get('conexionBBDD'))
-                        ->where('Borrado', '=', '1')
-                        ->get();
-        
+       
         $clientes = Cliente::on(Session::get('conexionBBDD'))
                           ->where('borrado', '=', '1')
                           ->where('tipo', '=', 'C')
                           ->get();
+
+
+        //ahora extraigo un listado de las facturas abonada (campo esAbono)
+        $facturasAbonadas = Factura::on(Session::get('conexionBBDD'))
+                            ->where('Borrado', '=', '1')
+                            ->Where('esAbono', '<>', '')
+                            ->select("esAbono")
+                            ->get();
         
+        //genero el array final de las facturas que no estan abonadas
+        //formateo el numero NumFactura
+        $facturasFinal = '';
         for ($i = 0; $i < count($facturas); $i++) {
-            $numero = $admin->formatearNumero($facturas[$i]->NumFactura,$datos->TipoContador);
-            $numeroOrdenar = $admin->formatearNumeroOrdenar($facturas[$i]->NumFactura,$datos->TipoContador);
-            $facturas[$i]->NumFactura = "<!--" . $numeroOrdenar . "-->" . $numero;
+            //busco si esta en alguna factura de abono (en el array $facturasAbonadas)
+            $estaAbonada = 'NO';
+            for ($j = 0; $j < count($facturasAbonadas); $j++) {
+                if((int)$facturasAbonadas[$j]->esAbono === (int)$facturas[$i]->NumFactura){
+                    $estaAbonada = 'SI';
+                    break;
+                    dd($facturasAbonadas[$j]->esAbono);
+                }
+            }
+
+            if($estaAbonada === 'NO'){
+                $numero = $admin->formatearNumero($facturas[$i]->NumFactura,$datos->TipoContador);
+                $numeroOrdenar = $admin->formatearNumeroOrdenar($facturas[$i]->NumFactura,$datos->TipoContador);
+                $facturas[$i]->NumFactura = "<!--" . $numeroOrdenar . "-->" . $numero;
+                
+                $facturasFinal[] = $facturas[$i];
+            }
         }
-
-
+        
         return view('facturas.listadoAbono')->with('clientes', json_encode($clientes))
-                ->with('facturas', json_encode($facturas));
+                ->with('facturas', json_encode($facturasFinal));
     }
     
     
@@ -1083,6 +1100,124 @@ class facturasController extends Controller {
         echo true;
     }
     
+    public function prepararAbono($idFactura){
+        //control de sesion
+        $admin = new adminController();
+        if (!$admin->getControl()) {
+            return redirect('/')->with('login_errors', 'La sesión a expirado. Vuelva a logearse.');
+        }
+        
+        
+        //extraigo los datos de esta factura
+        $factura = Factura::on(Session::get('conexionBBDD'))
+                        ->find($idFactura);
+        //lo clono
+        $nueva_factura = $factura->replicate();
+        $nueva_factura->setConnection(Session::get('conexionBBDD'));
+
+        //indicamos la nueva IdFactura
+        $idFacturaNueva = Factura::on(Session::get('conexionBBDD'))
+                          ->max('IdFactura') + 1;
+        $nueva_factura->IdFactura = $idFacturaNueva;
+        $nueva_factura->Estado = 'Emitida';
+        
+        //saco un numero nuevo
+        $datos = Empresa::on('contfpp')->find((int)Session::get('IdEmpresa'));
+        $numeroNuevo = $admin->numeroNuevoAbono('Factura',$datos->TipoContador);
+        $numero = $admin->formatearNumero($numeroNuevo,$datos->TipoContador);
+        
+        $nueva_factura->esAbono = $nueva_factura->NumFactura;//guardo el numero de la factura a la que se va a abonar
+        $nueva_factura->NumFactura = $numeroNuevo;
+        date_default_timezone_set('Europe/Madrid');
+        $nueva_factura->FechaFactura = date('Y-m-d H:i:s');
+        $nueva_factura->FechaVtoFactura = date('Y-m-d H:i:s');
+        $nueva_factura->IdPresupuesto = '';
+        $nueva_factura->IdPedido = '';
+        
+        //pongo en negativos los valores de los campos BaseImponible, Cuota, CuotaRetencion y total 
+        ($nueva_factura->BaseImponible > 0) ? $nueva_factura->BaseImponible = - $nueva_factura->BaseImponible : '';
+        ($nueva_factura->Cuota > 0) ? $nueva_factura->Cuota = - $nueva_factura->Cuota : '';
+        ($nueva_factura->CuotaRetencion > 0) ? $nueva_factura->CuotaRetencion = - $nueva_factura->CuotaRetencion : '';
+        ($nueva_factura->total > 0) ? $nueva_factura->total = - $nueva_factura->total : '';
+
+        
+        //ahora busco las lineas de la factura
+        $facturaDetalleNuevo = FacturaDetalle::on(Session::get('conexionBBDD'))
+                          ->where('IdFactura', '=', $idFactura)
+                          ->where('Borrado', '=', '1')
+                          ->get();
+        
+        //ahora las operaciones que voy a hacer son por transaccion
+        
+        \DB::connection(Session::get('conexionBBDD'))->beginTransaction(); //Comienza transaccion
+        try{
+            //guardo la factura
+            $nueva_factura->push();
+
+            //ahora inserto estas lineas en la tabla facturaDetalle con los valores de los campos ImporteUnidad, Importe y CuotaIva en negativos
+            for ($i = 0; $i < count($facturaDetalleNuevo); $i++) {
+                $nuevoDetalle = new FacturaDetalle();
+                $nuevoDetalle->setConnection(Session::get('conexionBBDD'));
+                $idNuevo = FacturaDetalle::on(Session::get('conexionBBDD'))
+                                             ->max('IdFacturaDetalle') + 1;
+                
+                $ImporteUnidad = 0;
+                if(isset($facturaDetalleNuevo[$i]->ImporteUnidad)){
+                    if($facturaDetalleNuevo[$i]->ImporteUnidad > 0){
+                        $ImporteUnidad = - $facturaDetalleNuevo[$i]->ImporteUnidad;
+                    }else{
+                        $ImporteUnidad = $facturaDetalleNuevo[$i]->ImporteUnidad;
+                    }
+                }
+                $Importe = 0;
+                if(isset($facturaDetalleNuevo[$i]->Importe)){
+                    if($facturaDetalleNuevo[$i]->Importe > 0){
+                        $Importe = - $facturaDetalleNuevo[$i]->Importe;
+                    }else{
+                        $Importe = $facturaDetalleNuevo[$i]->Importe;
+                    }
+                }
+                $CuotaIva = 0;
+                if(isset($facturaDetalleNuevo[$i]->CuotaIva)){
+                    if($facturaDetalleNuevo[$i]->CuotaIva > 0){
+                        $CuotaIva = - $facturaDetalleNuevo[$i]->CuotaIva;
+                    }else{
+                        $CuotaIva = $facturaDetalleNuevo[$i]->CuotaIva;
+                    }
+                }
+                
+                $nuevoDetalle->IdFacturaDetalle = $idNuevo;
+                $nuevoDetalle->IdFactura = $nueva_factura->IdFactura;
+                $nuevoDetalle->NumLineaFactura = (int)($i +1);
+                $nuevoDetalle->IdArticulo = (isset($facturaDetalleNuevo[$i]->IdArticulo)) ? $facturaDetalleNuevo[$i]->IdArticulo : '';
+                $nuevoDetalle->IdPresupuesto = (isset($facturaDetalleNuevo[$i]->IdPresupuesto)) ? $facturaDetalleNuevo[$i]->IdPresupuesto : '';
+                $nuevoDetalle->NumLineaPresup = (isset($facturaDetalleNuevo[$i]->NumLineaPresup)) ? $facturaDetalleNuevo[$i]->NumLineaPresup : '';
+                $nuevoDetalle->IdPedido = (isset($facturaDetalleNuevo[$i]->IdPedido)) ? $facturaDetalleNuevo[$i]->IdPedido : '';
+                $nuevoDetalle->NumLineaPedido = (isset($facturaDetalleNuevo[$i]->NumLineaPedido)) ? $facturaDetalleNuevo[$i]->NumLineaPedido : '';
+                $nuevoDetalle->DescripcionProducto = (isset($facturaDetalleNuevo[$i]->DescripcionProducto)) ? $facturaDetalleNuevo[$i]->DescripcionProducto : '';
+                $nuevoDetalle->TipoIVA = (isset($facturaDetalleNuevo[$i]->TipoIVA)) ? $facturaDetalleNuevo[$i]->TipoIVA : '';
+                $nuevoDetalle->Cantidad = (isset($facturaDetalleNuevo[$i]->Cantidad)) ? $facturaDetalleNuevo[$i]->Cantidad : '';
+                $nuevoDetalle->ImporteUnidad = $ImporteUnidad;
+                $nuevoDetalle->Importe = $Importe;
+                $nuevoDetalle->CuotaIva = $CuotaIva;
+
+                $nuevoDetalle->save();
+            }
+        }
+        catch(\Exception $e)
+        {
+          //failed logic here
+           \DB::connection(Session::get('conexionBBDD'))->rollback();
+           throw $e;
+           echo "falla";die;
+        }
+
+        \DB::connection(Session::get('conexionBBDD'))->commit();
+        
+
+        //por ultimo voy a la nueva factura abono
+        return redirect('facturas/editar/'.$nueva_factura->IdFactura);
+    }
 }
 
 //defino el objeto PDF

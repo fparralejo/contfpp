@@ -274,8 +274,6 @@ class adminController extends Controller {
     }
     
     public function numeroNuevo($tipoDoc,$TipoContador){
-        //SOLO ESTA IMPLEMENTADO PRESUPUESTOS y PEDIDOS
-        
         $numMasAlto = 0;
         if($tipoDoc === 'Presupuesto'){
             //extraigo el listado de los presupuestos
@@ -367,6 +365,56 @@ class adminController extends Controller {
         
         return $resultado;
     }
+    
+    
+    public function numeroNuevoAbono($tipoDoc,$TipoContador){
+        $numMasAlto = 0;
+        
+        $datos = Empresa::on('contfpp')->find((int)Session::get('IdEmpresa'));
+        $prefijo = $datos->PrefijoFactRectificativas;
+        
+        if($tipoDoc === 'Factura'){
+            //extraigo el listado de las facturas de abono actuales
+            $listadoNumeros = Factura::on(Session::get('conexionBBDD'))
+                            ->where('Borrado', '=', '1')
+                            ->where('esAbono', '<>', '')
+                            ->select('NumFactura')
+                            ->get();
+
+            if(is_array($listadoNumeros)){
+                for ($i = 0; $i < count($listadoNumeros); $i++) {
+                    //quito el ejercico (4 primeras cifras)
+                    $ejercicio = substr($listadoNumeros[$i]->NumFactura,0,4);
+                    $resto = substr($listadoNumeros[$i]->NumFactura,4);
+                    //veo si tiene el prefijo
+                    if(strpos($resto,$prefijo) === false){
+                        //no tiene prefijo
+                    }else{
+                        //si tiene, se lo quito 
+                        $numero = str_replace($prefijo, "", $resto);
+                        //comparo si es el numero mas alto que $numMasAlto
+                        if((int)$numero > (int)$numMasAlto){
+                            $numMasAlto = $numero;
+                        }
+                    }
+                }
+            }else{
+                $ejercicio = date('Y');
+            }
+        }
+        
+        //ahora segun el $TipoContador, ejecuto la funcion para aumentar la numeracion un numero
+        $txtFuncion = "nuevoNumero".$TipoContador;
+        
+        $numeroGenerado = $this->$txtFuncion($ejercicio,$numMasAlto);
+        
+        //ahora añado el prefijo, quito el ejercico, añado el prefijo y lo vuelvo a incluir
+        $ejercicio = substr($numeroGenerado,0,4);
+        $resto = substr($numeroGenerado,4);
+        
+        return $ejercicio.$prefijo.$resto;
+    }
+    
     
     public function desFormatearNumero($numero,$TipoContador){
         //decido que tipo de contador es

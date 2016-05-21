@@ -107,17 +107,6 @@ Route::get('fact_ped', function () {
 
 
 
-//Route::get('fact_prep', function () {
-//    return view('construccion');
-//});
-//Route::get('ped_prep', function () {
-//    return view('construccion');
-//});
-
-
-
-
-
 
 
 //facturas
@@ -132,6 +121,7 @@ Route::get('facturas/buscar_articulos', 'presupuestosController@buscar_articulos
 Route::get('facturas/datos_articulo', 'presupuestosController@datos_articulo');//busco en presupuestosController
 Route::get('facturas/actualizarEstado', 'facturasController@actualizarEstado');
 Route::get('facturas/factura_abono', 'facturasController@listarAbono');
+Route::get('facturas/preparar_factura_abono/{idFactura}', 'facturasController@prepararAbono');
 
 
 
