@@ -5,7 +5,7 @@ $facturas = json_decode($facturas);
 $pedidos = json_decode($pedidos);
 $presupuestos = json_decode($presupuestos);
 $clientes = json_decode($clientes);
-//dd($presupuestos);
+//dd($facturas);
 ?>
 
 @section('principal')

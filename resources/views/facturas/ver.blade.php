@@ -712,7 +712,7 @@ if($factura === ''){//nuevo
                     <span class="sr-only">Cerrar</span>
                 </button>
                 <h4 class="modal-title" id="myModalLabel">
-                    Enviar Pedido
+                    Enviar Factura
                 </h4>
             </div>
 

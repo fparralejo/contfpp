@@ -245,7 +245,7 @@ class facturasController extends Controller {
         
         //genero el array final de las facturas que no estan abonadas
         //formateo el numero NumFactura
-        $facturasFinal = '';
+        $facturasFinal = new \Illuminate\Support\Collection();
         for ($i = 0; $i < count($facturas); $i++) {
             //busco si esta en alguna factura de abono (en el array $facturasAbonadas)
             $estaAbonada = 'NO';
@@ -253,7 +253,7 @@ class facturasController extends Controller {
                 if((int)$facturasAbonadas[$j]->esAbono === (int)$facturas[$i]->NumFactura){
                     $estaAbonada = 'SI';
                     break;
-                    dd($facturasAbonadas[$j]->esAbono);
+                    //dd($facturasAbonadas[$j]->esAbono);
                 }
             }
 

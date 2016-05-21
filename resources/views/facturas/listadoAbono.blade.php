@@ -3,7 +3,7 @@
 <?php
 $facturas = json_decode($facturas);
 $clientes = json_decode($clientes);
-//dd($presupuestos);
+//dd($facturas);
 ?>
 
 @section('principal')
