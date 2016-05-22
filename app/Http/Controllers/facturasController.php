@@ -690,7 +690,12 @@ class facturasController extends Controller {
         //$pdf->Cell(180, 4, 'Referencia: '.utf8_decode($pdf->datosPresupuesto['Referencia']));
         
         //aqui indico los datos de los cuadros superiores de fecha y si es periodica o no
-        //$pdf->FechasYTipoFactura();
+        //numero
+        if(isset($pdf->factura->esAbono) && $pdf->factura->esAbono !== ''){
+            $numeroAbono = $admin->formatearNumero($pdf->factura->esAbono,$pdf->datos->TipoContador);
+            $pdf->Cell(180, 4, utf8_decode('Abono de Factura Nº ' . $numeroAbono),0, 0, 'L');
+        }
+        
         $pdf->Ln();
         $pdf->Ln();
 

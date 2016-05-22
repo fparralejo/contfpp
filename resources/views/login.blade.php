@@ -49,7 +49,7 @@
                 <div class="col-xs-12">
                     <span><center><h3>Contabilidad XYZ</h3></center></span>	
                     <span><center><h5>Módulo Facturación</h5></center></span>	
-                    <span><center><h6>Versión 0.20160521</h6></center></span>	
+                    <span><center><h6>Versión 1.20160522</h6></center></span>	
                     <br/>
                 </div>
             </div>
