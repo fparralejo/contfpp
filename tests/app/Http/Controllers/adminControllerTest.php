@@ -81,39 +81,174 @@ class adminControllerTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers App\Http\Controllers\adminController::formatearNumero
-     * @todo   Implement testFormatearNumero().
-     * @covers Implement testFormatearNumero().
+     * @todo   Implement testFormatearNumero_2_TipoContador1().
      */
-    public function testFormatearNumero() {
-        // 20161
-        $numero = $this->object->formatearNumero('20161', 3);
-        
-        //var_dump($numero);die;
-        
-        // Remove the following lines when you implement this test.
-        $this->assertEquals($numero, '1/2016');
-        
-        // 2016A1
-        $numero = $this->object->formatearNumero('2016A1', 3);
-        
-        //var_dump($numero);die;
-        
-        // Remove the following lines when you implement this test.
-        $this->assertEquals($numero, 'A1/2016');
-        
+    public function testFormatearNumero_2_TipoContador1() {
+        $numero = $this->object->formatearNumero('2', 1);
+        $this->assertEquals($numero, '2');
     }
 
-//    /**
-//     * @covers App\Http\Controllers\adminController::formatearNumeroOrdenar
-//     * @todo   Implement testFormatearNumeroOrdenar().
-//     */
-//    public function testFormatearNumeroOrdenar() {
-//        // Remove the following lines when you implement this test.
-//        $this->markTestIncomplete(
-//                'This test has not been implemented yet.'
-//        );
-//    }
-//
+    /**
+     * @covers App\Http\Controllers\adminController::formatearNumero
+     * @todo   Implement testFormatearNumero_A3_TipoContador1().
+     */
+    public function testFormatearNumero_A3_TipoContador1() {
+        $numero = $this->object->formatearNumero('A3', 1);
+        $this->assertEquals($numero, 'A3');
+    }
+
+    
+    
+    /**
+     * @covers App\Http\Controllers\adminController::formatearNumero
+     * @todo   Implement testFormatearNumero_20162_TipoContador2().
+     */
+    public function testFormatearNumero_20162_TipoContador2() {
+        $numero = $this->object->formatearNumero('20162', 2);
+        $this->assertEquals($numero, '2');
+    }
+
+    /**
+     * @covers App\Http\Controllers\adminController::formatearNumero
+     * @todo   Implement testFormatearNumero_2016A22_TipoContador2().
+     */
+    public function testFormatearNumero_2016A22_TipoContador2() {
+        $numero = $this->object->formatearNumero('2016A22', 2);
+        $this->assertEquals($numero, 'A22');
+    }
+
+    /**
+     * @covers App\Http\Controllers\adminController::formatearNumero
+     * @todo   Implement testFormatearNumero_2016F13_TipoContador2().
+     */
+    public function testFormatearNumero_2016F13_TipoContador2() {
+        $numero = $this->object->formatearNumero('2016F13', 2);
+        $this->assertEquals($numero, 'F13');
+    }
+
+    
+    /**
+     * @covers App\Http\Controllers\adminController::formatearNumero
+     * @todo   Implement testFormatearNumero_20161_TipoContador3().
+     */
+    public function testFormatearNumero_20161_TipoContador3() {
+        $numero = $this->object->formatearNumero('20161', 3);
+        $this->assertEquals($numero, '1/2016');
+    }
+
+    /**
+     * @covers App\Http\Controllers\adminController::formatearNumero
+     * @todo   Implement testFormatearNumero_2016A104_TipoContador3().
+     */
+    public function testFormatearNumero_2016A104_TipoContador3() {
+        $numero = $this->object->formatearNumero('2016A104', 3);
+        $this->assertEquals($numero, 'A104/2016');
+    }
+
+    /**
+     * @covers App\Http\Controllers\adminController::formatearNumero
+     * @todo   Implement testFormatearNumero_2016A1_TipoContador3().
+     */
+    public function testFormatearNumero_201677_TipoContador4() {
+        $numero = $this->object->formatearNumero('201677', 4);
+        $this->assertEquals($numero, '2016/77');
+    }
+
+    /**
+     * @covers App\Http\Controllers\adminController::formatearNumero
+     * @todo   Implement testFormatearNumero_2016A1_TipoContador3().
+     */
+    public function testFormatearNumero_2016D19_TipoContador4() {
+        $numero = $this->object->formatearNumero('2016D19', 4);
+        $this->assertEquals($numero, '2016/D19');
+    }
+
+    
+    
+    /**
+     * @covers App\Http\Controllers\adminController::formatearNumeroOrdenar
+     * @todo   Implement testFormatearNumeroOrdenar_13_TipoContador1().
+     */
+    public function testFormatearNumeroOrdenar_13_TipoContador1() {
+        $numero = $this->object->formatearNumeroOrdenar('13', 1);
+        $texto = "<!-- " . $numero . " -->";
+        $this->assertEquals($texto, '<!-- 13 -->');
+    }
+
+    /**
+     * @covers App\Http\Controllers\adminController::formatearNumeroOrdenar
+     * @todo   Implement testFormatearNumeroOrdenar_A13_TipoContador1().
+     */
+    public function testFormatearNumeroOrdenar_A13_TipoContador1() {
+        $numero = $this->object->formatearNumeroOrdenar('A13', 1);
+        $texto = "<!-- " . $numero . " -->";
+        $this->assertEquals($texto, '<!-- A13 -->');
+    }
+
+    /**
+     * @covers App\Http\Controllers\adminController::formatearNumeroOrdenar
+     * @todo   Implement testFormatearNumeroOrdenar_201621_TipoContador2().
+     */
+    public function testFormatearNumeroOrdenar_201621_TipoContador2() {
+        $numero = $this->object->formatearNumeroOrdenar('201621', 2);
+        $texto = "<!-- " . $numero . " -->";
+        $this->assertEquals($texto, '<!-- 0000000021 -->');
+    }
+
+    /**
+     * @covers App\Http\Controllers\adminController::formatearNumeroOrdenar
+     * @todo   Implement testFormatearNumeroOrdenar_2016F212_TipoContador2().
+     */
+    public function testFormatearNumeroOrdenar_2016F212_TipoContador2() {
+        $numero = $this->object->formatearNumeroOrdenar('2016F212', 2);
+        $texto = "<!-- " . $numero . " -->";
+        $this->assertEquals($texto, '<!-- 000000F212 -->');
+    }
+    
+    
+    /**
+     * @covers App\Http\Controllers\adminController::formatearNumeroOrdenar
+     * @todo   Implement testFormatearNumeroOrdenar_2016443_TipoContador3().
+     */
+    public function testFormatearNumeroOrdenar_2016443_TipoContador3() {
+        $numero = $this->object->formatearNumeroOrdenar('2016443', 3);
+        $texto = "<!-- " . $numero . " -->";
+        $this->assertEquals($texto, '<!-- 20160000000443 -->');
+    }
+
+    /**
+     * @covers App\Http\Controllers\adminController::formatearNumeroOrdenar
+     * @todo   Implement testFormatearNumeroOrdenar_2015A96_TipoContador3().
+     */
+    public function testFormatearNumeroOrdenar_2015A96_TipoContador3() {
+        $numero = $this->object->formatearNumeroOrdenar('2015A96', 3);
+        $texto = "<!-- " . $numero . " -->";
+        $this->assertEquals($texto, '<!-- 20150000000A96 -->');
+    }
+    
+    
+    /**
+     * @covers App\Http\Controllers\adminController::formatearNumeroOrdenar
+     * @todo   Implement testFormatearNumeroOrdenar_33_TipoContador3().
+     */
+    public function testFormatearNumeroOrdenar_33_TipoContador3() {
+        $numero = $this->object->formatearNumeroOrdenar('33', 3);
+        $texto = "<!-- " . $numero . " -->";
+        $this->assertEquals($texto, '<!-- 330000000000 -->');
+    }
+    
+    /**
+     * @covers App\Http\Controllers\adminController::formatearNumeroOrdenar
+     * @todo   Implement testFormatearNumeroOrdenar_AGHFRTY_TipoContador3().
+     */
+    public function testFormatearNumeroOrdenar_AGHFRTY_TipoContador3() {
+        $numero = $this->object->formatearNumeroOrdenar('AGHFRTY', 3);
+        $texto = "<!-- " . $numero . " -->";
+        $this->assertEquals($texto, '<!-- AGHF0000000RTY -->');
+    }
+    
+    
+    
 //    /**
 //     * @covers App\Http\Controllers\adminController::numeroNuevo
 //     * @todo   Implement testNumeroNuevo().
