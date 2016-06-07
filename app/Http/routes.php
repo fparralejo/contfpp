@@ -11,6 +11,10 @@
 |
 */
 
+//PRUEBA
+Route::get('prueba', 'adminController@prueba');
+
+
 Route::get('/', function () {
     return view('login');
 });

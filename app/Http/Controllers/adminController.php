@@ -3,7 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use Session;
+use Illuminate\Support\Facades\Session;
 use Input;
 use Illuminate\Http\Request;
 
@@ -472,5 +472,15 @@ class adminController extends Controller {
         
         return $editar;
     }
+    
+    //PRUEBA, BORRAR
+    public function prueba() {
+//        dd('mierda');
+        $métodos_clase = get_class_methods(new Session());
+        foreach ($métodos_clase as $nombre_método) {
+            echo "$nombre_método<br/>";
+        }
+    }
+    
     
 }
