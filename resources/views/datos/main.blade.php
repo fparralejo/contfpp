@@ -219,7 +219,7 @@ $(document).ready(function() {
         <div class="col-md-11">
             <div class="form-group">
                 <label for="TextoPie">Texto a pie de página:</label>
-                <textarea class="form-control" rows="4" name="TextoPie" id="TextoPie">{{ $datos->TextoPie }}</textarea>
+                <textarea class="form-control" rows="4" name="TextoPie" id="TextoPie" maxlength="260">{{ $datos->TextoPie }}</textarea>
             </div>
         </div>
     </div>

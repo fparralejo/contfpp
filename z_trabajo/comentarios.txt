@@ -1,0 +1,13 @@
+https://laravel.com/docs/5.1/mail
+
+
+
+PHP Mailer
+http://stackoverflow.com/questions/29486522/laravel-5-and-phpmailer
+https://github.com/PHPMailer/PHPMailer/issues/469
+
+
+
+TextoPie dia 13/6/2016
+Este presupuesto tiene una validez de 30 días. Para su aceptación es indispensable enviar firmado o hacer trasferencia bancaria del 40% en cualquiera de estas dos oficinas. BBVA ES 52 0182 1836 94 0201512588. o en Bankinter. ES 52 0128 0226 03 0100001155. Se reserva derecho de admisión esta empresa adherida a arbitraje de consumo.
+
