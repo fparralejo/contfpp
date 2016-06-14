@@ -186,9 +186,7 @@ function actualizarEstadoFactura(IdFactura,opcion){
                 <button type="button" onclick="duplicarFactura({{ $factura->IdFactura }})" class="btn btn-xs btn-success">Duplicar</button>
             </td>
             <td>
-                @if($pedido->Facturada === 'NF')
                 <button type="button" onclick="borrarFactura({{ $factura->IdFactura }})" class="btn btn-xs btn-danger">Borrar</button>
-                @endif
             </td>
         </tr>
     @endforeach
