@@ -8,6 +8,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 use App\Http\Controllers\adminController;
 use Illuminate\Support\Facades\Session;
+//use Illuminate\Http\Request;
 
 
 /**
@@ -50,7 +51,7 @@ class adminControllerTest extends \PHPUnit_Framework_TestCase {
     protected function setUp() {
         $this->object = new adminController;
         //$this->session(['usuario' => 'paco']);
-        //Session::put('usuario', 'paco');
+        //Session:: set('usuario', 'paco');
     }
 
     /**
@@ -282,13 +283,15 @@ class adminControllerTest extends \PHPUnit_Framework_TestCase {
      */
     public function testNumeroNuevo() {
         //rellena los datos del request del logeo
+//        $Sesion = new Session();
+////        //Session::put('nombre_apellidos', $empleado[0]->nombre . ' ' . $empleado[0]->apellidos);
+////        //Session::put('empresa', $empresa[0]->identificacion);//BORRAR
+//        \Session::put('IdEmpresa', 2);
+//        \Session::put('conexionBBDD', 'contfpp_empresa2');
         
-//        //Session::put('nombre_apellidos', $empleado[0]->nombre . ' ' . $empleado[0]->apellidos);
-//        //Session::put('empresa', $empresa[0]->identificacion);//BORRAR
-//        Session::put('IdEmpresa', 2);
-//        Session::put('conexionBBDD', 'contfpp_empresa2');
+        //$request = new Request();
         
-        
+        //session()->put('conexionBBDD', 'contfpp_empresa2');
         
         $numero = $this->object->numeroNuevo('Presupuesto', 1);
         echo $numero;

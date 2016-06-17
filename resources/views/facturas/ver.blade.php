@@ -472,7 +472,7 @@ if($factura === ''){//nuevo
                 addConcepto(lineaAux);//esta funcion ya aumenta el contador "numLinea"
                 //ahora relleno los datos de esta linea
                 $('#Cantidad'+lineaAux).val(parseFloat(<?php echo $facturaDetalle[$i]->Cantidad; ?>).toFixed(2));
-                $('#Concepto'+lineaAux).val('<?php echo $facturaDetalle[$i]->DescripcionProducto; ?>');
+                $('#Concepto'+lineaAux).val('<?php echo str_replace(array("\r\n","\r","\n"),'\n',$facturaDetalle[$i]->DescripcionProducto); ?>');
                 $('#IdArticulo'+lineaAux).val('<?php echo $facturaDetalle[$i]->IdArticulo; ?>');
                 $('#IdPresupuesto'+lineaAux).val('<?php echo $facturaDetalle[$i]->IdPresupuesto; ?>');
                 $('#NumLineaPedido'+lineaAux).val('<?php echo $facturaDetalle[$i]->NumLineaPedido; ?>');

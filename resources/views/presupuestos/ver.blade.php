@@ -497,7 +497,7 @@ if($presupuesto === ''){//nuevo
                 addConcepto(lineaAux);//esta funcion ya aumenta el contador "numLinea"
                 //ahora relleno los datos de esta linea
                 $('#Cantidad'+lineaAux).val(parseFloat(<?php echo $presupuestoDetalle[$i]->Cantidad; ?>).toFixed(2));
-                $('#Concepto'+lineaAux).val('<?php echo $presupuestoDetalle[$i]->DescripcionProducto; ?>');
+                $('#Concepto'+lineaAux).val('<?php echo str_replace(array("\r\n","\r","\n"),'\n',$presupuestoDetalle[$i]->DescripcionProducto); ?>');
                 $('#IdArticulo'+lineaAux).val('<?php echo $presupuestoDetalle[$i]->IdArticulo; ?>');
                 $('#Precio'+lineaAux).val(parseFloat(<?php echo $presupuestoDetalle[$i]->ImporteUnidad; ?>).toFixed(2));
                 $('#Importe'+lineaAux).val(parseFloat(<?php echo $presupuestoDetalle[$i]->Importe; ?>).toFixed(2));
