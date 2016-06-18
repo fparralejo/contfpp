@@ -48,6 +48,8 @@ Route::get('articulo/delete', 'articulosController@articuloDelete');
 
 
 //bbdd
+Route::get('bbdd/backup', 'bbddController@main');
+Route::post('bbdd/backup', 'bbddController@backup');
 Route::get('bbdd/exportar', function () {
     return view('construccion');
 });
@@ -57,9 +59,9 @@ Route::get('bbdd/importar', function () {
 Route::get('bbdd/corregir', function () {
     return view('construccion');
 });
-Route::get('bbdd/backup', function () {
-    return view('construccion');
-});
+//Route::get('bbdd/backup', function () {
+//    return view('construccion');
+//});
 
 
 
