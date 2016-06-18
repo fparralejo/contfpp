@@ -1,0 +1,11 @@
+cd C:\xampp\mysql\bin
+mysqldump -u=s201859c_parra --host=localhost --password=parra1970 --db=s201859c_facturas > empresa1.sql
+
+
+CREATE EVENT e_ActualizaSaldoDiario
+ON SCHEDULE EVERY 1 DAY STARTS ‘2013-01-01 00:00:00’
+DO UPDATE gastos SET saldo = 1000
+
+BACKUP EN LARAVEL 5
+http://www.kabytes.com/programacion/copias-de-seguridad-backups-archivos-bases-datos-laravel-5/
+
