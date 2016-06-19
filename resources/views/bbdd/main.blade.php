@@ -125,29 +125,23 @@
         <tbody>
         <?php 
         //decodifico los datos JSON
-        $ficheros = json_decode($ficheros); 
-        //dd($ficheros);
+        $ficheros = ($ficheros); 
+        //var_dump($ficheros);die;
         ?>   
-        @for ($i = 0;$i < count($ficheros); $i++)
-        <?php
-        //que no sean . o ..
-        if($ficheros[$i] === '.' || $ficheros[$i] === '..'){
-        }else{
+        @foreach ($ficheros as $fichero)
+            <?php
             //carga los datos en el formulario para editarlos
             //$url="javascript:leerArticulo(".$articulo->IdArticulo.");";
             $url="";
             ?>
-                <tr>
-                    <td class="sgsiRow" onClick="{{ $url }}">
-                        <div align="center">
-                            <input type="radio" name="fichero" value="{{ $ficheros[$i] }}" /></td>
-                       </div>
-                    <td class="sgsiRow" onClick="{{ $url }}">{{ $ficheros[$i] }}</td>
-                </tr>
-            <?php
-            }
-        ?>
-        @endfor
+            <tr>
+                <td class="sgsiRow" onClick="{{ $url }}">
+                    <div align="center">
+                        <input type="radio" name="fichero" value="{{ $fichero['fichero'] }}" onclick="enabledBtnImportar();" /></td>
+                   </div>
+                <td class="sgsiRow" onClick="{{ $url }}">Backup fecha {{ $fichero['fecha'] }}</td>
+            </tr>
+        @endforeach
         </tbody>
     </table>
 
@@ -166,7 +160,7 @@
 
     <div class="row">
         <input type="button" id="Guardar" name="Guardar" class="btn btn-default" value="Guardar" onclick="guardar();" />
-        <input type="button" id="Importar" name="Importar" class="btn btn-default" value="Importar" onclick="importar();" />
+        <input type="button" id="Importar" name="Importar" class="btn btn-default" value="Importar" onclick="importar();" disabled />
         <input type="hidden" name="opcion" />
     </div>
 
@@ -183,6 +177,10 @@
         alert("se va proceder a importar el fichero "+document.bbddForm.fichero.value);
         document.bbddForm.opcion.value = 'importar';
         document.bbddForm.submit();
+    }
+    
+    function enabledBtnImportar(){
+        document.bbddForm.Importar.disabled = false;
     }
 </script>
 

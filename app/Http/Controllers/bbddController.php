@@ -118,11 +118,40 @@ class bbddController extends Controller {
             $txtError = Session::get('errors');
         }
         
-        return view('bbdd.main')->with('ficheros', json_encode($ficheros))->with('errors', $txtError);
+        //ahora preparo el array del listado de los backup's guardados
+        $datos = '';
+        //dd($ficheros);
+        for ($i = 0; $i < count($ficheros); $i++){
+            if($ficheros[$i] === '.' || $ficheros[$i] === '..'){
+            }else{
+                //ahora descompongo el nombre del fichero para ver los datos
+                $explodeFichero = explode(".", $ficheros[$i]);
+                $explodeFichero = explode("-", $explodeFichero[0]);
+                //el nombre del fichero es de esta forma (BBDD_2_2016-06-19-18-54-13)
+                //en la posicion 1 esta el numero de empresa, 
+                //si coincide con el nuestro lo incluimos en el array final
+                if((int)$explodeFichero[1] === (int)Session::get('IdEmpresa')){
+                    $dato['fecha'] = $explodeFichero[4] . '/' . $explodeFichero[3] . '/' . $explodeFichero[2] . ' ' . $explodeFichero[5] . ':' . $explodeFichero[6] . ':' . $explodeFichero[7];
+                    $dato['fichero'] = $ficheros[$i];
+                    $datos[] = $dato;
+                }
+            }
+        }
+
+        //var_dump($datos);die;
+        return view('bbdd.main')->with('ficheros', ($datos))->with('errors', $txtError);
     }
         
     
     public function backup(Request $request){
+        \Log::info('Laravel: info ');
+        \Log::emergency('Laravel: emergency ');
+        \Log::alert('Laravel: alert ');
+        \Log::critical('Laravel: critical ');
+        \Log::error('Laravel: error ');
+        \Log::warning('Laravel: warning ');
+        \Log::notice('Laravel: notice ');
+        \Log::debug('Laravel: debug ');
         //dd($request);
         //vemos con que opcion venimos
         if($request->opcion === "guardar"){
@@ -141,7 +170,7 @@ class bbddController extends Controller {
 
             //generamos el nombre del fichero
             $fecha = \Carbon\Carbon::createFromFormat('Y-m-d-H-i-s',date('Y-m-d-H-i-s'))->format('Y-m-d-H-i-s');
-            $nombre = "../public/backup/BBDD_" . Session::get('IdEmpresa') . "_" . $fecha . ".json";
+            $nombre = "../public/backup/BBDD-" . Session::get('IdEmpresa') . "-" . $fecha . ".json";
             $datos = '';
 
             //articulos
@@ -157,31 +186,31 @@ class bbddController extends Controller {
             $datos['Empleados'] = $empleados->toArray(); 
 
             //facturas
-            $facturas = Cliente::on(Session::get('conexionBBDD'))->get();
+            $facturas = Factura::on(Session::get('conexionBBDD'))->get();
             $datos['Facturas'] = $facturas->toArray(); 
 
             //facturasdetalle
-            $facturasDetalle = Cliente::on(Session::get('conexionBBDD'))->get();
+            $facturasDetalle = FacturaDetalle::on(Session::get('conexionBBDD'))->get();
             $datos['FacturasDetalle'] = $facturasDetalle->toArray(); 
 
             //pedidos
-            $pedidos = Cliente::on(Session::get('conexionBBDD'))->get();
+            $pedidos = Pedido::on(Session::get('conexionBBDD'))->get();
             $datos['Pedidos'] = $pedidos->toArray(); 
 
             //pedidosdetalle
-            $pedidosDetalle = Cliente::on(Session::get('conexionBBDD'))->get();
+            $pedidosDetalle = PedidoDetalle::on(Session::get('conexionBBDD'))->get();
             $datos['PedidosDetalle'] = $pedidosDetalle->toArray(); 
 
             //presupuestos
-            $presupuestos = Cliente::on(Session::get('conexionBBDD'))->get();
+            $presupuestos = Presupuesto::on(Session::get('conexionBBDD'))->get();
             $datos['Presupuestos'] = $presupuestos->toArray(); 
 
             //presupuestosdetalle
-            $presupuestosDetalle = Cliente::on(Session::get('conexionBBDD'))->get();
+            $presupuestosDetalle = PresupuestoDetalle::on(Session::get('conexionBBDD'))->get();
             $datos['PresupuestosDetalle'] = $presupuestosDetalle->toArray(); 
 
             //usuarios
-            $usuarios = Cliente::on(Session::get('conexionBBDD'))->get();
+            $usuarios = Usuario::on(Session::get('conexionBBDD'))->get();
             $datos['Usuarios'] = $usuarios->toArray(); 
 
 
@@ -330,7 +359,7 @@ class bbddController extends Controller {
             }
 
             //pedidosdetalle
-            PedidosDetalle::on(Session::get('conexionBBDD'))->truncate();
+            PedidoDetalle::on(Session::get('conexionBBDD'))->truncate();
             foreach ($datos['PedidosDetalle'] as $pedidoDetalle){
                 $obj = new PedidoDetalle();
                 $obj->setConnection(Session::get('conexionBBDD'));
@@ -351,18 +380,64 @@ class bbddController extends Controller {
             }
 
             
-            //VOY POR AQUI 19/6/2016
             //presupuestos
-            PresupuestoDetalle::on(Session::get('conexionBBDD'))->truncate();
+            Presupuesto::on(Session::get('conexionBBDD'))->truncate();
             foreach ($datos['Presupuestos'] as $presupuesto){
+                $obj = new Presupuesto();
+                $obj->setConnection(Session::get('conexionBBDD'));
+                $obj->IdPresupuesto = $presupuesto['IdPresupuesto'];
+                $obj->NumPresupuesto = $presupuesto['NumPresupuesto'];
+                $obj->IdCliente = $presupuesto['IdCliente'];
+                $obj->FechaPresupuesto = $presupuesto['FechaPresupuesto'];
+                $obj->FechaVtoPresupuesto = $presupuesto['FechaVtoPresupuesto'];
+                $obj->FormaPago = $presupuesto['FormaPago'];
+                $obj->FechaFinalizacion = $presupuesto['FechaFinalizacion'];
+                $obj->Estado = $presupuesto['Estado'];
+                $obj->Retencion = $presupuesto['Retencion'];
+                $obj->Proforma = $presupuesto['Proforma'];
+                $obj->Borrado = $presupuesto['Borrado'];
+                $obj->BaseImponible = $presupuesto['BaseImponible'];
+                $obj->Cuota = $presupuesto['Cuota'];
+                $obj->CuotaRetencion = $presupuesto['CuotaRetencion'];
+                $obj->total = $presupuesto['total'];
+                $obj->Facturada = $presupuesto['Facturada'];
+                $obj->Pedido = $presupuesto['Pedido'];
+                $obj->save();
+            }
+            
+            //presupuestosdetalle
+            PresupuestoDetalle::on(Session::get('conexionBBDD'))->truncate();
+            foreach ($datos['PresupuestosDetalle'] as $presupuestoDetalle){
                 $obj = new PresupuestoDetalle();
                 $obj->setConnection(Session::get('conexionBBDD'));
-                $obj->IdPedidoDetalle = $presupuesto['IdPedidoDetalle'];
-                
+                $obj->IdPresupDetalle = $presupuestoDetalle['IdPresupDetalle'];
+                $obj->IdPresupuesto = $presupuestoDetalle['IdPresupuesto'];
+                $obj->NumLineaPresup = $presupuestoDetalle['NumLineaPresup'];
+                $obj->IdArticulo = $presupuestoDetalle['IdArticulo'];
+                $obj->DescripcionProducto = $presupuestoDetalle['DescripcionProducto'];
+                $obj->TipoIVA = $presupuestoDetalle['TipoIVA'];
+                $obj->Cantidad = $presupuestoDetalle['Cantidad'];
+                $obj->ImporteUnidad = $presupuestoDetalle['ImporteUnidad'];
+                $obj->Importe = $presupuestoDetalle['Importe'];
+                $obj->CuotaIva = $presupuestoDetalle['CuotaIva'];
+                $obj->Borrado = $presupuestoDetalle['Borrado'];
                 $obj->save();
             }
 
-            
+            //usuarios
+            Usuario::on(Session::get('conexionBBDD'))->truncate();
+            foreach ($datos['Usuarios'] as $usuario){
+                $obj = new Usuario();
+                $obj->setConnection(Session::get('conexionBBDD'));
+                $obj->usuario = $usuario['usuario'];
+                $obj->password = $usuario['password'];
+                $obj->IdEmpleado = $usuario['IdEmpleado'];
+                $obj->borrado = $usuario['borrado'];
+                $obj->fechaStatus = $usuario['fechaStatus'];
+                $obj->IdEmpleadoStatus = $usuario['IdEmpleadoStatus'];
+                $obj->save();
+            }
+
             
             $txtError = "Se ha importado correctamente la base de datos";
         }
