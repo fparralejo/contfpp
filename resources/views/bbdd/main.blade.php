@@ -6,7 +6,7 @@
 ?>
 
 @section('principal')
-<h4><span>Artículos</span></h4>
+<h4><span>Base de Datos: Backup</span></h4>
 <br/>
 
 <style>
@@ -40,7 +40,6 @@
             "aaSorting": [[ 0, "asc" ]],
             "aoColumns": [
                 { "sType": 'string' },
-                { "sType": 'string' },
                 { "sType": 'string' }
             ],                    
             "bJQueryUI":true,
@@ -49,43 +48,43 @@
 	});
 
 
-	function leerArticulo(IdArticulo){
-            $.ajax({
-              data:{"IdArticulo":IdArticulo},  
-              url: '{{ URL::asset("articulo/show") }}',
-              type:"get",
-              success: function(data) {
-                var articulo = JSON.parse(data);
-                $('#IdArticulo').val(articulo.IdArticulo);
-                $('#Referencia').val(articulo.Referencia);
-                $('#Descripcion').val(articulo.Descripcion);
-                $('#Precio').val(parseFloat(articulo.Precio).toFixed(2));
-                $('#tipoIVA').val(articulo.tipoIVA);
-                //cambiar nombre del titulo del formulario
-                $("#tituloForm").html('Editar Artículo');
-                $("#submitir").val('OK');
-              }
-            });
-	}
+//	function leerArticulo(IdArticulo){
+//            $.ajax({
+//              data:{"IdArticulo":IdArticulo},  
+//              url: '{{ URL::asset("articulo/show") }}',
+//              type:"get",
+//              success: function(data) {
+//                var articulo = JSON.parse(data);
+//                $('#IdArticulo').val(articulo.IdArticulo);
+//                $('#Referencia').val(articulo.Referencia);
+//                $('#Descripcion').val(articulo.Descripcion);
+//                $('#Precio').val(parseFloat(articulo.Precio).toFixed(2));
+//                $('#tipoIVA').val(articulo.tipoIVA);
+//                //cambiar nombre del titulo del formulario
+//                $("#tituloForm").html('Editar Artículo');
+//                $("#submitir").val('OK');
+//              }
+//            });
+//	}
 
-	function borrarArticulo(IdArticulo){
-            if (confirm("¿Desea borrar el artículo?"))
-            {
-                $.ajax({
-                  data:{"IdArticulo":IdArticulo},  
-                  url: '{{ URL::asset("articulo/delete") }}',
-                  type:"get",
-                  success: function(data) {
-                      $('#accionTabla').html(data);
-                      $('#accionTabla').show();
-                  }
-                });
-                setTimeout(function ()
-                {
-                    document.location.href='{{ URL::asset("articulos") }}';
-                }, 2000);
-            }
-	}
+//	function borrarArticulo(IdArticulo){
+//            if (confirm("¿Desea borrar el artículo?"))
+//            {
+//                $.ajax({
+//                  data:{"IdArticulo":IdArticulo},  
+//                  url: '{{ URL::asset("articulo/delete") }}',
+//                  type:"get",
+//                  success: function(data) {
+//                      $('#accionTabla').html(data);
+//                      $('#accionTabla').show();
+//                  }
+//                });
+//                setTimeout(function ()
+//                {
+//                    document.location.href='{{ URL::asset("articulos") }}';
+//                }, 2000);
+//            }
+//	}
 
 
 	//hacer desaparecer en cartel
@@ -111,65 +110,64 @@
 </div>
 @endif
 
-
-
-<table id="clientes" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%">
-    <thead>
-        <tr>
-            <th style="width: 20%;"></th>
-            <th style="width: 70%;">Nombre</th>
-            <th style="width: 10%;"></th>
-        </tr>
-    </thead>
-    <tbody>
-    <?php 
-    //decodifico los datos JSON
-    $ficheros = json_decode($ficheros); 
-    ?>   
-    @foreach ($ficheros as $fichero)
-    <?php
-    //que no sean . o ..
-    if(!$fichero === '.' || !$fichero === '..'){
-        //carga los datos en el formulario para editarlos
-        //$url="javascript:leerArticulo(".$articulo->IdArticulo.");";
-        $url="";
-        ?>
-            <tr>
-                <td class="sgsiRow" onClick="{{ $url }}"><input type="radio" name="fichero" value="{{ $fichero }}" /></td>
-                <td class="sgsiRow" onClick="{{ $url }}">{{ $fichero }}</td>
-                <td>
-                    <button type="button" onclick="borrarArticulo({{ $articulo->IdArticulo }})" class="btn btn-xs btn-danger">Borrar</button>
-                </td>
-            </tr>
-        <?php
-        }
-    ?>
-    @endforeach
-    </tbody>
-</table>
-
-<br/><br/><br/>
-
-<!--<h4><span id="tituloForm">Artículo Nuevo</span></h4>-->
-<hr/>
-
-<style type="text/css">
-#productForm .inputGroupContainer .form-control-feedback,
-#productForm .selectContainer .form-control-feedback {
-    top: 0;
-    right: -15px;
-}
-</style>
-
 <form role="form" class="form-horizontal" id="bbddForm" name="bbddForm" action="{{ URL::asset('bbdd/backup') }}" method="post">
     <!-- CSRF Token -->
     <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
 
+    <table id="clientes" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th style="width: 5%;"></th>
+                <th style="width: 90%;">Nombre</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php 
+        //decodifico los datos JSON
+        $ficheros = json_decode($ficheros); 
+        //dd($ficheros);
+        ?>   
+        @for ($i = 0;$i < count($ficheros); $i++)
+        <?php
+        //que no sean . o ..
+        if($ficheros[$i] === '.' || $ficheros[$i] === '..'){
+        }else{
+            //carga los datos en el formulario para editarlos
+            //$url="javascript:leerArticulo(".$articulo->IdArticulo.");";
+            $url="";
+            ?>
+                <tr>
+                    <td class="sgsiRow" onClick="{{ $url }}">
+                        <div align="center">
+                            <input type="radio" name="fichero" value="{{ $ficheros[$i] }}" /></td>
+                       </div>
+                    <td class="sgsiRow" onClick="{{ $url }}">{{ $ficheros[$i] }}</td>
+                </tr>
+            <?php
+            }
+        ?>
+        @endfor
+        </tbody>
+    </table>
+
+    <!--<br/><br/><br/>-->
+
+    <!--<h4><span id="tituloForm">Artículo Nuevo</span></h4>-->
+    <hr/>
+
+    <style type="text/css">
+    #productForm .inputGroupContainer .form-control-feedback,
+    #productForm .selectContainer .form-control-feedback {
+        top: 0;
+        right: -15px;
+    }
+    </style>
+
     <div class="row">
         <input type="button" id="Guardar" name="Guardar" class="btn btn-default" value="Guardar" onclick="guardar();" />
-        <input type="button" id="Exportar" name="Exportar" class="btn btn-default" value="Exportar" onclick="" />
-        <input type="button" id="Exportar" name="Exportar" class="btn btn-default" value="Exportar" onclick="" />
+        <input type="button" id="Importar" name="Importar" class="btn btn-default" value="Importar" onclick="importar();" />
+        <input type="hidden" name="opcion" />
     </div>
 
 </form>
@@ -177,50 +175,15 @@
 <script>
     function guardar(){
         alert("se va proceder a hacer una copia de seguridad de la base de datos");
+        document.bbddForm.opcion.value = 'guardar';
         document.bbddForm.submit();
     }
      
-    
-//$(document).ready(function() {
-//    $('#articulosForm').formValidation({
-//        framework: 'bootstrap',
-//        icon: {
-//            valid: 'glyphicon glyphicon-ok',
-//            invalid: 'glyphicon glyphicon-remove',
-//            validating: 'glyphicon glyphicon-refresh'
-//        },
-//        fields: {
-//            Descripcion: {
-//                validators: {
-//                    notEmpty: {
-//                        message: 'La descripción es obligatoria'
-//                    }
-//                }
-//            },
-//            Precio: {
-//                validators: {
-//                    notEmpty: {
-//                        message: 'El precio es obligatorio'
-//                    },
-//                    numeric: {
-//                        message: 'El precio tiene que ser un valor numérico'
-//                    }
-//                }
-//            },
-//            tipoIVA: {
-//                validators: {
-//                    notEmpty: {
-//                        message: 'El IVA es obligatorio'
-//                    },
-//                    numeric: {
-//                        message: 'El IVA tiene que ser un valor numérico'
-//                    }
-//                }
-//            }
-//        }
-//    });
-//});
-
+    function importar(){
+        alert("se va proceder a importar el fichero "+document.bbddForm.fichero.value);
+        document.bbddForm.opcion.value = 'importar';
+        document.bbddForm.submit();
+    }
 </script>
 
 @stop

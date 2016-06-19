@@ -7,8 +7,6 @@
                     <li><a href="{{ URL::asset('articulos') }}">Articulos</a></li>
                     <li role="separator" class="divider"></li>
                     <li><a href="{{ URL::asset('bbdd/backup') }}">Base Datos: Backup</a></li>
-                    <li><a href="{{ URL::asset('bbdd/exportar') }}">Base Datos: Exportar</a></li>
-                    <li><a href="{{ URL::asset('bbdd/importar') }}">Base Datos: Importar</a></li>
                     <li><a href="{{ URL::asset('bbdd/corregir') }}">Base Datos: Corregir</a></li>
                 </ul>            
             </li>

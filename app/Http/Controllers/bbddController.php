@@ -9,10 +9,16 @@ use Illuminate\Http\Request;
 
 
 use App\Empresa;
-use App\Usuario;
-use App\Empleado;
-use App\Cliente;
 use App\Articulo;
+use App\Cliente;
+use App\Empleado;
+use App\Factura;
+use App\FacturaDetalle;
+use App\Pedido;
+use App\PedidoDetalle;
+use App\Presupuesto;
+use App\PresupuestoDetalle;
+use App\Usuario;
 
 use App\Http\Controllers\adminController;
 
@@ -107,19 +113,268 @@ class bbddController extends Controller {
         $directorio = '../public/backup';
         $ficheros  = scandir($directorio);
         
-        return view('bbdd.main')->with('ficheros', json_encode($ficheros));
+        $txtError = "";
+        if(Session::has('errors')){
+            $txtError = Session::get('errors');
+        }
+        
+        return view('bbdd.main')->with('ficheros', json_encode($ficheros))->with('errors', $txtError);
     }
         
     
     public function backup(Request $request){
-        //se procede a hacer una copia de seguridad de la BBDD
-        //las tablas son:
+        //dd($request);
+        //vemos con que opcion venimos
+        if($request->opcion === "guardar"){
+            //se procede a hacer una copia de seguridad de la BBDD
+            //las tablas son:
+            //articulos
+            //clientes
+            //empleados
+            //facturas
+            //facturasdetalle
+            //pedidos
+            //pedidosdetalle
+            //presupuestos
+            //presupuestosdetalle
+            //usuarios
+
+            //generamos el nombre del fichero
+            $fecha = \Carbon\Carbon::createFromFormat('Y-m-d-H-i-s',date('Y-m-d-H-i-s'))->format('Y-m-d-H-i-s');
+            $nombre = "../public/backup/BBDD_" . Session::get('IdEmpresa') . "_" . $fecha . ".json";
+            $datos = '';
+
+            //articulos
+            $articulos = Articulo::on(Session::get('conexionBBDD'))->get();
+            $datos['Articulos'] = $articulos->toArray(); 
+
+            //clientes
+            $clientes = Cliente::on(Session::get('conexionBBDD'))->get();
+            $datos['Clientes'] = $clientes->toArray(); 
+
+            //empleados
+            $empleados = Empleado::on(Session::get('conexionBBDD'))->get();
+            $datos['Empleados'] = $empleados->toArray(); 
+
+            //facturas
+            $facturas = Cliente::on(Session::get('conexionBBDD'))->get();
+            $datos['Facturas'] = $facturas->toArray(); 
+
+            //facturasdetalle
+            $facturasDetalle = Cliente::on(Session::get('conexionBBDD'))->get();
+            $datos['FacturasDetalle'] = $facturasDetalle->toArray(); 
+
+            //pedidos
+            $pedidos = Cliente::on(Session::get('conexionBBDD'))->get();
+            $datos['Pedidos'] = $pedidos->toArray(); 
+
+            //pedidosdetalle
+            $pedidosDetalle = Cliente::on(Session::get('conexionBBDD'))->get();
+            $datos['PedidosDetalle'] = $pedidosDetalle->toArray(); 
+
+            //presupuestos
+            $presupuestos = Cliente::on(Session::get('conexionBBDD'))->get();
+            $datos['Presupuestos'] = $presupuestos->toArray(); 
+
+            //presupuestosdetalle
+            $presupuestosDetalle = Cliente::on(Session::get('conexionBBDD'))->get();
+            $datos['PresupuestosDetalle'] = $presupuestosDetalle->toArray(); 
+
+            //usuarios
+            $usuarios = Cliente::on(Session::get('conexionBBDD'))->get();
+            $datos['Usuarios'] = $usuarios->toArray(); 
+
+
+            $fh = fopen($nombre, 'w');
+            fwrite($fh, json_encode($datos,JSON_UNESCAPED_UNICODE));
+            fclose($fh);
+
+            $txtError = "Se ha guardado correctamente una copia de la base de datos";
+        }else if($request->opcion === "importar"){
+            //vamos a importar el fichero json a la base de datos
+            $data = file_get_contents("../public/backup/" . $request->fichero);
+            $datos = json_decode($data, true);
+            
+            //primero borro los datos de la tabla y despues inserto los datos nuevos
+            //articulos
+            Articulo::on(Session::get('conexionBBDD'))->truncate();
+            foreach ($datos['Articulos'] as $articulo){
+                $obj = new Articulo();
+                $obj->setConnection(Session::get('conexionBBDD'));
+                $obj->IdArticulo = $articulo['IdArticulo'];
+                $obj->Referencia = $articulo['Referencia'];
+                $obj->Descripcion = $articulo['Descripcion'];
+                $obj->Precio = $articulo['Precio'];
+                $obj->tipoIVA = $articulo['tipoIVA'];
+                $obj->Borrado = $articulo['Borrado'];
+                $obj->fecha = $articulo['fecha'];
+                $obj->save();
+            }
+            
+            //clientes
+            Cliente::on(Session::get('conexionBBDD'))->truncate();
+            foreach ($datos['Clientes'] as $cliente){
+                $obj = new Cliente();
+                $obj->setConnection(Session::get('conexionBBDD'));
+                $obj->idCliente = $cliente['idCliente'];
+                $obj->nombre = $cliente['nombre'];
+                $obj->apellidos = $cliente['apellidos'];
+                $obj->telefono = $cliente['telefono'];
+                $obj->email = $cliente['email'];
+                $obj->notas = $cliente['notas'];
+                $obj->nombreEmpresa = $cliente['nombreEmpresa'];
+                $obj->CIF = $cliente['CIF'];
+                $obj->direccion = $cliente['direccion'];
+                $obj->municipio = $cliente['municipio'];
+                $obj->CP = $cliente['CP'];
+                $obj->provincia = $cliente['provincia'];
+                $obj->forma_pago_habitual = $cliente['forma_pago_habitual'];
+                $obj->borrado = $cliente['borrado'];
+                $obj->fechaAlta = $cliente['fechaAlta'];
+                $obj->tipo = $cliente['tipo'];
+                $obj->save();
+            }
+            
+            //empleados
+            Empleado::on(Session::get('conexionBBDD'))->truncate();
+            foreach ($datos['Empleados'] as $empleado){
+                $obj = new Empleado();
+                $obj->setConnection(Session::get('conexionBBDD'));
+                $obj->IdEmpleado = $empleado['IdEmpleado'];
+                $obj->IdEmpresa = $empleado['IdEmpresa'];
+                $obj->nombre = $empleado['nombre'];
+                $obj->apellidos = $empleado['apellidos'];
+                $obj->correo = $empleado['correo'];
+                $obj->telefono = $empleado['telefono'];
+                $obj->movil = $empleado['movil'];
+                $obj->borrado = $empleado['borrado'];
+                $obj->fechaStatus = $empleado['fechaStatus'];
+                $obj->IdEmpleadoStatus = $empleado['IdEmpleadoStatus'];
+                $obj->save();
+            }
+
+            //facturas
+            Factura::on(Session::get('conexionBBDD'))->truncate();
+            foreach ($datos['Facturas'] as $factura){
+                $obj = new Factura();
+                $obj->setConnection(Session::get('conexionBBDD'));
+                $obj->IdFactura = $factura['IdFactura'];
+                $obj->NumFactura = $factura['NumFactura'];
+                $obj->IdCliente = $factura['IdCliente'];
+                $obj->IdPresupuesto = $factura['IdPresupuesto'];
+                $obj->IdPedido = $factura['IdPedido'];
+                $obj->FechaFactura = $factura['FechaFactura'];
+                $obj->FechaVtoFactura = $factura['FechaVtoFactura'];
+                $obj->FormaPago = $factura['FormaPago'];
+                $obj->Estado = $factura['Estado'];
+                $obj->Retencion = $factura['Retencion'];
+                $obj->Borrado = $factura['Borrado'];
+                $obj->BaseImponible = $factura['BaseImponible'];
+                $obj->Cuota = $factura['Cuota'];
+                $obj->CuotaRetencion = $factura['CuotaRetencion'];
+                $obj->total = $factura['total'];
+                $obj->asiento = $factura['asiento'];
+                $obj->Referencia = $factura['Referencia'];
+                $obj->CC_Trans = $factura['CC_Trans'];
+                $obj->esAbono = $factura['esAbono'];
+                $obj->save();
+            }
+
+            //facturasdetalle
+            FacturaDetalle::on(Session::get('conexionBBDD'))->truncate();
+            foreach ($datos['FacturasDetalle'] as $facturaDetalle){
+                $obj = new FacturaDetalle();
+                $obj->setConnection(Session::get('conexionBBDD'));
+                $obj->IdFacturaDetalle = $facturaDetalle['IdFacturaDetalle'];
+                $obj->IdFactura = $facturaDetalle['IdFactura'];
+                $obj->NumLineaFactura = $facturaDetalle['NumLineaFactura'];
+                $obj->IdPedido = $facturaDetalle['IdPedido'];
+                $obj->NumLineaPedido = $facturaDetalle['NumLineaPedido'];
+                $obj->IdPresupuesto = $facturaDetalle['IdPresupuesto'];
+                $obj->NumLineaPresup = $facturaDetalle['NumLineaPresup'];
+                $obj->IdArticulo = $facturaDetalle['IdArticulo'];
+                $obj->DescripcionProducto = $facturaDetalle['DescripcionProducto'];
+                $obj->TipoIVA = $facturaDetalle['TipoIVA'];
+                $obj->Cantidad = $facturaDetalle['Cantidad'];
+                $obj->ImporteUnidad = $facturaDetalle['ImporteUnidad'];
+                $obj->Importe = $facturaDetalle['Importe'];
+                $obj->CuotaIva = $facturaDetalle['CuotaIva'];
+                $obj->Borrado = $facturaDetalle['Borrado'];
+                $obj->save();
+            }
+
+            //pedidos
+            Pedido::on(Session::get('conexionBBDD'))->truncate();
+            foreach ($datos['Pedidos'] as $pedido){
+                $obj = new Pedido();
+                $obj->setConnection(Session::get('conexionBBDD'));
+                $obj->IdPedido = $pedido['IdPedido'];
+                $obj->NumPedido = $pedido['NumPedido'];
+                $obj->IdCliente = $pedido['IdCliente'];
+                $obj->IdPresupuesto = $pedido['IdPresupuesto'];
+                $obj->FechaPedido = $pedido['FechaPedido'];
+                $obj->FechaVtoPedido = $pedido['FechaVtoPedido'];
+                $obj->FormaPago = $pedido['FormaPago'];
+                $obj->Estado = $pedido['Estado'];
+                $obj->Retencion = $pedido['Retencion'];
+                $obj->Borrado = $pedido['Borrado'];
+                $obj->TipoFactura = $pedido['TipoFactura'];
+                $obj->FrecuenciaPeriodica = $pedido['FrecuenciaPeriodica'];
+                $obj->FechaProximaFacturaPeriodica = $pedido['FechaProximaFacturaPeriodica'];
+                $obj->BaseImponible = $pedido['BaseImponible'];
+                $obj->Cuota = $pedido['Cuota'];
+                $obj->CuotaRetencion = $pedido['CuotaRetencion'];
+                $obj->total = $pedido['total'];
+                $obj->Facturada = $pedido['Facturada'];
+                $obj->save();
+            }
+
+            //pedidosdetalle
+            PedidosDetalle::on(Session::get('conexionBBDD'))->truncate();
+            foreach ($datos['PedidosDetalle'] as $pedidoDetalle){
+                $obj = new PedidoDetalle();
+                $obj->setConnection(Session::get('conexionBBDD'));
+                $obj->IdPedidoDetalle = $pedidoDetalle['IdPedidoDetalle'];
+                $obj->IdPedido = $pedidoDetalle['IdPedido'];
+                $obj->NumLineaPedido = $pedidoDetalle['NumLineaPedido'];
+                $obj->IdPresupuesto = $pedidoDetalle['IdPresupuesto'];
+                $obj->NumLineaPresup = $pedidoDetalle['NumLineaPresup'];
+                $obj->IdArticulo = $pedidoDetalle['IdArticulo'];
+                $obj->DescripcionProducto = $pedidoDetalle['DescripcionProducto'];
+                $obj->TipoIVA = $pedidoDetalle['TipoIVA'];
+                $obj->Cantidad = $pedidoDetalle['Cantidad'];
+                $obj->ImporteUnidad = $pedidoDetalle['ImporteUnidad'];
+                $obj->Importe = $pedidoDetalle['Importe'];
+                $obj->CuotaIva = $pedidoDetalle['CuotaIva'];
+                $obj->Borrado = $pedidoDetalle['Borrado'];
+                $obj->save();
+            }
+
+            
+            //VOY POR AQUI 19/6/2016
+            //presupuestos
+            PresupuestoDetalle::on(Session::get('conexionBBDD'))->truncate();
+            foreach ($datos['Presupuestos'] as $presupuesto){
+                $obj = new PresupuestoDetalle();
+                $obj->setConnection(Session::get('conexionBBDD'));
+                $obj->IdPedidoDetalle = $presupuesto['IdPedidoDetalle'];
+                
+                $obj->save();
+            }
+
+            
+            
+            $txtError = "Se ha importado correctamente la base de datos";
+        }
         
         
-        
+        return redirect('bbdd/backup')->with('errors', json_encode($txtError));    
     }
     
         
+    
+    
+    
 
     //NO VALE BORRAR    
     public function articuloShow()

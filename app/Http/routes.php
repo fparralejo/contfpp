@@ -53,9 +53,9 @@ Route::post('bbdd/backup', 'bbddController@backup');
 Route::get('bbdd/exportar', function () {
     return view('construccion');
 });
-Route::get('bbdd/importar', function () {
-    return view('construccion');
-});
+//Route::get('bbdd/importar', function () {
+//    return view('construccion');
+//});
 Route::get('bbdd/corregir', function () {
     return view('construccion');
 });
