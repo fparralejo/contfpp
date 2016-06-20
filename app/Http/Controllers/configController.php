@@ -149,7 +149,7 @@ class configController extends Controller {
             {
                 if(strtoupper($archivo) === strtoupper($fichero[count($fichero)-1])){
                     $response['estado'] = 'ERROR';
-                    $response['msj'] = "<b class='fileError'>&nbsp;&nbsp;&nbsp;Este fichero EXISTE.</b>";
+                    $response['msj'] = "<b class='fileError'>&nbsp;&nbsp;&nbsp;Este fichero EXISTE (P. Ej. intenta introducir el nombre del fichero con el nombre de la empresa de prefijo para distinguir).</b>";
                 }
             }
         }
@@ -181,6 +181,19 @@ class configController extends Controller {
 
             //indicamos que queremos guardar un nuevo archivo en el disco local
             \Storage::disk('local')->put($nombre,  \File::get($file));
+        }
+        
+        //subimos la imagen de la cabecera
+        //obtenemos el campo file definido en el formulario
+        $fileCabecera = $request->file('docCabecera');
+        
+        if($fileCabecera !== null){
+            //obtenemos el nombre del archivo
+            $nombreCabecera = $fileCabecera->getClientOriginalName();
+            $datos->Cabecera = (isset($nombreCabecera)) ? $nombreCabecera : '';
+
+            //indicamos que queremos guardar un nuevo archivo en el disco local
+            \Storage::disk('local')->put($nombreCabecera,  \File::get($fileCabecera));
         }
         
         $ok = 'Se ha editado correctamente los datos nuestros.';

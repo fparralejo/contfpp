@@ -17,10 +17,12 @@ if($presupuesto === ''){//nuevo
     $fechaHoy = strftime("%d/%m/%Y");
     $fechaVtoPresupuesto = strftime("%d/%m/%Y");
     $idPresupuesto = '';
+    $Referencia = '';
 }else{//editar
     $fechaHoy = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$presupuesto->FechaPresupuesto)->format('d/m/Y');
     $fechaVtoPresupuesto = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$presupuesto->FechaVtoPresupuesto)->format('d/m/Y');
     $idPresupuesto = $presupuesto->IdPresupuesto;
+    $Referencia = $presupuesto->Referencia;
 }
 
 
@@ -96,10 +98,12 @@ if($presupuesto === ''){//nuevo
                 <label class="col-md-3 control-label">&nbsp;</label>
             </div>
             <div class="form-group">
-                <label class="col-md-3 control-label">&nbsp;</label>
+                <label class="col-md-3 control-label">Referencia</label>
             </div>
             <div class="form-group">
-                <label class="col-md-3 control-label">&nbsp;</label>
+                <label class="col-md-12">
+                    <input type="text" class="form-control" id="Referencia" name="Referencia" value="{{ $Referencia }}" onchange="DesactivaImprimir();" size="70" />
+                </label>
             </div>
             <div class="form-group">
                 <label class="col-md-3 control-label">&nbsp;</label>

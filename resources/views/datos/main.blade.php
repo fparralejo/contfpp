@@ -216,6 +216,55 @@ $(document).ready(function() {
     <hr/>
 
     <div class="row">
+        <div class="col-md-5">
+            <div class="form-group">
+                <label for="tipo_contador">Imagen Cabecera:</label>
+                <input type="file" class="form-control" id="docCabecera" name="docCabecera" onchange="check_fileConsultaCabecera(this);" accept="image/png" /><br/>
+                <span id="txt_fileCabecera">El documento debe ser PNG</span><br/>
+                <input type="hidden" id="errorFileCabecera" name="errorFileCabecera" />
+                <script>
+                function check_fileConsultaCabecera(file){
+                    var respuesta = true;
+                    $.ajax({
+                        data:{"file":file.value},  
+                        url: '{{ URL::asset("datos/logo") }}',
+                        type:"get",
+                        success: function(data) {
+                            var datos = JSON.parse(data);
+                            $('#errorFileCabecera').val(datos.estado);
+                            $('#txt_fileCabecera').html(datos.msj);
+//                          if(data != ''){
+//                              respuesta = false;
+//                          }
+                        }
+                    });
+                }
+                </script>
+            </div>
+        </div>
+        <div class="col-md-1">
+        </div>
+        <div class="col-md-5">
+            <div class="form-group">
+              <div id="logoEmpCabecera">
+                  <span id="img_fileCabecera">
+                      <?php
+                      //veo si este dato tiene valor o esta vacio, si esta vacio no se presenta esta imagen
+                      if($datos->Cabecera !== ''){
+                      ?>
+                      <img id="imagenCabecera" height="70" width="140" src="{{ URL::asset('images/').'/'.$datos->Cabecera }}" />
+                      <?php
+                      }
+                      ?>
+                  </span><br/>
+              </div>
+            </div>
+        </div>
+    </div>
+    
+    <hr/>
+    
+    <div class="row">
         <div class="col-md-11">
             <div class="form-group">
                 <label for="TextoPie">Texto a pie de página:</label>
@@ -337,6 +386,38 @@ $(document).ready(function() {
   }
 
   document.getElementById('doc').addEventListener('change', handleFileSelect, false);
+
+
+
+  function handleFileSelectCabecera(evt) {
+    var files = evt.target.files; // FileList object
+
+    // Loop through the FileList and render image files as thumbnails.
+    for (var i = 0, f; f = files[i]; i++) {
+
+      // Only process image files.
+      if (!f.type.match('image.*')) {
+        continue;
+      }
+
+      var reader = new FileReader();
+
+      // Closure to capture the file information.
+      reader.onload = (function(theFile) {
+        return function(e) {
+          // Render thumbnail.
+          var span = document.getElementById('img_fileCabecera');
+          span.innerHTML = ['<img width="140" height="70" src="', e.target.result,
+                            '" title="', escape(theFile.name), '"/>'].join('');
+        };
+      })(f);
+
+      // Read in the image file as a data URL.
+      reader.readAsDataURL(f);
+    }
+  }
+
+  document.getElementById('docCabecera').addEventListener('change', handleFileSelectCabecera, false);
 
 </script>
 

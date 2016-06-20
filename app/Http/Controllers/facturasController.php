@@ -686,8 +686,10 @@ class facturasController extends Controller {
         $pdf->SetFont('Arial','',9);
         $pdf->DatosNuestrosYCliente();
         $pdf->SetDrawColor(0,0,0);
+        $pdf->Cell(180, 4, 'Referencia: '.utf8_decode($pdf->factura->Referencia));
+
         $pdf->Ln();
-        //$pdf->Cell(180, 4, 'Referencia: '.utf8_decode($pdf->datosPresupuesto['Referencia']));
+        $pdf->Ln();
         
         //aqui indico los datos de los cuadros superiores de fecha y si es periodica o no
         //numero
@@ -1257,6 +1259,8 @@ class PDF extends baseFpdf{
         $this->Ln(10);
         // Logo
         $this->Image('images/'.$this->datos->Logo,10,22,36,18);//  36/18 proporcional a 140/70 tamaño de la imagen
+        // Cabecera
+        $this->Image('images/'.$this->datos->Cabecera,70,22,40,20);//  40/20 proporcional a 140/70 tamaño de la imagen
 
         // Arial bold 14
         $this->SetFont('Arial','B',14);

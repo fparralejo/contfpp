@@ -213,8 +213,8 @@ if($factura === ''){//nuevo
             </div>
         </div>
     </div>
-    <hr style="border: 1px solid #0044cc;"/>
 
+    <br/><br/><br/>
     
     @include('includes.calculos')
 

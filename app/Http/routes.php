@@ -108,6 +108,9 @@ Route::get('pedidos/actualizarEstado', 'pedidosController@actualizarEstado');
 Route::get('fact_ped', function () {
     return view('construccion');
 });
+Route::get('alb_prep', function () {
+    return view('construccion');
+});
 
 
 
